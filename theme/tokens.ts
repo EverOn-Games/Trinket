@@ -7,11 +7,12 @@
  * import this module directly, and never inline hex literals in component
  * code (enforced by `scripts/check-hex-literals.mjs`).
  *
- * `darkTokens` is a genuine first attempt at the "calm night-shift raccoon
- * habitat" visual direction (soft rounded shapes, earthy palette, night-cozy
- * atmosphere) — not a neutral gray placeholder. These are Claude's-discretion
- * anchor values (per 01-CONTEXT.md) that will be replaced wholesale, as a
- * single token-file swap, when the external Claude Design system lands.
+ * The Claude Design system landed 2026-07-02: `darkTokens.colors` now carries
+ * the real brand values sourced from the founder's 10-screen mockups (warm
+ * espresso background, terracotta action accent). See `design/DESIGN-SYSTEM.md`
+ * for the full palette, typography stack, per-screen notes, and constraint
+ * watch-items. Light mode is still deferred (POLI-01) — see that doc's
+ * cream/light palette section, which is reference-only and not implemented.
  *
  * The type intentionally avoids any `dark`-prefixed keys so a future
  * `lightTokens: ThemeTokens` can be authored against the same shape without a
@@ -59,20 +60,20 @@ export type ThemeTokens = {
 };
 
 /**
- * Earthy, night-cozy, dark-only anchor palette. Deep warm near-black
- * background, warm-brown surfaces, cream text, warm-amber accent — the
- * mascot's habitat, not a neutral scaffold. Soft rounded radii and generous
- * spacing per the written visual direction.
+ * Earthy, night-cozy, dark-only landed brand palette (Claude Design system,
+ * 2026-07-02). Warm espresso background, warm-brown surfaces, cream text,
+ * terracotta action accent — the mascot's habitat, not a neutral scaffold.
+ * Soft rounded radii and generous spacing per the written visual direction.
  */
 export const darkTokens: ThemeTokens = {
   colors: {
-    background: '#14120F',
-    surface: '#1F1B16',
-    surfaceElevated: '#2A241D',
-    textPrimary: '#F2E9DC',
-    textSecondary: '#B8AC97',
-    accent: '#D89B4A',
-    accentMuted: '#8C6B3A',
+    background: '#1A140E',
+    surface: '#231C15',
+    surfaceElevated: '#2E251C',
+    textPrimary: '#F2E6CC',
+    textSecondary: '#A89A82',
+    accent: '#D67A56',
+    accentMuted: '#B8763F',
     border: '#3A3229',
   },
   spacing: {
