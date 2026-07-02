@@ -12,6 +12,7 @@
  */
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
+import { contentStorage } from '../../../data/mmkv';
 import { sessionsRepo } from '../../../data/repositories/sessions';
 import en from '../../../i18n/locales/en.json';
 
@@ -39,6 +40,14 @@ const routeContext = {
 };
 
 describe('walking-skeleton slice', () => {
+  // All three tests below share one in-memory MMKV instance (the mock's
+  // instancesById map lives for the whole test file, see
+  // __mocks__/react-native-mmkv.ts) — reset it between tests so each test's
+  // session-presence assertions hold regardless of execution order (WR-07).
+  beforeEach(() => {
+    contentStorage.clearAll();
+  });
+
   it('shows localized empty-state copy on History when no sessions exist', async () => {
     // @testing-library/react-native v14's render() is async — renderRouter's
     // return value must be awaited before the `screen` singleton is populated
@@ -63,10 +72,10 @@ describe('walking-skeleton slice', () => {
 
     await renderRouter(routeContext, { initialUrl: '/history' });
 
-    // Prior tests in this file may also have created sessions (shared
-    // in-memory MMKV mock) — assert at least one plain entry renders,
-    // and that the empty state never renders alongside real entries.
-    expect(screen.getAllByText(en.history.sessionFallbackLabel).length).toBeGreaterThan(0);
+    // contentStorage is reset in beforeEach (WR-07), so exactly the one
+    // session created above is present — no leftover pollution from earlier
+    // tests to account for.
+    expect(screen.getAllByText(en.history.sessionFallbackLabel)).toHaveLength(1);
     expect(screen.queryByText(en.history.emptyState)).toBeNull();
   });
 });
