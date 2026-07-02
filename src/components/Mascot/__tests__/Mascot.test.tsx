@@ -20,14 +20,27 @@
  * stable module-scoped export added to __mocks__/lottie-react-native.tsx
  * (Rule 3 deviation — the mock's original per-render `jest.fn()` factory
  * made ref-level assertions unreachable from test code; see SUMMARY.md).
+ *
+ * `mockLottieRef` is imported via the bare `'lottie-react-native'` specifier
+ * (require + type-only import of the mock's shape), NOT a relative path into
+ * __mocks__/ — importing the mock file by its literal relative path resolves
+ * to a *separate* module instance from the one Jest's automock machinery
+ * hands to Mascot.tsx's `import LottieView from 'lottie-react-native'`,
+ * silently splitting the two into different LottieView/mockLottieRef object
+ * identities (confirmed empirically: relative-path import causes the mocked
+ * LottieView to stop rendering any children at all, everywhere in the file).
+ * The bare specifier guarantees both call sites resolve to the same instance.
  */
 import { act, render } from '@testing-library/react-native';
 import { AccessibilityInfo } from 'react-native';
 
-import { mockLottieRef } from '../../../../__mocks__/lottie-react-native';
 import { ThemeProvider } from '../../../../theme';
 import { Mascot } from '../Mascot';
 import type { MascotState } from '../types';
+import type { LottieViewRef } from '../../../../__mocks__/lottie-react-native';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- bare specifier required so this resolves to the SAME automocked module instance Mascot.tsx uses (see doc comment above)
+const { mockLottieRef } = require('lottie-react-native') as { mockLottieRef: LottieViewRef };
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- static JSON require, mirrors markers.test.ts precedent
 const mascotGreetingAsset = require('../../../../assets/mascot/mascot_greeting.json');

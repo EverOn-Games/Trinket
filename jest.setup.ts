@@ -14,3 +14,21 @@ jest.mock('expo-localization');
 // environment; every test that renders <Mascot /> or its scheduler must go through
 // this mock instead.
 jest.mock('lottie-react-native');
+
+// Register react-native-worklets' own official Jest mock (Reanimated 4 split its
+// worklets runtime out into this separate peer). Without this, importing
+// 'react-native-reanimated' under Jest throws "[Worklets] Native part of
+// Worklets doesn't seem to be initialized" — the real NativeWorklets module
+// tries to initialize a native runtime that doesn't exist under Jest's Node
+// environment. Mocking 'react-native-worklets' directly (rather than via a
+// custom Jest `resolver` steering '.native' extension resolution — tried first,
+// but destabilized manual-mock resolution for other packages like
+// lottie-react-native in larger test files) keeps the fix scoped to exactly the
+// module that throws.
+jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
+
+// Register Reanimated's own official Jest mock (first real usage this phase, for
+// the Mascot transition fade). Must be registered after the worklets mock above
+// since reanimated's mock.ts internally imports the real './index', which in
+// turn requires 'react-native-worklets' — now safely resolving to its mock.
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
