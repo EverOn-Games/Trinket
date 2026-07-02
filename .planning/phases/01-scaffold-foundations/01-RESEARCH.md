@@ -543,14 +543,14 @@ Source: docs.expo.dev/eas/json (fetched 2026-07-02). This file is committed and 
 | A4 | Custom `theme/ThemeProvider.tsx` (not React Navigation's `DarkTheme`/`ThemeProvider` re-exported via `expo-router`) is the safer integration point | Standard Stack Alternatives, Pattern C | LOW — avoids depending on an unconfirmed-in-this-session import-path detail (SDK 56's `expo-router`/`@react-navigation` decoupling); a custom provider is strictly simpler for a dark-only app and matches D-02's "token-file replacement" requirement more directly than delegating to a navigation library's theme system. |
 | A5 | No `postinstall` script audit was performed per-package (Step 4 of the Package Legitimacy Gate) | Package Legitimacy Audit | LOW — MMKV and nitro-modules both compile native code via standard Expo autolinking (expected, benign); recommend the planner add a one-line `npm view <pkg> scripts.postinstall` check as a task-level guard during actual install, not blocking Phase 1 planning. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does `expo prebuild` succeed for the iOS target on this Linux sandbox, or does it require macOS/Xcode even for the config-generation step (not the actual native compile)?**
+1. **RESOLVED (via plan coverage — 01-01 Task 2 runs `npx expo prebuild --clean` in the sandbox and records the actual outcome in its SUMMARY, per this question's own recommendation.)** **Does `expo prebuild` succeed for the iOS target on this Linux sandbox, or does it require macOS/Xcode even for the config-generation step (not the actual native compile)?**
    - What we know: CNG's `expo prebuild` generates the `ios/`/`android/` project structure from `app.json`+plugins; this is documented as a cross-platform JS/config operation, not requiring Xcode itself.
    - What's unclear: Whether CocoaPods (`pod install`), which typically runs as part of `prebuild`'s iOS step, requires a macOS/Ruby toolchain not present in this sandbox — this was not executed end-to-end in this research session (no project was actually scaffolded and prebuilt).
    - Recommendation: The planner should scope a Wave 0/Wave 1 task that runs `npx expo prebuild --clean` in the actual sandbox and records what succeeds vs. fails, rather than assuming success — this directly informs which parts of FND-01 can be verified automatically vs. deferred to the user's machine (see Environment Availability below for the current best-guess split).
 
-2. **Will `--template default@sdk-56` produce a project whose `package.json` `"expo"` entry is exactly `56.0.13`, or could it resolve to a slightly different 56.x patch?**
+2. **RESOLVED (non-blocking by design — 01-01 Task 1's verify accepts any `56.x` patch via regex; exact resolved version is recorded post-scaffold.)** **Will `--template default@sdk-56` produce a project whose `package.json` `"expo"` entry is exactly `56.0.13`, or could it resolve to a slightly different 56.x patch?**
    - What we know: The template package (`expo-template-default@56.0.27`) and the `expo` package itself (`56.0.13` on the `sdk-56` tag) are versioned independently; the template's own internal `package.json` pins whatever `expo` version was current when that template patch was cut.
    - What's unclear: Exact patch-level `expo` version the scaffolded project will land on without re-running the command at execution time.
    - Recommendation: Non-blocking — any `56.x.x` patch satisfies FND-01's "SDK 56" requirement; the planner should verify the exact resolved version post-scaffold rather than assume `56.0.13` precisely.
