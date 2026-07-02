@@ -29,6 +29,7 @@ export type ThemeTokens = {
     accent: string;
     accentMuted: string;
     border: string;
+    mascotGlow: string; // '#F2C988' — amber/gold, mascot-only accent (D-08)
   };
   spacing: {
     xs: number;
@@ -75,6 +76,7 @@ export const darkTokens: ThemeTokens = {
     accent: '#D67A56',
     accentMuted: '#B8763F',
     border: '#3A3229',
+    mascotGlow: '#F2C988',
   },
   spacing: {
     xs: 4,

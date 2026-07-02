@@ -17,6 +17,7 @@ const REQUIRED_COLOR_KEYS = [
   'accent',
   'accentMuted',
   'border',
+  'mascotGlow',
 ] as const;
 
 describe('theme/tokens', () => {
