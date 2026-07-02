@@ -111,13 +111,45 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmap) | | |
+| FND-01 | Phase 1 - Scaffold & Foundations | Pending |
+| FND-02 | Phase 1 - Scaffold & Foundations | Pending |
+| FND-04 | Phase 1 - Scaffold & Foundations | Pending |
+| FND-05 | Phase 1 - Scaffold & Foundations | Pending |
+| MASC-01 | Phase 2 - Mascot Module | Pending |
+| MASC-02 | Phase 2 - Mascot Module | Pending |
+| MASC-03 | Phase 2 - Mascot Module | Pending |
+| MASC-04 | Phase 2 - Mascot Module | Pending |
+| PILOT-01 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-02 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-03 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-04 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-05 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-06 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-07 | Phase 3 - Co-pilot End-to-End | Pending |
+| DUMP-01 | Phase 4 - Brain Dump | Pending |
+| DUMP-02 | Phase 4 - Brain Dump | Pending |
+| DUMP-03 | Phase 4 - Brain Dump | Pending |
+| DUMP-04 | Phase 4 - Brain Dump | Pending |
+| DUMP-05 | Phase 4 - Brain Dump | Pending |
+| START-01 | Phase 5 - Starter | Pending |
+| START-02 | Phase 5 - Starter | Pending |
+| START-03 | Phase 5 - Starter | Pending |
+| START-04 | Phase 5 - Starter | Pending |
+| ONBD-01 | Phase 6 - Onboarding | Pending |
+| MONEY-01 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
+| MONEY-02 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
+| MONEY-03 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
+| MONEY-04 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
+| SETT-01 | Phase 8 - Settings & Analytics Audit | Pending |
+| ANLY-01 | Phase 8 - Settings & Analytics Audit | Pending |
+| ANLY-02 | Phase 8 - Settings & Analytics Audit | Pending |
+| FND-03 | Phase 9 - Beta Hardening | Pending |
 
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 0
-- Unmapped: 30 ⚠️ (roadmap pending)
+- v1 requirements: 33 total
+- Mapped to phases: 33
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after initial definition*
+*Last updated: 2026-07-02 after roadmap creation (9 phases, full coverage)*

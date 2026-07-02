@@ -1,0 +1,76 @@
+# Project State
+
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-07-01)
+
+**Core value:** A user who has been avoiding a task can open Trinket and actually start it in the mascot's presence — Co-pilot lowers the threshold to start.
+**Current focus:** Phase 1 — Scaffold & Foundations
+
+## Current Position
+
+Phase: 1 of 9 (Scaffold & Foundations)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-07-02 — Roadmap created (9 phases, 33/33 v1 requirements mapped)
+
+Progress: [░░░░░░░░░░] 0%
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 0
+- Average duration: - min
+- Total execution time: 0 hours
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| - | - | - | - |
+
+**Recent Trend:**
+- Last 5 plans: -
+- Trend: -
+
+*Updated after each plan completion*
+
+## Accumulated Context
+
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- Roadmap: Followed research SUMMARY.md's 9-phase build order (scaffold → mascot → co-pilot → brain dump → starter → onboarding → subscriptions → settings/analytics audit → beta hardening) as-is; dependency analysis was well-grounded, no adjustment needed.
+- Roadmap: FND-03 (offline-first correctness) mapped to Phase 9 (Beta Hardening) rather than Phase 1, since it is a cross-cutting outcome that can only be verified once every feature exists — matches research's framing of Phase 9 as an offline-correctness sweep.
+- Roadmap: ANLY-01/ANLY-02 mapped to Phase 8 (the formal allowlist/audit checkpoint) even though inline `track()` calls are expected to be added feature-by-feature starting in Phase 2, per research's "threaded through, audited late" guidance.
+
+### Pending Todos
+
+[From .planning/todos/pending/ — ideas captured during sessions]
+
+None yet.
+
+### Blockers/Concerns
+
+[Issues that affect future work]
+
+- Phase 4 (Brain Dump): STT library (`expo-speech-recognition`) is single-maintainer/MEDIUM confidence; Polish on-device language availability unverified — plan a device-matrix spike before committing further UI around voice as primary capture.
+- Phase 4 (Brain Dump): rule-based vs. ExecuTorch classification is a judgment call flagged for explicit spike confirmation before escalating past keyword matching.
+- Phase 7 (Subscriptions): RevenueCat↔Supabase webhook sync pattern and offline-entitlement edge cases are MEDIUM confidence; validate with explicit purchase-then-offline and offline-fresh-install test sequences.
+- Phase 7 (Subscriptions): weekly-subscription-tier App/Play Store review carries real rejection/resubmission risk — budget calendar slack around this submission.
+
+## Deferred Items
+
+Items acknowledged and carried forward from previous milestone close:
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| *(none)* | | | |
+
+## Session Continuity
+
+Last session: 2026-07-02
+Stopped at: ROADMAP.md and STATE.md created; REQUIREMENTS.md traceability updated. Ready for `/gsd:plan-phase 1`.
+Resume file: None
