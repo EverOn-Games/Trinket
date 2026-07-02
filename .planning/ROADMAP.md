@@ -46,7 +46,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Test + lint harness: jest-expo, MMKV mock, i18next no-literal-string (Wave 0)
+- [x] 01-02-PLAN.md — Test + lint harness: jest-expo, MMKV mock, i18next no-literal-string (Wave 0)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -194,7 +194,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold & Foundations | 1/6 | In Progress|  |
+| 1. Scaffold & Foundations | 2/6 | In Progress|  |
 | 2. Mascot Module | 0/TBD | Not started | - |
 | 3. Co-pilot End-to-End | 0/TBD | Not started | - |
 | 4. Brain Dump | 0/TBD | Not started | - |
