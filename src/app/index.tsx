@@ -7,7 +7,7 @@
  * reachable directly from home, and navigation to Starter, History, and
  * Settings. No tab bar (D-03).
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -47,7 +47,17 @@ export default function HomeScreen() {
   // Walking-skeleton write side (Task 2): the offer is the thinnest possible
   // real session record (just a start timestamp + source) — full session
   // lifecycle (timers, dozing, warm ending) is Phase 3 (PILOT-*).
+  //
+  // isStartingSessionRef guards against a rapid double-press creating two
+  // Session records for one user intent (WR-04) — touch UI double-taps are
+  // common, and more so with this app's target ADHD-adjacent user
+  // population. The flag never resets to false on this mount, which is fine:
+  // once a session has started, this specific Pressable's job is done for
+  // the lifetime of this screen instance.
+  const isStartingSessionRef = useRef(false);
   const handleStartSession = () => {
+    if (isStartingSessionRef.current) return;
+    isStartingSessionRef.current = true;
     sessionsRepo.create({ source: 'quick' });
     router.push('/co-pilot');
   };

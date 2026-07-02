@@ -10,7 +10,7 @@
  * Uses an explicit in-memory route context (not a directory scan) so this
  * test file itself is never treated as a route module.
  */
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
 import { contentStorage } from '../../../data/mmkv';
 import { sessionsRepo } from '../../../data/repositories/sessions';
@@ -63,6 +63,26 @@ describe('walking-skeleton slice', () => {
     const before = sessionsRepo.list().length;
 
     fireEvent.press(screen.getByRole('button', { name: en.home.startSessionOffer }));
+
+    expect(sessionsRepo.list().length).toBe(before + 1);
+  });
+
+  it('creates only one session record on a rapid double-press of the home offer (WR-04)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    const before = sessionsRepo.list().length;
+    const startOffer = screen.getByRole('button', { name: en.home.startSessionOffer });
+
+    // Two presses fired back-to-back, each awaited independently, simulate
+    // a rapid double-tap while still letting each press's state update
+    // settle before the next fires (avoids overlapping act() warnings from
+    // the resulting navigation).
+    await act(async () => {
+      fireEvent.press(startOffer);
+    });
+    await act(async () => {
+      fireEvent.press(startOffer);
+    });
 
     expect(sessionsRepo.list().length).toBe(before + 1);
   });
