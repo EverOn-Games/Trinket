@@ -67,10 +67,15 @@ describe('schema denylist guard', () => {
       actionText: 'denylist probe action',
     });
 
-    // Exclude the store's action functions (setLocale/setNotificationsOptIn) — the
-    // schema under test is the persisted data shape, not the store's imperative API.
-    const { setLocale: _setLocale, setNotificationsOptIn: _setNotificationsOptIn, ...settingsData } =
-      useSettingsStore.getState();
+    // Exclude the store's action functions (setLocale/setNotificationsOptIn/
+    // setMascotProminence) — the schema under test is the persisted data shape,
+    // not the store's imperative API.
+    const {
+      setLocale: _setLocale,
+      setNotificationsOptIn: _setNotificationsOptIn,
+      setMascotProminence: _setMascotProminence,
+      ...settingsData
+    } = useSettingsStore.getState();
 
     const allKeys = new Set<string>([
       ...schemaKeys(session),

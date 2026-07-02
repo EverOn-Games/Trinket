@@ -9,8 +9,9 @@ import type { SettingsState } from '../types';
 
 export const settingsRepo = {
   get(): SettingsState {
-    const { locale, notificationsOptIn, subscriptionCache } = useSettingsStore.getState();
-    return { locale, notificationsOptIn, subscriptionCache };
+    const { locale, notificationsOptIn, subscriptionCache, mascotProminence } =
+      useSettingsStore.getState();
+    return { locale, notificationsOptIn, subscriptionCache, mascotProminence };
   },
 
   update(patch: Partial<SettingsState>): SettingsState {
@@ -22,6 +23,9 @@ export const settingsRepo = {
     }
     if (patch.subscriptionCache !== undefined) {
       useSettingsStore.setState({ subscriptionCache: patch.subscriptionCache });
+    }
+    if (patch.mascotProminence !== undefined) {
+      useSettingsStore.getState().setMascotProminence(patch.mascotProminence);
     }
     return settingsRepo.get();
   },

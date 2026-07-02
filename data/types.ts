@@ -9,6 +9,8 @@
  * Guarded mechanically by data/repositories/__tests__/schema.denylist.test.ts.
  */
 
+import type { MascotProminence } from '../src/components/Mascot/types';
+
 export type DumpItemCategory = 'errands' | 'work' | 'home' | 'people' | 'someday';
 
 export interface DumpItem {
@@ -46,4 +48,5 @@ export interface SettingsState {
   locale: Locale;
   notificationsOptIn: boolean;
   subscriptionCache: unknown; // typed placeholder, populated in Phase 7
+  mascotProminence: MascotProminence;
 }

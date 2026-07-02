@@ -13,6 +13,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import { settingsStorage } from '../mmkv';
 import type { Locale } from '../types';
+import type { MascotProminence } from '../../src/components/Mascot/types';
 
 const mmkvStateStorage: StateStorage = {
   setItem: (name, value) => settingsStorage.set(name, value),
@@ -30,8 +31,13 @@ export interface SettingsStoreState {
   localeResolved: boolean;
   notificationsOptIn: boolean;
   subscriptionCache: unknown; // typed placeholder, populated in Phase 7
+  // Default 'prominent' for every new install (UI-SPEC Presence prominence levels).
+  // The Settings screen to change this doesn't land until Phase 8; this field gives
+  // the Mascot module a real value to read via host-provided prop from day one.
+  mascotProminence: MascotProminence;
   setLocale: (locale: Locale) => void;
   setNotificationsOptIn: (notificationsOptIn: boolean) => void;
+  setMascotProminence: (mascotProminence: MascotProminence) => void;
 }
 
 export const useSettingsStore = create<SettingsStoreState>()(
@@ -43,10 +49,12 @@ export const useSettingsStore = create<SettingsStoreState>()(
       localeResolved: false,
       notificationsOptIn: false,
       subscriptionCache: null,
+      mascotProminence: 'prominent',
       // Setting a locale always marks resolution complete — this is the only
       // place localeResolved flips to true (WR-01).
       setLocale: (locale) => set({ locale, localeResolved: true }),
       setNotificationsOptIn: (notificationsOptIn) => set({ notificationsOptIn }),
+      setMascotProminence: (mascotProminence) => set({ mascotProminence }),
     }),
     {
       name: 'settings',

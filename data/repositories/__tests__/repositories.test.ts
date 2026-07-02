@@ -10,6 +10,7 @@
 import { sessionsRepo } from '../sessions';
 import { dumpItemsRepo } from '../dumpItems';
 import { intentionsRepo } from '../intentions';
+import { settingsRepo } from '../settings';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 
 describe('sessionsRepo', () => {
@@ -137,5 +138,16 @@ describe('settings persistence', () => {
 
     expect(useSettingsStore.getState().locale).toBe('pl');
     expect(useSettingsStore.getState().notificationsOptIn).toBe(true);
+  });
+
+  it('defaults mascotProminence to prominent', () => {
+    expect(settingsRepo.get().mascotProminence).toBe('prominent');
+  });
+
+  it('round-trips mascotProminence through settingsRepo.update', () => {
+    const updated = settingsRepo.update({ mascotProminence: 'subtle' });
+
+    expect(updated.mascotProminence).toBe('subtle');
+    expect(settingsRepo.get().mascotProminence).toBe('subtle');
   });
 });
