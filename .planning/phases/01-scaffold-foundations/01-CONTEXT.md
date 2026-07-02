@@ -26,7 +26,7 @@ Requirements: FND-01, FND-02, FND-04, FND-05.
 - **D-04:** Phase 1 ships the Expo Router skeleton with placeholder screens: `home`, `co-pilot` (session flow stub), `brain-dump`, `starter`, `history`, `settings`. Placeholders render themed, localized shells (proving FND-04/FND-05 on every screen) but no feature logic. Brain dump's ≤2-taps-from-anywhere requirement (DUMP-05) constrains the skeleton: it must be directly reachable from home level, not nested.
 
 ### App identity
-- **D-05:** Display name "Trinket", Expo slug `trinket`, bundle/package identifier `com.everon.trinket` (derived from EverOn Games sp. z o.o.). ⚠ PENDING USER CONFIRMATION — identifiers are painful to change after store submission but cheap to change before it; confirm with the founder before any TestFlight/Play upload. Do not block Phase 1 on this.
+- **D-05:** Display name "Trinket", Expo slug `trinket`, bundle/package identifier `com.trinket.app` — CONFIRMED. Founder decision made at the Phase 1 (Plan 06) device-boot checkpoint, superseding the provisional `com.everon.trinket` value (the app belongs to a separate, not-yet-named business, so the identifier is brand-only rather than derived from EverOn Games sp. z o.o.). Caveat: Play package-name and iOS bundle-ID uniqueness are only definitively proven at first store submission — if either is taken, a fallback identifier will need to be chosen then.
 - **D-06:** EAS configuration (`eas.json` with development/preview/production profiles) is committed in Phase 1, but cloud builds require the user's Expo account login — local `expo prebuild` + `expo run:ios` / `run:android` must work without EAS credentials so development is never blocked.
 
 ### Locale behavior
