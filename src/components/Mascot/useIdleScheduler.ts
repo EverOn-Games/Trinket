@@ -18,7 +18,7 @@ import type { MarkerRange } from './markers';
 
 export type MicroBehavior = 'blink' | 'glance' | 'postureShift';
 
-const WEIGHTS: Array<[MicroBehavior, number]> = [
+const WEIGHTS: [MicroBehavior, number][] = [
   ['blink', 0.5],
   ['glance', 0.3],
   ['postureShift', 0.2],
@@ -59,13 +59,12 @@ export function useIdleScheduler({
 }: UseIdleSchedulerOptions): void {
   // Ref-forward latest values so the scheduling effect only needs to depend on
   // `active`/`reducedStimulus` (Pitfall 4) without re-creating timers on every
-  // markers/onPlay identity change from the host's render.
-  const markersRef = useRef(markers);
-  markersRef.current = markers;
-  const onPlayRef = useRef(onPlay);
-  onPlayRef.current = onPlay;
-  const randomRef = useRef(random);
-  randomRef.current = random;
+  // markers/onPlay identity change from the host's render. Refs are written in
+  // an effect (post-render), never during render itself.
+  const latestRef = useRef({ markers, onPlay, random });
+  useEffect(() => {
+    latestRef.current = { markers, onPlay, random };
+  });
 
   useEffect(() => {
     if (!active) return undefined;
@@ -73,12 +72,12 @@ export function useIdleScheduler({
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const scheduleNext = () => {
-      const delay = nextIdleIntervalMs(reducedStimulus, randomRef.current);
+      const delay = nextIdleIntervalMs(reducedStimulus, latestRef.current.random);
       timeoutId = setTimeout(() => {
-        const behavior = pickWeightedMicroBehavior(randomRef.current);
-        const range = markersRef.current[behavior];
+        const behavior = pickWeightedMicroBehavior(latestRef.current.random);
+        const range = latestRef.current.markers[behavior];
         if (range) {
-          onPlayRef.current(range);
+          latestRef.current.onPlay(range);
         }
         scheduleNext();
       }, delay);

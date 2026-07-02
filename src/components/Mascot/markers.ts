@@ -18,7 +18,7 @@
 export type MarkerRange = { startFrame: number; endFrame: number };
 
 export type MascotAssetJSON = {
-  markers?: Array<{ cm: string; tm: number; dr: number }>;
+  markers?: { cm: string; tm: number; dr: number }[];
 };
 
 const REQUIRED_MARKER_NAMES = ['blink', 'glance', 'postureShift'];

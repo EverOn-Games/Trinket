@@ -61,11 +61,18 @@ describe('useIdleScheduler', () => {
     jest.useRealTimers();
   });
 
+  // Fixed midpoint roll -> nextIdleIntervalMs(false, () => 0.5) === 6500ms exactly,
+  // deterministically. Using real Math.random() here would make "exactly once per
+  // 9000ms window" flaky whenever two consecutive random draws happened to sum to
+  // under 9000ms (e.g. 4200ms + 4300ms) — an injected fixed random keeps interval
+  // timing exact and the test non-flaky, per RESEARCH.md's injectable-RNG pattern.
+  const fixedRandom = () => 0.5;
+
   it('fires onPlay with a valid marker range exactly once per interval while active', async () => {
     const onPlay = jest.fn();
 
     await renderHook(() =>
-      useIdleScheduler({ active: true, reducedStimulus: false, markers, onPlay })
+      useIdleScheduler({ active: true, reducedStimulus: false, markers, onPlay, random: fixedRandom })
     );
 
     await act(async () => {
@@ -75,7 +82,7 @@ describe('useIdleScheduler', () => {
     expect(Object.values(markers)).toContainEqual(onPlay.mock.calls[0][0]);
 
     await act(async () => {
-      jest.advanceTimersByTime(9000);
+      jest.advanceTimersByTime(6500);
     });
     expect(onPlay).toHaveBeenCalledTimes(2);
   });
@@ -85,7 +92,13 @@ describe('useIdleScheduler', () => {
 
     const { rerender } = await renderHook(
       (props: { active: boolean }) =>
-        useIdleScheduler({ active: props.active, reducedStimulus: false, markers, onPlay }),
+        useIdleScheduler({
+          active: props.active,
+          reducedStimulus: false,
+          markers,
+          onPlay,
+          random: fixedRandom,
+        }),
       { initialProps: { active: true } }
     );
 
@@ -99,7 +112,7 @@ describe('useIdleScheduler', () => {
     await rerender({ active: true });
 
     await act(async () => {
-      jest.advanceTimersByTime(9000);
+      jest.advanceTimersByTime(6500);
     });
     expect(onPlay).toHaveBeenCalledTimes(1);
   });
