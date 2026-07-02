@@ -151,7 +151,24 @@ Trinket is a mobile companion app for adults with ADHD (iOS + Android, single Re
 <!-- GSD:conventions-start source:CONVENTIONS.md -->
 ## Conventions
 
-Conventions not yet established. Will populate as patterns emerge during development.
+### When to re-run `npx expo prebuild --clean` (developer machines)
+
+`ios/` and `android/` are gitignored build artifacts (CNG). Regenerate them ONLY when native inputs change — day-to-day TS/screen/i18n/theme work hot-reloads via Metro and needs no prebuild:
+
+- `app.json` / `app.config.*` changed (identity, plugins, permissions, icons/splash)
+- A native dependency was added/removed/upgraded (`npx expo install <native module>`)
+- Expo SDK upgrade, or `expo-build-properties` values changed
+- Convenience: `npm run android:fresh` / `npm run ios:fresh` = prebuild --clean + run in one step
+
+**Agent rule:** any phase SUMMARY whose changes touch the inputs above MUST include a "run `npx expo prebuild --clean` after pulling" note, and the orchestrator must surface it to the user in the phase completion message.
+
+### Established code patterns (Phase 1 precedent — follow in all later phases)
+
+- Token-only styling: every visual value from `theme/tokens.ts` via `useTheme()`; no hex literals outside `theme/` (enforced by `npm run lint:hex`, fail-closed)
+- All user-facing copy via i18next `t()` keys in `i18n/locales/{en,pl}.json`; no literal strings in JSX (ESLint `i18next/no-literal-string`); copy offers, never instructs; Polish register warm/plain/gender-neutral
+- Data access via repositories over MMKV (`data/repositories/*`); spread `...input` FIRST in create functions so fresh `id`/`createdAt` win; schema denylist test guards against streak/daily-aggregate/diagnosis fields
+- Timestamps for all timing (never in-memory counters); `Date.now()` epoch millis
+- Verification bundle: `npm run verify` (eslint + hex gate + jest)
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->

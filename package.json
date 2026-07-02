@@ -56,7 +56,9 @@
     "lint": "expo lint",
     "lint:hex": "node scripts/check-hex-literals.mjs",
     "test": "jest --watchAll=false",
-    "verify": "npm run lint && npm run lint:hex && npm test"
+    "verify": "npm run lint && npm run lint:hex && npm test",
+    "android:fresh": "expo prebuild --clean --platform android && expo run:android",
+    "ios:fresh": "expo prebuild --clean --platform ios && expo run:ios"
   },
   "private": true
 }
