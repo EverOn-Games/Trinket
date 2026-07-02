@@ -21,19 +21,23 @@ export type MascotSlotProps = {
 export function MascotSlot({ accessibilityLabel }: MascotSlotProps) {
   const theme = useTheme();
 
+  // Flattened (never an array) — see Screen.tsx's comment on expo-router's
+  // <Slot> shim rejecting array `style` props on a route's child elements.
+  const slotStyle = StyleSheet.flatten([
+    styles.slot,
+    {
+      backgroundColor: theme.colors.surfaceElevated,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radii.lg,
+    },
+  ]);
+
   return (
     <View
       testID="mascot-slot"
       accessible
       accessibilityLabel={accessibilityLabel}
-      style={[
-        styles.slot,
-        {
-          backgroundColor: theme.colors.surfaceElevated,
-          borderColor: theme.colors.border,
-          borderRadius: theme.radii.lg,
-        },
-      ]}
+      style={slotStyle}
     />
   );
 }

@@ -23,55 +23,48 @@ export default function HomeScreen() {
     router.push('/co-pilot');
   };
 
+  // Every style below is flattened to a single object (never an array) —
+  // expo-router's internal <Slot> shim throws when a route's root child (or
+  // a <Link asChild> child) receives an array `style` prop (see
+  // node_modules/expo-router/build/ui/Slot.js).
+  const titleStyle = StyleSheet.flatten([
+    styles.title,
+    { color: theme.colors.textPrimary, fontSize: theme.typography.scale.display },
+  ]);
+  const primaryOfferStyle = StyleSheet.flatten([
+    styles.primaryOffer,
+    { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
+  ]);
+  const primaryOfferLabelStyle = StyleSheet.flatten([
+    styles.primaryOfferLabel,
+    { color: theme.colors.background, fontSize: theme.typography.scale.title },
+  ]);
+  const secondaryOfferStyle = StyleSheet.flatten([
+    styles.secondaryOffer,
+    { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.md },
+  ]);
+  const linkRowStyle = StyleSheet.flatten([styles.linkRow, { gap: theme.spacing.lg }]);
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: theme.spacing.lg }}>
         <MascotSlot accessibilityLabel={t('home.mascotSlotLabel')} />
 
-        <Text
-          style={[
-            styles.title,
-            { color: theme.colors.textPrimary, fontSize: theme.typography.scale.display },
-          ]}
-        >
-          {t('home.title')}
-        </Text>
+        <Text style={titleStyle}>{t('home.title')}</Text>
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={handleStartSession}
-          style={[
-            styles.primaryOffer,
-            { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
-          ]}
-        >
-          <Text
-            style={[
-              styles.primaryOfferLabel,
-              { color: theme.colors.background, fontSize: theme.typography.scale.title },
-            ]}
-          >
-            {t('home.startSessionOffer')}
-          </Text>
+        <Pressable accessibilityRole="button" onPress={handleStartSession} style={primaryOfferStyle}>
+          <Text style={primaryOfferLabelStyle}>{t('home.startSessionOffer')}</Text>
         </Pressable>
 
         <Link href="/brain-dump" asChild>
-          <Pressable
-            accessibilityRole="button"
-            style={[
-              styles.secondaryOffer,
-              { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.md },
-            ]}
-          >
-            <Text
-              style={{ color: theme.colors.textPrimary, fontSize: theme.typography.scale.body }}
-            >
+          <Pressable accessibilityRole="button" style={secondaryOfferStyle}>
+            <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.scale.body }}>
               {t('home.brainDumpOffer')}
             </Text>
           </Pressable>
         </Link>
 
-        <View style={[styles.linkRow, { gap: theme.spacing.lg }]}>
+        <View style={linkRowStyle}>
           <Link href="/starter">
             <Text style={{ color: theme.colors.accent }}>{t('home.starterLink')}</Text>
           </Link>

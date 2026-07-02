@@ -20,17 +20,23 @@ export type ScreenProps = PropsWithChildren<{
 export function Screen({ children, contentStyle }: ScreenProps) {
   const theme = useTheme();
 
+  // Flattened (never an array): expo-router's internal <Slot> shim throws when
+  // a route's root child receives an array `style` prop (see
+  // node_modules/expo-router/build/ui/Slot.js) — every screen renders inside
+  // this container, so it must always pass a single merged style object.
+  const safeAreaStyle = StyleSheet.flatten([
+    styles.safeArea,
+    { backgroundColor: theme.colors.background },
+  ]);
+  const innerStyle = StyleSheet.flatten([
+    styles.content,
+    { padding: theme.spacing.lg, gap: theme.spacing.md },
+    contentStyle,
+  ]);
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
-      <View
-        style={[
-          styles.content,
-          { padding: theme.spacing.lg, gap: theme.spacing.md },
-          contentStyle,
-        ]}
-      >
-        {children}
-      </View>
+    <SafeAreaView style={safeAreaStyle}>
+      <View style={innerStyle}>{children}</View>
     </SafeAreaView>
   );
 }

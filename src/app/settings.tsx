@@ -12,16 +12,16 @@ export default function SettingsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
 
+  // Flattened (never an array) — see Screen.tsx's comment on expo-router's
+  // <Slot> shim rejecting array `style` props on a route's child elements.
+  const titleStyle = StyleSheet.flatten([
+    styles.title,
+    { color: theme.colors.textPrimary, fontSize: theme.typography.scale.display },
+  ]);
+
   return (
     <Screen>
-      <Text
-        style={[
-          styles.title,
-          { color: theme.colors.textPrimary, fontSize: theme.typography.scale.display },
-        ]}
-      >
-        {t('settings.title')}
-      </Text>
+      <Text style={titleStyle}>{t('settings.title')}</Text>
       <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.scale.body }}>
         {t('settings.description')}
       </Text>
