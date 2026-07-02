@@ -32,7 +32,7 @@
  * The bare specifier guarantees both call sites resolve to the same instance.
  */
 import { act, render } from '@testing-library/react-native';
-import { AccessibilityInfo } from 'react-native';
+import { AccessibilityInfo, StyleSheet } from 'react-native';
 
 import { ThemeProvider } from '../../../../theme';
 import { Mascot } from '../Mascot';
@@ -108,6 +108,40 @@ describe('<Mascot /> single persistent LottieView (MASC-04)', () => {
       );
       expect(queryAllByTestId('lottie-view-mock')).toHaveLength(1);
     }
+  });
+
+  it('keeps the SAME lottie-view-mock instance mounted across hidden<->visible prominence toggles (WR-03)', async () => {
+    // 'hidden' marks its wrapper importantForAccessibility="no-hide-descendants"
+    // (correctly excluding it from the real accessibility tree), which also
+    // makes RNTL v14's default queries skip it — so hidden-prominence
+    // assertions below opt back in via { includeHiddenElements: true } to
+    // confirm the (still-mounted) node underneath.
+    const { queryAllByTestId, getByTestId, rerender } = await render(
+      <ThemeProvider>
+        <Mascot state="idle" prominence="prominent" accessibilityLabel="label" />
+      </ThemeProvider>
+    );
+    expect(queryAllByTestId('lottie-view-mock')).toHaveLength(1);
+    const initialInstance = getByTestId('lottie-view-mock');
+
+    // Toggling to 'hidden' must NOT unmount/remount the LottieView — the
+    // module's single-persistent-instance contract (MASC-04) covers
+    // prominence toggles too, not just state transitions.
+    await rerender(
+      <ThemeProvider>
+        <Mascot state="idle" prominence="hidden" accessibilityLabel="label" />
+      </ThemeProvider>
+    );
+    expect(queryAllByTestId('lottie-view-mock', { includeHiddenElements: true })).toHaveLength(1);
+    expect(getByTestId('lottie-view-mock', { includeHiddenElements: true })).toBe(initialInstance);
+
+    await rerender(
+      <ThemeProvider>
+        <Mascot state="idle" prominence="subtle" accessibilityLabel="label" />
+      </ThemeProvider>
+    );
+    expect(queryAllByTestId('lottie-view-mock')).toHaveLength(1);
+    expect(getByTestId('lottie-view-mock')).toBe(initialInstance);
   });
 });
 
@@ -189,15 +223,25 @@ describe('<Mascot /> idle micro-behavior integration (MASC-02)', () => {
   });
 });
 
-describe('<Mascot /> hidden prominence (MASC-04)', () => {
-  it('renders no lottie-view-mock content and still accepts state changes without error', async () => {
-    const { queryAllByTestId, rerender } = await render(
+describe('<Mascot /> hidden prominence (MASC-04, WR-03)', () => {
+  it('renders nothing visible (zero size, opacity 0, not accessible) but keeps the LottieView mounted, and still accepts state changes without error', async () => {
+    const { getByTestId, queryAllByTestId, rerender } = await render(
       <ThemeProvider>
         <Mascot state="idle" prominence="hidden" accessibilityLabel="label" />
       </ThemeProvider>
     );
 
-    expect(queryAllByTestId('lottie-view-mock')).toHaveLength(0);
+    // WR-03: 'hidden' must NOT unmount the LottieView (that would break the
+    // single-persistent-instance contract) — it stays mounted but visually
+    // hidden via zero-size/opacity-0 styling on its wrapper, and excluded
+    // from the accessibility tree (importantForAccessibility="no-hide-
+    // descendants"), which is also why the query below opts into
+    // { includeHiddenElements: true } to reach the still-mounted node.
+    expect(queryAllByTestId('lottie-view-mock', { includeHiddenElements: true })).toHaveLength(1);
+    const wrapper = getByTestId('lottie-view-mock', { includeHiddenElements: true }).parent;
+    const flattenedStyle = StyleSheet.flatten(wrapper?.props.style);
+    expect(flattenedStyle).toMatchObject({ width: 0, height: 0, opacity: 0 });
+    expect(wrapper?.props.accessible).toBe(false);
 
     await rerender(
       <ThemeProvider>
@@ -205,7 +249,7 @@ describe('<Mascot /> hidden prominence (MASC-04)', () => {
       </ThemeProvider>
     );
 
-    expect(queryAllByTestId('lottie-view-mock')).toHaveLength(0);
+    expect(queryAllByTestId('lottie-view-mock', { includeHiddenElements: true })).toHaveLength(1);
   });
 });
 

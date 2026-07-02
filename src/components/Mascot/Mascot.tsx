@@ -237,12 +237,7 @@ export function Mascot({
   const resolvedSize = size ?? PROMINENCE_SIZE[prominence];
   const dimension = SIZE_PRESETS[resolvedSize];
   const targetOpacity = PROMINENCE_OPACITY[prominence];
-
-  if (prominence === 'hidden') {
-    // Renders nothing visible; state/scheduler logic above keeps running so
-    // re-enabling prominence resumes seamlessly with no re-greeting.
-    return <View testID={testID} style={styles.hidden} />;
-  }
+  const isHidden = prominence === 'hidden';
 
   if (!asset) {
     const fallbackStyle = StyleSheet.flatten([
@@ -260,12 +255,22 @@ export function Mascot({
     );
   }
 
+  // 'hidden' renders nothing visible (zero size, opacity 0) but keeps the
+  // SAME persistent LottieView instance mounted rather than swapping the
+  // element tree (WR-01/MASC-04) — state/scheduler logic above keeps running
+  // so re-enabling prominence resumes seamlessly with no re-greeting and no
+  // native-view remount/frame-0 restart.
+  const containerStyle = isHidden
+    ? styles.hidden
+    : [{ width: dimension, height: dimension, opacity: targetOpacity }, fadeStyle];
+
   return (
     <Animated.View
       testID={testID}
-      accessible
-      accessibilityLabel={accessibilityLabel}
-      style={[{ width: dimension, height: dimension, opacity: targetOpacity }, fadeStyle]}
+      accessible={!isHidden}
+      accessibilityLabel={isHidden ? undefined : accessibilityLabel}
+      importantForAccessibility={isHidden ? 'no-hide-descendants' : undefined}
+      style={containerStyle}
     >
       <LottieView
         ref={lottieRef}
@@ -285,6 +290,8 @@ const styles = StyleSheet.create({
   hidden: {
     width: 0,
     height: 0,
+    opacity: 0,
+    overflow: 'hidden',
   },
   fallback: {
     borderWidth: 1,
