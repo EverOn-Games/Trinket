@@ -8,19 +8,54 @@ import { useTheme } from '../useTheme';
 
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
 
+const REQUIRED_COLOR_KEYS = [
+  'background',
+  'surface',
+  'surfaceElevated',
+  'textPrimary',
+  'textSecondary',
+  'accent',
+  'accentMuted',
+  'border',
+] as const;
+
 describe('theme/tokens', () => {
-  it('darkTokens exposes valid hex colors for the core anchor keys', () => {
-    expect(darkTokens.colors.background).toMatch(HEX_COLOR_RE);
-    expect(darkTokens.colors.surface).toMatch(HEX_COLOR_RE);
-    expect(darkTokens.colors.textPrimary).toMatch(HEX_COLOR_RE);
-    expect(darkTokens.colors.accent).toMatch(HEX_COLOR_RE);
+  it.each(REQUIRED_COLOR_KEYS)('darkTokens.colors.%s is a valid hex color', (key) => {
+    expect(darkTokens.colors[key]).toMatch(HEX_COLOR_RE);
   });
 
-  it('darkTokens exposes spacing, radii, typography, and elevation groups', () => {
+  it('darkTokens.spacing has all numeric scale keys', () => {
+    expect(typeof darkTokens.spacing.xs).toBe('number');
+    expect(typeof darkTokens.spacing.sm).toBe('number');
     expect(typeof darkTokens.spacing.md).toBe('number');
+    expect(typeof darkTokens.spacing.lg).toBe('number');
+    expect(typeof darkTokens.spacing.xl).toBe('number');
+  });
+
+  it('darkTokens.radii has all numeric scale keys', () => {
+    expect(typeof darkTokens.radii.sm).toBe('number');
     expect(typeof darkTokens.radii.md).toBe('number');
+    expect(typeof darkTokens.radii.lg).toBe('number');
+    expect(typeof darkTokens.radii.pill).toBe('number');
+  });
+
+  it('darkTokens.typography has a fontFamily string and numeric scale', () => {
+    expect(typeof darkTokens.typography.fontFamily).toBe('string');
+    expect(typeof darkTokens.typography.scale.caption).toBe('number');
     expect(typeof darkTokens.typography.scale.body).toBe('number');
+    expect(typeof darkTokens.typography.scale.title).toBe('number');
+    expect(typeof darkTokens.typography.scale.display).toBe('number');
+  });
+
+  it('darkTokens.elevation has all numeric scale keys', () => {
+    expect(typeof darkTokens.elevation.none).toBe('number');
     expect(typeof darkTokens.elevation.low).toBe('number');
+    expect(typeof darkTokens.elevation.medium).toBe('number');
+  });
+
+  it('ThemeTokens type contains no dark-prefixed keys (light-mode-ready shape)', () => {
+    const topLevelKeys = Object.keys(darkTokens);
+    expect(topLevelKeys.every((k) => !k.toLowerCase().startsWith('dark'))).toBe(true);
   });
 });
 
