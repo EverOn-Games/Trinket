@@ -98,7 +98,7 @@ None yet.
 - Phase 4 (Brain Dump): rule-based vs. ExecuTorch classification is a judgment call flagged for explicit spike confirmation before escalating past keyword matching.
 - Phase 7 (Subscriptions): RevenueCat↔Supabase webhook sync pattern and offline-entitlement edge cases are MEDIUM confidence; validate with explicit purchase-then-offline and offline-fresh-install test sequences.
 - Phase 7 (Subscriptions): weekly-subscription-tier App/Play Store review carries real rejection/resubmission risk — budget calendar slack around this submission.
-- Phase 2-3 (Mascot): iOS physical-device dev-client boot is NOT yet verified (deferred from Phase 1 Plan 06 checkpoint) — must be verified during first Lottie integration work; hard gate before Phase 9 beta hardening can close.
+- iOS physical-device dev-client boot is NOT yet verified (deferred from Phase 1 Plan 06 checkpoint; Phase 2 context D-03 confirmed Android-only verification for the Lottie work) — retry when EAS/Mac access happens; hard gate before Phase 9 beta hardening can close.
 - com.trinket.app package/bundle-ID uniqueness on Play Store / App Store is unproven until first store submission; if taken, a fallback identifier must be chosen at that time.
 
 ### Quick Tasks Completed
