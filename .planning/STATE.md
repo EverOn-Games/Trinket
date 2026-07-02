@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 01-04-PLAN.md (i18n layer: i18next init, device-locale resolution, CLDR Polish plurals, runtime locale switcher)"
-last_updated: "2026-07-02T10:01:26.886Z"
+stopped_at: "Completed 01-05-PLAN.md (MMKV persistence layer: sessions/dumpItems/intentions repositories, settings Zustand-persist store, schema denylist guard)"
+last_updated: "2026-07-02T10:10:44.571Z"
 last_activity: 2026-07-02
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 01 (Scaffold & Foundations) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-07-02
 
-Progress: [███████░░░] 67%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [███████░░░] 67%
 | Phase 01 P02 | 6min | 2 tasks | 8 files |
 | Phase 01 P03 | 10min | 2 tasks | 7 files |
 | Phase 01 P04 | 9min | 2 tasks | 8 files |
+| Phase 01 P05 | ~7min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 01-03]: check-hex-literals.mjs currently exits 1 against 3 pre-existing scaffold-default hex literals (src/components/animated-icon.tsx, themed-text.tsx) - expected per plan text, deferred to Plan 06's screen replacement
 - [Phase 01-04]: Reordered TDD task pair into RED (tests) then GREEN (implementation) commits since both tasks are tdd=true and the plan's literal implementation-then-tests order would not produce a genuine failing-test proof point
 - [Phase 01-04]: Added __mocks__/expo-localization.ts + jest.mock registration as supporting test infra, mirroring the react-native-mmkv mock pattern, since getLocales() wraps a native module unavailable under Jest
+- [Phase 01-05]: Reordered plan's two tasks into RED-then-GREEN commit sequence (both test files first, then all repo/store implementation) to satisfy the TDD gate — mirrors 01-04's precedent since Task 2's tests exercise Task 1's repos
+- [Phase 01-05]: Mapped source synthesis section 6.2's snake_case data-model sketch to camelCase field names in data/types.ts, matching ARCHITECTURE.md's sessionsRepo reference example (taskLabel, startedAt, endedAt) rather than a literal snake_case port
+- [Phase 01-05]: MMKV encryption (T-01-08) explicitly deferred to Phase 7 per RESEARCH.md, documented in data/mmkv.ts rather than silently skipped
 
 ### Pending Todos
 
@@ -102,6 +106,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-02T10:01:26.861Z
-Stopped at: Completed 01-04-PLAN.md (i18n layer: i18next init, device-locale resolution, CLDR Polish plurals, runtime locale switcher)
+Last session: 2026-07-02T10:10:44.550Z
+Stopped at: Completed 01-05-PLAN.md (MMKV persistence layer: sessions/dumpItems/intentions repositories, settings Zustand-persist store, schema denylist guard)
 Resume file: None
