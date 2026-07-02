@@ -72,6 +72,45 @@ describe('intentionsRepo', () => {
   });
 });
 
+describe('create() spread order (WR-03 regression)', () => {
+  it('does not let a caller-supplied id/startedAt override the freshly generated ones', () => {
+    const stale = sessionsRepo.create({ source: 'quick' });
+
+    // A full existing Session record structurally satisfies
+    // Omit<Session, 'id' | 'startedAt'> when passed via a typed variable (TS only
+    // enforces excess-property checks on fresh object literals) — this is exactly
+    // the "restore/duplicate" call shape WR-03 warns about.
+    const created = sessionsRepo.create(stale);
+
+    expect(created.id).not.toBe(stale.id);
+    expect(created.startedAt).toBeGreaterThanOrEqual(stale.startedAt);
+    expect(sessionsRepo.list().filter((session) => session.id === created.id)).toHaveLength(1);
+  });
+
+  it('does not let a caller-supplied id/createdAt override the freshly generated ones (dumpItemsRepo)', () => {
+    const stale = dumpItemsRepo.create({ text: 'buy milk', category: 'errands' });
+
+    const created = dumpItemsRepo.create(stale);
+
+    expect(created.id).not.toBe(stale.id);
+    expect(created.createdAt).toBeGreaterThanOrEqual(stale.createdAt);
+    expect(dumpItemsRepo.list().filter((item) => item.id === created.id)).toHaveLength(1);
+  });
+
+  it('does not let a caller-supplied id/createdAt override the freshly generated ones (intentionsRepo)', () => {
+    const stale = intentionsRepo.create({
+      cueText: 'when I sit at my desk',
+      actionText: 'open the file',
+    });
+
+    const created = intentionsRepo.create(stale);
+
+    expect(created.id).not.toBe(stale.id);
+    expect(created.createdAt).toBeGreaterThanOrEqual(stale.createdAt);
+    expect(intentionsRepo.list().filter((intention) => intention.id === created.id)).toHaveLength(1);
+  });
+});
+
 describe('cross-collection isolation', () => {
   it('does not let repositories sharing contentStorage collide on namespaced keys', () => {
     const session = sessionsRepo.create({ source: 'open' });

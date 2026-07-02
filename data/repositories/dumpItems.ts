@@ -38,7 +38,7 @@ function readRecord(id: string): DumpItem | undefined {
 
 export const dumpItemsRepo = {
   create(input: Omit<DumpItem, 'id' | 'createdAt'>): DumpItem {
-    const item: DumpItem = { id: newId(), createdAt: Date.now(), ...input };
+    const item: DumpItem = { ...input, id: newId(), createdAt: Date.now() };
     contentStorage.set(recordKey(item.id), JSON.stringify(item));
     writeIndex([...readIndex(), item.id]);
     return item;

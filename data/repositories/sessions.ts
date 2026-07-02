@@ -43,7 +43,7 @@ function readRecord(id: string): Session | undefined {
 
 export const sessionsRepo = {
   create(input: Omit<Session, 'id' | 'startedAt'>): Session {
-    const session: Session = { id: newId(), startedAt: Date.now(), ...input };
+    const session: Session = { ...input, id: newId(), startedAt: Date.now() };
     contentStorage.set(recordKey(session.id), JSON.stringify(session));
     writeIndex([...readIndex(), session.id]);
     return session;

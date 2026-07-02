@@ -38,7 +38,7 @@ function readRecord(id: string): Intention | undefined {
 
 export const intentionsRepo = {
   create(input: Omit<Intention, 'id' | 'createdAt'>): Intention {
-    const intention: Intention = { id: newId(), createdAt: Date.now(), ...input };
+    const intention: Intention = { ...input, id: newId(), createdAt: Date.now() };
     contentStorage.set(recordKey(intention.id), JSON.stringify(intention));
     writeIndex([...readIndex(), intention.id]);
     return intention;
