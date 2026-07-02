@@ -17,6 +17,13 @@
 
 import { globSync } from 'node:fs';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+// Resolve the repo root relative to this script's own location, not
+// process.cwd() — running the script from any other working directory used to
+// silently scan nothing and still exit 0 (see main()'s empty-scan guard below).
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const HEX_LITERAL_RE = /#[0-9a-fA-F]{3,8}\b/g;
 
@@ -54,13 +61,21 @@ function findViolationsInFile(filePath) {
 }
 
 function main() {
-  const files = SCAN_GLOBS.flatMap((pattern) => globSync(pattern));
+  const files = SCAN_GLOBS.flatMap((pattern) => globSync(pattern, { cwd: ROOT }));
   const uniqueFiles = [...new Set(files)];
+
+  if (uniqueFiles.length === 0) {
+    console.error(
+      'check-hex-literals: no files matched the scan globs — refusing to pass an empty scan. ' +
+        `(root: ${ROOT}, globs: ${SCAN_GLOBS.join(', ')})`
+    );
+    process.exit(1);
+  }
 
   let violationCount = 0;
 
   for (const file of uniqueFiles) {
-    const violations = findViolationsInFile(file);
+    const violations = findViolationsInFile(path.join(ROOT, file));
     for (const v of violations) {
       violationCount += 1;
       console.error(`${file}:${v.line}: ${v.matches.join(', ')} — ${v.text}`);
