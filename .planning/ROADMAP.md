@@ -50,7 +50,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — Earthy dark theme token module + hex-literal gate (FND-04)
+- [x] 01-03-PLAN.md — Earthy dark theme token module + hex-literal gate (FND-04)
 - [ ] 01-04-PLAN.md — i18n: PL/EN, CLDR Polish plurals, device-locale resolution (FND-05)
 - [ ] 01-05-PLAN.md — MMKV repositories for 4 collections + schema denylist guard (FND-02)
 
@@ -194,7 +194,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold & Foundations | 2/6 | In Progress|  |
+| 1. Scaffold & Foundations | 3/6 | In Progress|  |
 | 2. Mascot Module | 0/TBD | Not started | - |
 | 3. Co-pilot End-to-End | 0/TBD | Not started | - |
 | 4. Brain Dump | 0/TBD | Not started | - |

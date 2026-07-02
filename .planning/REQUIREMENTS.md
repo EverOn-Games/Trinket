@@ -12,7 +12,7 @@ Requirements for the MVP (beta-ready build). Each maps to roadmap phases.
 - [x] **FND-01**: App runs on iOS and Android from a single Expo codebase (SDK 56, New Architecture, TypeScript strict) with an EAS Build + dev-client + prebuild workflow from day one
 - [x] **FND-02**: All user content (dump items, intentions, sessions, settings) persists locally in MMKV with no daily aggregates and no streak fields in the schema
 - [ ] **FND-03**: User can use every core feature fully offline; only purchase/restore requires network
-- [ ] **FND-04**: App ships a dark-mode theme token module (earthy palette, soft rounded, night-cozy) structured for one-to-one replacement when the external design system lands
+- [x] **FND-04**: App ships a dark-mode theme token module (earthy palette, soft rounded, night-cozy) structured for one-to-one replacement when the external design system lands
 - [x] **FND-05**: Every screen renders in Polish and English from localized string files with CLDR-correct Polish plurals; no hardcoded copy
 
 ### Mascot
@@ -113,7 +113,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | FND-01 | Phase 1 - Scaffold & Foundations | Complete |
 | FND-02 | Phase 1 - Scaffold & Foundations | Complete |
-| FND-04 | Phase 1 - Scaffold & Foundations | Pending |
+| FND-04 | Phase 1 - Scaffold & Foundations | Complete |
 | FND-05 | Phase 1 - Scaffold & Foundations | Complete |
 | MASC-01 | Phase 2 - Mascot Module | Pending |
 | MASC-02 | Phase 2 - Mascot Module | Pending |
