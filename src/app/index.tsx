@@ -17,7 +17,7 @@ import { Mascot } from '@/components/Mascot/Mascot';
 import type { MascotState } from '@/components/Mascot/types';
 import { useTheme } from '../../theme';
 import { sessionsRepo } from '../../data/repositories/sessions';
-import { settingsRepo } from '../../data/repositories/settings';
+import { useSettingsStore } from '../../data/stores/useSettingsStore';
 
 // D-07: greeting cadence lives in a plain module-level, in-memory flag —
 // NEVER persisted (no settingsRepo/useSettingsStore write, no
@@ -34,6 +34,10 @@ export default function HomeScreen() {
   const [mascotState, setMascotState] = useState<MascotState>(() =>
     hasGreetedThisSession ? 'idle' : 'greeting'
   );
+  // Reactive subscription (WR-02), not a one-time settingsRepo.get() snapshot
+  // — Home must re-render when mascotProminence changes elsewhere (Phase 8
+  // Settings screen).
+  const mascotProminence = useSettingsStore((s) => s.mascotProminence);
 
   const handleMascotGreetingComplete = () => {
     hasGreetedThisSession = true;
@@ -75,7 +79,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={{ gap: theme.spacing.lg }}>
         <Mascot
           state={mascotState}
-          prominence={settingsRepo.get().mascotProminence}
+          prominence={mascotProminence}
           accessibilityLabel={t(`mascot.accessibility.${mascotState}`)}
           onStateAnimationComplete={handleMascotGreetingComplete}
         />
