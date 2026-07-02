@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: "Completed 01-05-PLAN.md (MMKV persistence layer: sessions/dumpItems/intentions repositories, settings Zustand-persist store, schema denylist guard)"
-last_updated: "2026-07-02T10:10:44.571Z"
+status: verifying
+stopped_at: "Completed 01-06-PLAN.md (App shell walking skeleton: home-hub, providers, MMKV write/read slice, Android device-boot verified, iOS deferred to Phase 2-3, com.trinket.app identity confirmed)"
+last_updated: "2026-07-02T12:16:50.402Z"
 last_activity: 2026-07-02
 progress:
   total_phases: 9
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
-  percent: 0
+  completed_plans: 6
+  percent: 11
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 
 Phase: 01 (Scaffold & Foundations) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02
 
-Progress: [████████░░] 83%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [████████░░] 83%
 | Phase 01 P03 | 10min | 2 tasks | 7 files |
 | Phase 01 P04 | 9min | 2 tasks | 8 files |
 | Phase 01 P05 | ~7min | 2 tasks | 10 files |
+| Phase 01 P06 | 113min | 3 tasks | 41 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 01-05]: Reordered plan's two tasks into RED-then-GREEN commit sequence (both test files first, then all repo/store implementation) to satisfy the TDD gate — mirrors 01-04's precedent since Task 2's tests exercise Task 1's repos
 - [Phase 01-05]: Mapped source synthesis section 6.2's snake_case data-model sketch to camelCase field names in data/types.ts, matching ARCHITECTURE.md's sessionsRepo reference example (taskLabel, startedAt, endedAt) rather than a literal snake_case port
 - [Phase 01-05]: MMKV encryption (T-01-08) explicitly deferred to Phase 7 per RESEARCH.md, documented in data/mmkv.ts rather than silently skipped
+- [Phase 01]: D-05 confirmed: bundle/package identifier is com.trinket.app, superseding provisional com.everon.trinket — Founder decision at the Plan 06 device-boot checkpoint; app belongs to a separate, not-yet-named business (brand-only identifier)
+- [Phase 01]: Android device-boot verified on user hardware (Windows, npx expo run:android); iOS device-boot verification deferred to Phase 2-3, hard gate before Phase 9 — User elected not to spend an EAS cloud build at this checkpoint; aligns iOS verification with first platform-divergent (Lottie) native work
 
 ### Pending Todos
 
@@ -95,6 +98,8 @@ None yet.
 - Phase 4 (Brain Dump): rule-based vs. ExecuTorch classification is a judgment call flagged for explicit spike confirmation before escalating past keyword matching.
 - Phase 7 (Subscriptions): RevenueCat↔Supabase webhook sync pattern and offline-entitlement edge cases are MEDIUM confidence; validate with explicit purchase-then-offline and offline-fresh-install test sequences.
 - Phase 7 (Subscriptions): weekly-subscription-tier App/Play Store review carries real rejection/resubmission risk — budget calendar slack around this submission.
+- Phase 2-3 (Mascot): iOS physical-device dev-client boot is NOT yet verified (deferred from Phase 1 Plan 06 checkpoint) — must be verified during first Lottie integration work; hard gate before Phase 9 beta hardening can close.
+- com.trinket.app package/bundle-ID uniqueness on Play Store / App Store is unproven until first store submission; if taken, a fallback identifier must be chosen at that time.
 
 ## Deferred Items
 
@@ -106,6 +111,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-02T10:10:44.550Z
-Stopped at: Completed 01-05-PLAN.md (MMKV persistence layer: sessions/dumpItems/intentions repositories, settings Zustand-persist store, schema denylist guard)
+Last session: 2026-07-02T12:16:50.379Z
+Stopped at: Completed 01-06-PLAN.md (App shell walking skeleton: home-hub, providers, MMKV write/read slice, Android device-boot verified, iOS deferred to Phase 2-3, com.trinket.app identity confirmed)
 Resume file: None

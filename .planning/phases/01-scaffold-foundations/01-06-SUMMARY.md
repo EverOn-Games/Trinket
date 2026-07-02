@@ -152,3 +152,7 @@ This regenerates `ios/` and `android/` from `app.json`, picking up `com.trinket.
 ---
 *Phase: 01-scaffold-foundations*
 *Completed: 2026-07-02*
+
+## Self-Check: PASSED
+
+All created files verified present on disk; all referenced commit hashes (`ed9166d`, `6160073`, `e710405`, `dae2312`, `878cfbe`) verified present in `git log --oneline --all`.

@@ -13,7 +13,7 @@ Trinket ships as a vertical-slice MVP: infrastructure and the mascot come first 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Scaffold & Foundations** - Native infrastructure, local persistence, theming, and localization are in place on real devices
+- [x] **Phase 1: Scaffold & Foundations** - Native infrastructure, local persistence, theming, and localization are in place on real devices (completed 2026-07-02)
 - [ ] **Phase 2: Mascot Module** - The raccoon mascot exists as a reusable, feature-agnostic presence module
 - [ ] **Phase 3: Co-pilot End-to-End** - A user can start and always warmly finish an async body-doubling session, surviving backgrounding and force-quit
 - [ ] **Phase 4: Brain Dump** - A user can capture and categorize tasks by text or voice and promote any into a session
@@ -56,7 +56,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-06-PLAN.md — Home-hub app shell + walking-skeleton slice + device-boot checkpoint (FND-01/04/05)
+- [x] 01-06-PLAN.md — Home-hub app shell + walking-skeleton slice + device-boot checkpoint (FND-01/04/05)
 
 **UI hint**: yes
 
@@ -194,7 +194,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold & Foundations | 5/6 | In Progress|  |
+| 1. Scaffold & Foundations | 6/6 | Complete   | 2026-07-02 |
 | 2. Mascot Module | 0/TBD | Not started | - |
 | 3. Co-pilot End-to-End | 0/TBD | Not started | - |
 | 4. Brain Dump | 0/TBD | Not started | - |
