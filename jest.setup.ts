@@ -8,3 +8,9 @@ jest.mock('react-native-mmkv');
 // module/test that reads the device locale (e.g. i18n/index.ts's resolveInitialLocale)
 // must go through this mock instead.
 jest.mock('expo-localization');
+
+// Register the View-stub lottie-react-native fake (see __mocks__/lottie-react-native.tsx).
+// LottieView's native rendering + imperative ref API cannot run under Jest's Node
+// environment; every test that renders <Mascot /> or its scheduler must go through
+// this mock instead.
+jest.mock('lottie-react-native');
