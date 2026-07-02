@@ -73,7 +73,26 @@ Plans:
   3. Mascot never animates a prompt, demand, or disappointed/negative expression — no such asset exists in the set to trigger
   4. Mascot animates without visible stutter or frame drop on a real low/mid-tier Android device
 
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Contracts: mascotGlow token, Mascot type API, mascotProminence settings field
+- [ ] 02-02-PLAN.md — Native install (lottie-react-native), Jest mock, 300KB size gate, 5 placeholder assets
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 02-03-PLAN.md — Mascot logic: marker resolution, idle scheduler, reduced-stimulus (TDD)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 02-04-PLAN.md — <Mascot /> component: single LottieView, fade, prominence, safe degradation (TDD)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 02-05-PLAN.md — Host wiring: i18n labels, swap into Home, Android device smoothness checkpoint
+
 **UI hint**: yes
 
 ### Phase 3: Co-pilot End-to-End
@@ -195,7 +214,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
-| 2. Mascot Module | 0/TBD | Not started | - |
+| 2. Mascot Module | 0/5 | Not started | - |
 | 3. Co-pilot End-to-End | 0/TBD | Not started | - |
 | 4. Brain Dump | 0/TBD | Not started | - |
 | 5. Starter | 0/TBD | Not started | - |
