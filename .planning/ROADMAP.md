@@ -34,7 +34,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Sessions, dump items, intentions, and settings each have a working MMKV-backed repository with no streak or daily-aggregate fields anywhere in the schema
   3. Every screen shell renders its copy from PL/EN string files, including correct Polish plural forms, with zero hardcoded strings
   4. Every screen renders in the dark-mode earthy theme using a token module structured for one-to-one swap when final design assets arrive
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold SDK 56 + native infra + EAS/app config (FND-01)
+- [ ] 01-02-PLAN.md — Test + lint harness: jest-expo, MMKV mock, i18next no-literal-string (Wave 0)
+- [ ] 01-03-PLAN.md — Earthy dark theme token module + hex-literal gate (FND-04)
+- [ ] 01-04-PLAN.md — i18n: PL/EN, CLDR Polish plurals, device-locale resolution (FND-05)
+- [ ] 01-05-PLAN.md — MMKV repositories for 4 collections + schema denylist guard (FND-02)
+- [ ] 01-06-PLAN.md — Home-hub app shell + walking-skeleton slice + device-boot checkpoint (FND-01/04/05)
 **UI hint**: yes
 
 ### Phase 2: Mascot Module
@@ -147,7 +154,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold & Foundations | 0/TBD | Not started | - |
+| 1. Scaffold & Foundations | 0/6 | Planned | - |
 | 2. Mascot Module | 0/TBD | Not started | - |
 | 3. Co-pilot End-to-End | 0/TBD | Not started | - |
 | 4. Brain Dump | 0/TBD | Not started | - |
