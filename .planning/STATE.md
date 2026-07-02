@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-07-02T17:02:07.040Z"
+status: verifying
+stopped_at: Completed 02-05-PLAN.md
+last_updated: "2026-07-02T23:13:27.670Z"
 last_activity: 2026-07-02
 progress:
   total_phases: 9
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
-  completed_plans: 10
-  percent: 11
+  completed_plans: 11
+  percent: 22
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 
 Phase: 2 (Mascot Module) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02
 
-Progress: [█████████░] 91%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [█████████░] 91%
 | Phase 02 P02 | 4min | 3 tasks | 10 files |
 | Phase 02 P03 | 8min | 3 tasks | 6 files |
 | Phase 2 P04 | 32min | 2 tasks | 4 files |
+| Phase 2 P05 | 33min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Recent decisions affecting current work:
 - [Phase 2]: Dropped the per-instance ref-based asset cache from the plan's literal wording in favor of require()'s own module-registry caching, to satisfy the react-hooks/refs ESLint rule
 - [Phase 2]: Registered react-native-worklets' and react-native-reanimated's official Jest mocks in jest.setup.ts rather than a custom Jest resolver, which destabilized lottie-react-native's manual mock resolution
 - [Phase 2]: mockLottieRef test assertions must import via the bare 'lottie-react-native' specifier, not a relative path into __mocks__/, to guarantee the same module instance Mascot.tsx resolves via jest.mock automock
+- [Phase 02-05]: Greeting cadence uses a module-level in-memory flag only, never a persisted timestamp (D-07) — keeps schema denylist intent
+- [Phase 02-05]: Root-caused device-checkpoint blink jolt to Lottie's instant, non-interpolated seek on play(start,end); fixed by anchoring marker-boundary scale and moving blink to opacity-only, with zero component-code changes
 
 ### Pending Todos
 
@@ -130,6 +133,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-02T17:02:07.020Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-07-02T23:13:27.650Z
+Stopped at: Completed 02-05-PLAN.md
 Resume file: None
