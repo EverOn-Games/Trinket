@@ -128,9 +128,9 @@ describe('<Mascot /> one-shot completion (MASC-01)', () => {
       </ThemeProvider>
     );
 
-    // mascot_greeting.json: op=60, fr=30 -> 2000ms duration.
+    // mascot_greeting.json: op=72, fr=30 -> 2400ms duration.
     await act(async () => {
-      jest.advanceTimersByTime(2000);
+      jest.advanceTimersByTime(2400);
     });
 
     expect(onComplete).toHaveBeenCalledTimes(1);
@@ -181,9 +181,9 @@ describe('<Mascot /> idle micro-behavior integration (MASC-02)', () => {
     expect(mockLottieRef.play).toHaveBeenCalled();
     const [startFrame, endFrame] = mockLottieRef.play.mock.calls[0] as [number, number];
     const validRanges = [
-      [60, 72], // blink
-      [120, 150], // glance
-      [200, 245], // postureShift
+      [60, 74], // blink
+      [140, 170], // glance
+      [230, 280], // postureShift
     ];
     expect(validRanges).toContainEqual([startFrame, endFrame]);
   });
