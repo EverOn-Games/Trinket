@@ -14,13 +14,13 @@ A user who has been avoiding a task can open Trinket and actually start it in th
 
 - ✓ Foundation: Expo SDK 56 scaffold (New Architecture, TS strict, dev-client/prebuild workflow), MMKV repositories for all four collections with schema denylist guard, dark earthy theme token module with hex-literal gate — Phase 1
 - ✓ Localization: i18n from the first screen, PL + EN string files, CLDR-correct Polish plurals, no hardcoded copy (lint-enforced), device-locale resolution with persisted override seam — Phase 1
+- ✓ Mascot module: reusable feature-agnostic `<Mascot />` with placeholder Lottie assets driving the MVP state machine (greeting, idle with 3 micro-behaviors, presence, dozing, acknowledge), structurally no negative states, single persistent LottieView, Android device-verified smooth — Phase 2
 
 ### Active
 
 - [ ] Co-pilot: async body-doubling session, end to end (task pick / quick one-liner / open session → presence screen with mascot → warm acknowledgment on end, regardless of duration or completion)
 - [ ] Brain dump: free text + on-device voice capture, multi-item, semantic category suggestions (errands/work/home/people/someday), items inert by default, one-tap promotion to Co-pilot task
 - [ ] Starter: two-step "when X, then Y" implementation-intention builder with localized cue library and optional single self-worded notification
-- [ ] Mascot module: placeholder Lottie assets driving the MVP state machine (greeting, idle with 3+ micro-behaviors, presence, dozing, acknowledge); no negative states exist in the asset set
 - [ ] Onboarding: 3 screens max (what Trinket is, pick your first task, meet the mascot), skippable
 - [ ] Subscription infrastructure: RevenueCat over StoreKit 2 / Play Billing, three tiers per market (PL: 9,99/24,99/199 PLN; US: 5.99/11.99/79 USD), free tier = unlimited Brain dump + 3 Co-pilot sessions/week, shame-free gate copy ("sessions refresh Monday", never "you've run out")
 - [ ] Settings: locale, notification opt-in, subscription state
@@ -104,4 +104,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after Phase 1 (Scaffold & Foundations) completion — app boots on Android hardware, walking skeleton proven end-to-end*
+*Last updated: 2026-07-02 after Phase 2 (Mascot Module) completion — mascot presence live on Home, device-verified calm and smooth on Android*
