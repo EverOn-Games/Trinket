@@ -63,7 +63,10 @@ describe('walking-skeleton slice', () => {
 
     await renderRouter(routeContext, { initialUrl: '/history' });
 
-    expect(screen.getByText(en.history.sessionFallbackLabel)).toBeTruthy();
+    // Prior tests in this file may also have created sessions (shared
+    // in-memory MMKV mock) — assert at least one plain entry renders,
+    // and that the empty state never renders alongside real entries.
+    expect(screen.getAllByText(en.history.sessionFallbackLabel).length).toBeGreaterThan(0);
     expect(screen.queryByText(en.history.emptyState)).toBeNull();
   });
 });

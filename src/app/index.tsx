@@ -13,13 +13,18 @@ import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { MascotSlot } from '@/components/MascotSlot';
 import { useTheme } from '../../theme';
+import { sessionsRepo } from '../../data/repositories/sessions';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
 
+  // Walking-skeleton write side (Task 2): the offer is the thinnest possible
+  // real session record (just a start timestamp + source) — full session
+  // lifecycle (timers, dozing, warm ending) is Phase 3 (PILOT-*).
   const handleStartSession = () => {
+    sessionsRepo.create({ source: 'quick' });
     router.push('/co-pilot');
   };
 
