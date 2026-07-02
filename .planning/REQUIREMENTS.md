@@ -18,9 +18,9 @@ Requirements for the MVP (beta-ready build). Each maps to roadmap phases.
 ### Mascot
 
 - [x] **MASC-01**: Mascot renders greeting, idle, presence, dozing, and acknowledge states via placeholder Lottie assets with final-art-compatible slot names
-- [ ] **MASC-02**: Idle state plays 3+ randomized micro-behaviors (blink, posture shift, glance) on randomized intervals
+- [x] **MASC-02**: Idle state plays 3+ randomized micro-behaviors (blink, posture shift, glance) on randomized intervals
 - [x] **MASC-03**: Mascot only reacts to user actions — it never initiates, prompts, or demands; no negative/sad/disappointed states exist in the asset set
-- [ ] **MASC-04**: Mascot animates smoothly on low/mid-tier Android (single persistent LottieView, lazy-loaded loops under 300 KB each)
+- [x] **MASC-04**: Mascot animates smoothly on low/mid-tier Android (single persistent LottieView, lazy-loaded loops under 300 KB each)
 
 ### Co-pilot
 
@@ -116,9 +116,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FND-04 | Phase 1 - Scaffold & Foundations | Complete |
 | FND-05 | Phase 1 - Scaffold & Foundations | Complete |
 | MASC-01 | Phase 2 - Mascot Module | Complete |
-| MASC-02 | Phase 2 - Mascot Module | Pending |
+| MASC-02 | Phase 2 - Mascot Module | Complete |
 | MASC-03 | Phase 2 - Mascot Module | Complete |
-| MASC-04 | Phase 2 - Mascot Module | Pending |
+| MASC-04 | Phase 2 - Mascot Module | Complete |
 | PILOT-01 | Phase 3 - Co-pilot End-to-End | Pending |
 | PILOT-02 | Phase 3 - Co-pilot End-to-End | Pending |
 | PILOT-03 | Phase 3 - Co-pilot End-to-End | Pending |
