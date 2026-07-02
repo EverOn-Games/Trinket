@@ -67,6 +67,14 @@ describe('walking-skeleton slice', () => {
     expect(sessionsRepo.list().length).toBe(before + 1);
   });
 
+  it('mounts the real <Mascot /> (not the MascotSlot placeholder) on Home', async () => {
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    // Mascot renders a single persistent LottieView (mocked under Jest — see
+    // __mocks__/lottie-react-native.tsx) rather than MascotSlot's static box.
+    expect(screen.getByTestId('lottie-view-mock')).toBeTruthy();
+  });
+
   it('renders a persisted session as a plain chronological entry on History', async () => {
     sessionsRepo.create({ source: 'quick' });
 

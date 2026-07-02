@@ -1,24 +1,44 @@
 /**
  * Home-hub screen (D-03, D-04, DUMP-05).
  *
- * The mascot's habitat: a MascotSlot placeholder, a primary "Start a
- * session?" offer (offer grammar — never a command), a prominent secondary
- * Brain dump entry reachable directly from home, and navigation to Starter,
- * History, and Settings. No tab bar (D-03).
+ * The mascot's habitat: the real <Mascot />, greeting once per cold launch
+ * then resting in idle (MASC-01, D-07), a primary "Start a session?" offer
+ * (offer grammar — never a command), a prominent secondary Brain dump entry
+ * reachable directly from home, and navigation to Starter, History, and
+ * Settings. No tab bar (D-03).
  */
+import { useState } from 'react';
 import { Link, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { Screen } from '@/components/Screen';
-import { MascotSlot } from '@/components/MascotSlot';
+import { Mascot } from '@/components/Mascot/Mascot';
+import type { MascotState } from '@/components/Mascot/types';
 import { useTheme } from '../../theme';
 import { sessionsRepo } from '../../data/repositories/sessions';
+import { settingsRepo } from '../../data/repositories/settings';
+
+// D-07: greeting cadence lives in a plain module-level, in-memory flag —
+// NEVER persisted (no settingsRepo/useSettingsStore write, no
+// lastGreetedAt/greetedAt field anywhere). This resets on cold app launch
+// (fresh JS module evaluation) and stays true for the remainder of the app
+// session, so the mascot greets once per cold launch then rests in idle.
+let hasGreetedThisSession = false;
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+
+  const [mascotState, setMascotState] = useState<MascotState>(() =>
+    hasGreetedThisSession ? 'idle' : 'greeting'
+  );
+
+  const handleMascotGreetingComplete = () => {
+    hasGreetedThisSession = true;
+    setMascotState('idle');
+  };
 
   // Walking-skeleton write side (Task 2): the offer is the thinnest possible
   // real session record (just a start timestamp + source) — full session
@@ -53,7 +73,12 @@ export default function HomeScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: theme.spacing.lg }}>
-        <MascotSlot accessibilityLabel={t('home.mascotSlotLabel')} />
+        <Mascot
+          state={mascotState}
+          prominence={settingsRepo.get().mascotProminence}
+          accessibilityLabel={t(`mascot.accessibility.${mascotState}`)}
+          onStateAnimationComplete={handleMascotGreetingComplete}
+        />
 
         <Text style={titleStyle}>{t('home.title')}</Text>
 
