@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-07-02T16:28:14.957Z"
+stopped_at: Completed 02-04-PLAN.md
+last_updated: "2026-07-02T17:02:07.040Z"
 last_activity: 2026-07-02
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
   percent: 11
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 2 (Mascot Module) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-07-02
 
-Progress: [████████░░] 82%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [████████░░] 82%
 | Phase 02 P01 | 10min | 3 tasks | 9 files |
 | Phase 02 P02 | 4min | 3 tasks | 10 files |
 | Phase 02 P03 | 8min | 3 tasks | 6 files |
+| Phase 2 P04 | 32min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 02-02]: Hand-authored 5 placeholder Lottie assets as minimal Bodymovin JSON with distinct motion signatures per state; idle carries blink/glance/postureShift markers reusing RESEARCH.md Pattern 2's exact frame ranges — Claude's Discretion; avoids design-tool dependency, trivially controllable marker names
 - [Phase 02-03]: Ref-forwarding via post-render useEffect (not render-body ref writes) to satisfy react-hooks/refs eslint rule in useIdleScheduler — Direct ref.current writes during render trip react-hooks/refs; consolidated into one latestRef synced in a dependency-less useEffect
 - [Phase 02-03]: Injected fixed deterministic random (0.5) into useIdleScheduler.test.ts timing assertions instead of real Math.random() — Real Math.random draws occasionally summed under the fake-timer assertion window, producing a ~30% flake rate; fixed random makes fire counts exact
+- [Phase 2]: Dropped the per-instance ref-based asset cache from the plan's literal wording in favor of require()'s own module-registry caching, to satisfy the react-hooks/refs ESLint rule
+- [Phase 2]: Registered react-native-worklets' and react-native-reanimated's official Jest mocks in jest.setup.ts rather than a custom Jest resolver, which destabilized lottie-react-native's manual mock resolution
+- [Phase 2]: mockLottieRef test assertions must import via the bare 'lottie-react-native' specifier, not a relative path into __mocks__/, to guarantee the same module instance Mascot.tsx resolves via jest.mock automock
 
 ### Pending Todos
 
@@ -126,6 +130,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-02T16:28:14.936Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-07-02T17:02:07.020Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None
