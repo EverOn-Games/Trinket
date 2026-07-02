@@ -9,11 +9,11 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.everon.trinket",
+      "bundleIdentifier": "com.trinket.app",
       "supportsTablet": false
     },
     "android": {
-      "package": "com.everon.trinket",
+      "package": "com.trinket.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
