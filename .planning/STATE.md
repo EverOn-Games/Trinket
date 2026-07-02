@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 Phase: 2
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-07-02
+Last activity: 2026-07-02 - Completed quick task 260702-jky: fold Claude Design mockups into design-system reference + refine dark tokens
 
 Progress: [██████████] 100%
 
@@ -100,6 +100,12 @@ None yet.
 - Phase 7 (Subscriptions): weekly-subscription-tier App/Play Store review carries real rejection/resubmission risk — budget calendar slack around this submission.
 - Phase 2-3 (Mascot): iOS physical-device dev-client boot is NOT yet verified (deferred from Phase 1 Plan 06 checkpoint) — must be verified during first Lottie integration work; hard gate before Phase 9 beta hardening can close.
 - com.trinket.app package/bundle-ID uniqueness on Play Store / App Store is unproven until first store submission; if taken, a fallback identifier must be chosen at that time.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260702-jky | Fold Claude Design mockups (10 screens) into `design/DESIGN-SYSTEM.md` reference + persist mockups + refine dark theme token values to real brand palette (dark-only MVP) | 2026-07-02 | a64a457 | [260702-jky-fold-design-system-tokens](./quick/260702-jky-fold-design-system-tokens/) |
 
 ## Deferred Items
 
