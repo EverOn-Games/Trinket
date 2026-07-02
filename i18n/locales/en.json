@@ -1,0 +1,24 @@
+{
+  "home": {
+    "title": "Trinket",
+    "startSessionOffer": "Start a session?",
+    "brainDumpOffer": "Brain dump"
+  },
+  "coPilot": {
+    "title": "Co-pilot"
+  },
+  "brainDump": {
+    "title": "Brain dump"
+  },
+  "starter": {
+    "title": "Starter"
+  },
+  "history": {
+    "title": "History"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "sessionsRemaining_one": "{{count}} session left this week",
+  "sessionsRemaining_other": "{{count}} sessions left this week"
+}
