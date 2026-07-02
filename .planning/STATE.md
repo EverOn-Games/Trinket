@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-03-PLAN.md (theme token module, ThemeProvider, useTheme hook, hex-literal gate)
-last_updated: "2026-07-02T09:53:37.745Z"
+stopped_at: "Completed 01-04-PLAN.md (i18n layer: i18next init, device-locale resolution, CLDR Polish plurals, runtime locale switcher)"
+last_updated: "2026-07-02T10:01:26.886Z"
 last_activity: 2026-07-02
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 6
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 01 (Scaffold & Foundations) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-07-02
 
-Progress: [█████░░░░░] 50%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [█████░░░░░] 50%
 | Phase 01 P01 | 8 | 2 tasks | 53 files |
 | Phase 01 P02 | 6min | 2 tasks | 8 files |
 | Phase 01 P03 | 10min | 2 tasks | 7 files |
+| Phase 01 P04 | 9min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting current work:
 - [Phase 01-03]: Followed RESEARCH.md Pattern C earthy anchor palette directly for darkTokens per CONTEXT.md's Claude's-discretion note - genuine attempt, not a gray placeholder
 - [Phase 01-03]: Adjusted hex-literal gate scan globs from app/**,features/**,components/** to src/app/**,src/features/**,src/components/** to match the live SDK 56 template's src/ layout
 - [Phase 01-03]: check-hex-literals.mjs currently exits 1 against 3 pre-existing scaffold-default hex literals (src/components/animated-icon.tsx, themed-text.tsx) - expected per plan text, deferred to Plan 06's screen replacement
+- [Phase 01-04]: Reordered TDD task pair into RED (tests) then GREEN (implementation) commits since both tasks are tdd=true and the plan's literal implementation-then-tests order would not produce a genuine failing-test proof point
+- [Phase 01-04]: Added __mocks__/expo-localization.ts + jest.mock registration as supporting test infra, mirroring the react-native-mmkv mock pattern, since getLocales() wraps a native module unavailable under Jest
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-02T09:53:37.721Z
-Stopped at: Completed 01-03-PLAN.md (theme token module, ThemeProvider, useTheme hook, hex-literal gate)
+Last session: 2026-07-02T10:01:26.861Z
+Stopped at: Completed 01-04-PLAN.md (i18n layer: i18next init, device-locale resolution, CLDR Polish plurals, runtime locale switcher)
 Resume file: None
