@@ -436,17 +436,19 @@ function useFadeOnStateChange(state: string, reducedStimulus: boolean) {
 | A2 | The `markers` array survives unmodified through Metro's JSON `require()` bundling (no stripping of "unknown" Lottie fields) | Architecture Patterns Pattern 1 | If Metro or a JSON transform strips fields it doesn't recognize, marker lookup would return an empty table at runtime — mitigated by writing a unit test that imports the actual placeholder asset and asserts `markers` is present and non-empty, which will fail loudly in CI rather than silently in production if this assumption is wrong |
 | A3 | A hand-authored minimal Bodymovin JSON (Pattern 2's shape) renders correctly on both `lottie-android` and `lottie-ios` without needing fields beyond the minimal schema shown | Architecture Patterns Pattern 2 | If a required-but-undocumented field is missing, the placeholder may fail to render (falls back to the static `surfaceElevated` box per the Copywriting Contract's error-state rule — a *safe* failure mode, not a crash, but still needs the Android device checkpoint to confirm) |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does `onAnimationFinish` fire for `play(startFrame, endFrame)` segment playback the same way it does for full-loop playback, or does it only fire for the asset's own declared `op` (out point)?**
    - What we know: `onAnimationFinish` is documented as a prop for full animation completion; the API doc excerpt available didn't clarify segment-specific firing behavior.
    - What's unclear: whether the idle scheduler can rely on `onAnimationFinish` to know a micro-behavior segment finished playing (to resume the base loop), or whether it must use a `setTimeout` sized to the marker's known duration (`dr` in frames ÷ `fr` frame rate) instead.
    - Recommendation: default to the `setTimeout`-based approach (duration is already known from the marker's own `dr`/`fr` at authoring time — no need to depend on an animation-finish callback's segment-awareness at all), and treat `onAnimationFinish` as reserved for the one-shot `greeting`/`acknowledge` full-play completion only, where it unambiguously applies. Confirm behavior empirically during the Android device checkpoint if timing feels off.
+   - RESOLVED: setTimeout-sized segment completion chosen (duration derived from marker `dr`/`fr`); `onAnimationFinish` reserved for one-shot greeting/acknowledge. Followed by Plan 02-04 Task 2 (Mascot.tsx one-shot completion) and Plan 02-03 Task 2 (idle scheduler timing). Empirical confirmation folded into the Plan 02-05 Task 3 Android device checkpoint.
 
 2. **Exact weekly-download / community-health figures for `lottie-react-native` were not queried** (Package Legitimacy Audit's Downloads column is qualitative, not a verified number).
    - What we know: 9-year-old package, actively released (May 2026), the de facto standard Lottie wrapper for React Native, already named in CLAUDE.md's fixed stack.
    - What's unclear: precise current weekly download count (not fetched this session).
    - Recommendation: not needed for planning — package identity/legitimacy is already well-established via age, GitHub org activity, and slopcheck's OK verdict; a numeric download count would not change any decision here.
+   - RESOLVED: dismissed as not needed for planning — package legitimacy is settled (slopcheck OK, CLAUDE.md fixed stack); no plan decision depends on a precise download count.
 
 ## Validation Architecture
 
