@@ -34,8 +34,8 @@ describe('theme/useTheme', () => {
     );
   }
 
-  it('returns darkTokens when rendered under ThemeProvider', () => {
-    const { getByText } = render(
+  it('returns darkTokens when rendered under ThemeProvider', async () => {
+    const { getByText } = await render(
       React.createElement(ThemeProvider, null, React.createElement(Probe))
     );
 
