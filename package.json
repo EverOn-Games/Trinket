@@ -54,7 +54,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "lint:hex": "node scripts/check-hex-literals.mjs"
+    "lint:hex": "node scripts/check-hex-literals.mjs",
+    "test": "jest --watchAll=false",
+    "verify": "npm run lint && npm run lint:hex && npm test"
   },
   "private": true
 }
