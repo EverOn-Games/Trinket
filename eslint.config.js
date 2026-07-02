@@ -21,6 +21,7 @@ module.exports = defineConfig([
       '**/*.test.tsx',
       'scripts/**',
       'dist/**',
+      'design/**',
     ],
   },
   ...expoConfig,
