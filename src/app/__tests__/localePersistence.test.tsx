@@ -6,7 +6,7 @@
  * than relying on Jest's per-file module isolation (which only isolates across
  * *files*, not across tests within one file).
  */
-import { renderRouter } from 'expo-router/testing-library';
+import { act, renderRouter } from 'expo-router/testing-library';
 import { getLocales } from 'expo-localization';
 
 import i18n from '../../../i18n';
@@ -78,3 +78,34 @@ describe('usePersistResolvedLocale (WR-01)', () => {
     expect(useSettingsStore.getState().localeResolved).toBe(true);
   });
 });
+
+describe('usePersistLocaleOnChange (WR-02)', () => {
+  beforeEach(async () => {
+    resetLocaleState();
+    mockGetLocales.mockReturnValue([{ languageCode: 'en' }]);
+    await i18n.changeLanguage('en');
+  });
+
+  it('writes a runtime language change back into the settings store', async () => {
+    useSettingsStore.setState({ locale: 'en', localeResolved: true });
+
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    // Simulates the Phase 8 settings screen calling useLocale().setLocale('pl'),
+    // which only calls i18n.changeLanguage — the write-through listener mounted
+    // by RootLayout must persist the result. Wrapped in act() because
+    // changeLanguage triggers a react-i18next re-render outside of RTL's own
+    // render/fireEvent helpers.
+    await act(async () => {
+      await i18n.changeLanguage('pl');
+    });
+
+    expect(useSettingsStore.getState().locale).toBe('pl');
+  });
+});
+
+// The complementary "does a persisted runtime change survive the next boot"
+// behavior is covered by usePersistResolvedLocale's own "re-applies the
+// persisted locale on a later boot" test above — write-through (this describe
+// block) and boot-time re-application (WR-01) are independently tested seams
+// that together implement D-07/WR-02's full persist-then-restore contract.
