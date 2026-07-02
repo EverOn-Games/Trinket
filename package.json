@@ -5,6 +5,8 @@
   "dependencies": {
     "@expo/ui": "~56.0.19",
     "@testing-library/react-native": "^14.0.1",
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "~56.0.4",
     "expo": "~56.0.13",
     "expo-build-properties": "~56.0.20",
     "expo-constants": "~56.0.19",
@@ -39,6 +41,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/react": "~19.2.2",
     "eslint-plugin-i18next": "^6.1.5",
     "typescript": "~6.0.3"
