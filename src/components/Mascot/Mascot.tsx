@@ -142,6 +142,13 @@ export function Mascot({
     return resolveMarkers(asset);
   }, [currentState, asset]);
 
+  // Tracks the pending "resume base idle loop" timeout scheduled below, so a
+  // stale timer from an idle micro-behavior segment can never fire after
+  // currentState has moved on to presence/dozing/acknowledge and call
+  // .play() on the persistent LottieView ref while it displays a different
+  // state's asset (WR-01).
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
   const handleIdleMicroBehavior = (range: MarkerRange) => {
     // Ref reads here happen inside an event-callback body (invoked later, by
     // the scheduler's timer) — not during render — so this is a sanctioned
@@ -159,10 +166,26 @@ export function Mascot({
     const segmentFrames = range.endFrame - range.startFrame;
     const segmentDurationMs = idleFr > 0 ? (segmentFrames / idleFr) * 1000 : 0;
 
-    setTimeout(() => {
-      lottieRef.current?.play();
+    clearTimeout(resumeTimeoutRef.current);
+    resumeTimeoutRef.current = setTimeout(() => {
+      // Guard against a stale fire that survived a state change slipping
+      // through between clearTimeout calls (belt-and-suspenders alongside
+      // the currentState effect below).
+      if (currentState === 'idle') {
+        lottieRef.current?.play();
+      }
     }, segmentDurationMs);
   };
+
+  // Clear the pending "resume" timer whenever we leave idle (or unmount) so
+  // a stale timer can never call play() on a different state's asset
+  // (WR-01).
+  useEffect(() => {
+    if (currentState !== 'idle') {
+      clearTimeout(resumeTimeoutRef.current);
+    }
+    return () => clearTimeout(resumeTimeoutRef.current);
+  }, [currentState]);
 
   // MASC-02: idle micro-behaviors never fire during a one-shot state, and
   // the scheduler is fully paused (not just visually) while prominence is
