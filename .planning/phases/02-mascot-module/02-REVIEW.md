@@ -39,6 +39,12 @@ findings:
   info: 5
   total: 9
 status: issues_found
+fix_iteration: 1
+fixed_at: 2026-07-02T23:31:02Z
+warnings_resolved: 4
+warnings_outstanding: 0
+info_resolved: 0
+info_outstanding: 5
 ---
 
 # Phase 2: Code Review Report
@@ -94,6 +100,8 @@ useEffect(() => {
 }, [currentState]);
 ```
 
+**Resolution:** Fixed in commit `affcc5f` — `resumeTimeoutRef` tracks the pending resume timeout; it is cleared before scheduling a new one, cleared whenever `currentState` leaves `'idle'`, and cleared on unmount. The callback additionally guards `lottieRef.current?.play()` behind `currentState === 'idle'` as belt-and-suspenders.
+
 ### WR-02: Home screen reads `mascotProminence` via a non-reactive Zustand snapshot, so it won't update when the setting changes elsewhere
 
 **File:** `src/app/index.tsx:78`
@@ -107,6 +115,8 @@ const mascotProminence = useSettingsStore((s) => s.mascotProminence);
 <Mascot prominence={mascotProminence} ... />
 ```
 
+**Resolution:** Fixed in commit `2a341fb` — Home now subscribes via `useSettingsStore((s) => s.mascotProminence)` instead of `settingsRepo.get()`, so it re-renders reactively when the setting changes elsewhere (e.g. the future Phase 8 Settings screen).
+
 ### WR-03: Toggling `prominence` to/from `'hidden'` unmounts and remounts the LottieView, contradicting the module's documented single-persistent-instance contract
 
 **File:** `src/components/Mascot/Mascot.tsx:218-222` (compare with the module doc comment at lines 4-10)
@@ -114,6 +124,8 @@ const mascotProminence = useSettingsStore((s) => s.mascotProminence);
 
 This matters because the whole point of the single-instance contract is animation continuity — the mascot's constancy of presence. A user toggling prominence (once Phase 8 ships that control) will see the mascot animation always restart from frame 0 rather than resuming, which is inconsistent with how every other transition in this module is designed to behave.
 **Fix:** Either (a) keep the `Animated.View`/`LottieView` tree mounted unconditionally and use `opacity: 0`/pointer-events-none plus zero layout size for the hidden case instead of swapping element trees, so the same `LottieView` instance survives prominence toggles too; or (b) if the remount is intentionally acceptable for `hidden` (since nothing is visible anyway), narrow the header comment's claim to explicitly scope "persistent instance" to state transitions only, so the contract as documented doesn't overstate what the code guarantees.
+
+**Resolution:** Fixed in commit `e786d85` — chose option (a). The `LottieView` tree now always renders; `prominence === 'hidden'` applies `styles.hidden` (zero width/height, `opacity: 0`, `overflow: 'hidden'`) to the wrapper and sets `accessible={false}` / `importantForAccessibility="no-hide-descendants"` instead of swapping element trees. The `!asset` fallback branch is unchanged (it has no `LottieView` to preserve). Extended the "single persistent LottieView (MASC-04)" test with a new case asserting the SAME `lottie-view-mock` instance survives `prominent -> hidden -> subtle` toggles, and updated the "hidden prominence" test to assert the wrapper's zero-size/opacity-0/non-accessible styling (via `{ includeHiddenElements: true }`, since RNTL v14 excludes `importantForAccessibility="no-hide-descendants"` subtrees from default queries) rather than asserting the node is absent.
 
 ### WR-04: `handleStartSession` has no guard against rapid double-press, risking duplicate session records
 
@@ -129,6 +141,8 @@ const handleStartSession = () => {
   router.push('/co-pilot');
 };
 ```
+
+**Resolution:** Fixed in commit `5081b42` — `handleStartSession` is guarded by an `isStartingSessionRef` in-flight flag that short-circuits any press after the first, so `sessionsRepo.create()`/`router.push()` fire at most once per screen instance. Added a regression test asserting exactly one `Session` record is created on a rapid double-press of the home offer.
 
 ## Info
 
