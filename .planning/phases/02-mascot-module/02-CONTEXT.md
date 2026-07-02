@@ -27,7 +27,7 @@ This phase builds the module and its assets/contracts — it does NOT wire the m
 - **D-05:** Add `mascotProminence: 'prominent' | 'subtle' | 'hidden'` (default `'prominent'`) to the **existing Phase 1 `settings` MMKV repo/store this phase**. The module itself never reads the setting (stays feature-agnostic); hosts read it and pass the `prominence` prop. The Settings screen UI to change it lands in Phase 8 — only the field + default ship now.
 
 ### UI-SPEC flag deferrals (all accepted as recommended)
-- **D-06:** Custom font loading (Fraunces/Inter/JetBrains Mono via expo-font) is **deferred out of Phase 2** — module renders no text; `fontFamily: 'System'` unchanged. Revisit at Phase 6 Onboarding.
+- **D-06 [informational]:** Custom font loading (Fraunces/Inter/JetBrains Mono via expo-font) is **deferred out of Phase 2** — module renders no text; `fontFamily: 'System'` unchanged. Revisit at Phase 6 Onboarding. (Pure deferral — nothing to implement this phase, so no plan cites it.)
 - **D-07:** Greeting re-trigger cadence is a **host decision using an in-memory app-session flag** (greet once per cold launch). Never a persisted "last greeted at" timestamp — that would be a disguised daily-aggregate field the Phase 1 schema denylist test exists to catch.
 - **D-08:** Only `colors.mascotGlow: '#F2C988'` is added to `theme/tokens.ts` this phase. `mascotGlowDeep` (`#E8B05C`) is NOT pre-added — only if placeholder/final `presence` art gives a concrete reason for two glow intensities.
 
