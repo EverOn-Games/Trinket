@@ -32,5 +32,14 @@
   },
   "sessionsRemaining_one": "{{count}} sesja pozostała w tym tygodniu",
   "sessionsRemaining_few": "{{count}} sesje pozostałe w tym tygodniu",
-  "sessionsRemaining_many": "{{count}} sesji pozostałych w tym tygodniu"
+  "sessionsRemaining_many": "{{count}} sesji pozostałych w tym tygodniu",
+  "mascot": {
+    "accessibility": {
+      "greeting": "Twój towarzysz się wita",
+      "idle": "Twój towarzysz jest tutaj, spokojnie odpoczywa",
+      "presence": "Twój towarzysz jest tu z tobą",
+      "dozing": "Twój towarzysz przysnął",
+      "acknowledge": "Twój towarzysz cię zauważa"
+    }
+  }
 }

@@ -31,5 +31,14 @@
     "description": "Language, notifications, and your subscription will live here."
   },
   "sessionsRemaining_one": "{{count}} session left this week",
-  "sessionsRemaining_other": "{{count}} sessions left this week"
+  "sessionsRemaining_other": "{{count}} sessions left this week",
+  "mascot": {
+    "accessibility": {
+      "greeting": "Your companion says hello",
+      "idle": "Your companion is here, resting quietly",
+      "presence": "Your companion is here with you",
+      "dozing": "Your companion has dozed off",
+      "acknowledge": "Your companion acknowledges you"
+    }
+  }
 }
