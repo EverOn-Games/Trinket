@@ -22,6 +22,12 @@ const mmkvStateStorage: StateStorage = {
 
 export interface SettingsStoreState {
   locale: Locale;
+  // Explicit first-boot sentinel (WR-01): true once a locale has actually been
+  // resolved/persisted, independent of whether the `settings` persist key exists
+  // in storage for some unrelated reason (e.g. a future write of
+  // subscriptionCache before this flag is set). Do not infer "locale resolved"
+  // from key presence — see src/app/_layout.tsx's usePersistResolvedLocale.
+  localeResolved: boolean;
   notificationsOptIn: boolean;
   subscriptionCache: unknown; // typed placeholder, populated in Phase 7
   setLocale: (locale: Locale) => void;
@@ -34,9 +40,12 @@ export const useSettingsStore = create<SettingsStoreState>()(
       // Default locale 'en' — i18n resolves the real initial value at boot
       // (resolveInitialLocale, D-07) and writes it here via setLocale.
       locale: 'en',
+      localeResolved: false,
       notificationsOptIn: false,
       subscriptionCache: null,
-      setLocale: (locale) => set({ locale }),
+      // Setting a locale always marks resolution complete — this is the only
+      // place localeResolved flips to true (WR-01).
+      setLocale: (locale) => set({ locale, localeResolved: true }),
       setNotificationsOptIn: (notificationsOptIn) => set({ notificationsOptIn }),
     }),
     {

@@ -22,26 +22,23 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import i18n, { resolveInitialLocale } from '../../i18n';
 import { ThemeProvider, useTheme } from '../../theme';
-import { settingsStorage } from '../../data/mmkv';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
-
-// Zustand's `persist` middleware writes the whole store under this key name
-// (the `name` option in data/stores/useSettingsStore.ts) — checking for its
-// presence is how we distinguish "never persisted" from "persisted as 'en'".
-const SETTINGS_PERSIST_KEY = 'settings';
 
 function usePersistResolvedLocale(): void {
   useEffect(() => {
-    const hasPersistedSettings = settingsStorage.contains(SETTINGS_PERSIST_KEY);
+    // WR-01: first-boot detection uses the store's explicit `localeResolved`
+    // flag, not inferred key existence in settingsStorage (a pre-mount write of
+    // any other settings field — e.g. Phase 7's subscriptionCache — used to
+    // silently flip this sentinel and force-revert the language).
+    const { locale, localeResolved } = useSettingsStore.getState();
 
-    if (!hasPersistedSettings) {
+    if (!localeResolved) {
       useSettingsStore.getState().setLocale(resolveInitialLocale());
       return;
     }
 
-    const persistedLocale = useSettingsStore.getState().locale;
-    if (persistedLocale !== i18n.language) {
-      void i18n.changeLanguage(persistedLocale);
+    if (locale !== i18n.language) {
+      void i18n.changeLanguage(locale);
     }
   }, []);
 }
