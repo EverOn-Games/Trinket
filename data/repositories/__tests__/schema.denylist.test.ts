@@ -3,37 +3,63 @@
  * name ever enters the four local schemas (sessions, dumpItems, intentions, settings).
  *
  * "If a stat can only be used for pressure, it does not exist in the schema" —
- * PROJECT.md data-model dogma. This test inspects the actual runtime key set of a
- * representative created record of each type (not a text grep), so it also guards
- * against accidental additions in later phases.
+ * PROJECT.md data-model dogma. Two complementary checks:
+ * 1. A runtime probe (representative created record of each type) — catches fields
+ *    that are always populated.
+ * 2. A source-level scan of data/types.ts's interface property names — catches
+ *    *optional* fields (e.g. `streak?: number`) that would never appear in a probe's
+ *    runtime key set (WR-04).
+ * Both checks use case-insensitive substring matching against denylist stems, not
+ * exact equality, so near-miss names (`currentStreak`, `diagnosisType`,
+ * `dailyStreakCount`) are also caught (WR-04) — exact equality alone let those pass.
  */
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { sessionsRepo } from '../sessions';
 import { dumpItemsRepo } from '../dumpItems';
 import { intentionsRepo } from '../intentions';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 
-const DENYLIST = [
+// Denylist *stems*, matched as case-insensitive substrings — not exact field names.
+// This intentionally catches near-misses like `currentStreak`, `dailyStreakCount`,
+// and `diagnosisType` that exact-equality matching would silently let through.
+const DENYLIST_STEMS = [
   'streak',
-  'streakCount',
-  'dailyCount',
-  'dailyTotal',
-  'dailyAggregate',
-  'completionRate',
-  'dayChain',
-  'lastActiveDate',
-  'activeDays',
+  'daily',
+  'completionrate',
+  'daychain',
+  'lastactive',
+  'activedays',
   'diagnosis',
-  'adhdStatus',
-  'diagnosisStatus',
+  'adhd',
 ];
+
+function violatingStems(key: string): string[] {
+  const lowerKey = key.toLowerCase();
+  return DENYLIST_STEMS.filter((stem) => lowerKey.includes(stem));
+}
 
 function schemaKeys(record: object): string[] {
   return Object.keys(record);
 }
 
+// Extracts interface property names (including optional `name?:`) via a source-level
+// scan of data/types.ts, so denied fields that are declared but never populated by
+// the runtime probe (optional fields) are still caught.
+function extractInterfacePropertyNames(source: string): string[] {
+  const names: string[] = [];
+  const propertyRe = /^\s*([A-Za-z_$][A-Za-z0-9_$]*)\??\s*:/gm;
+  let match: RegExpExecArray | null;
+  while ((match = propertyRe.exec(source)) !== null) {
+    names.push(match[1]);
+  }
+  return names;
+}
+
 describe('schema denylist guard', () => {
-  it('has zero pressure/aggregate/diagnosis fields across all four local schemas', () => {
+  it('has zero pressure/aggregate/diagnosis fields across all four local schemas (runtime probe)', () => {
     const session = sessionsRepo.create({ source: 'quick', taskLabel: 'denylist probe' });
     const dumpItem = dumpItemsRepo.create({ text: 'denylist probe', category: 'errands' });
     const intention = intentionsRepo.create({
@@ -53,7 +79,16 @@ describe('schema denylist guard', () => {
       ...schemaKeys(settingsData),
     ]);
 
-    const violations = DENYLIST.filter((deniedField) => allKeys.has(deniedField));
+    const violations = [...allKeys].filter((key) => violatingStems(key).length > 0);
+
+    expect(violations).toEqual([]);
+  });
+
+  it('has zero pressure/aggregate/diagnosis fields declared in data/types.ts, including optional ones', () => {
+    const typesSource = readFileSync(join(__dirname, '../../types.ts'), 'utf8');
+    const declaredNames = extractInterfacePropertyNames(typesSource);
+
+    const violations = declaredNames.filter((name) => violatingStems(name).length > 0);
 
     expect(violations).toEqual([]);
   });
