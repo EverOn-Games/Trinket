@@ -12,7 +12,8 @@ A user who has been avoiding a task can open Trinket and actually start it in th
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Foundation: Expo SDK 56 scaffold (New Architecture, TS strict, dev-client/prebuild workflow), MMKV repositories for all four collections with schema denylist guard, dark earthy theme token module with hex-literal gate — Phase 1
+- ✓ Localization: i18n from the first screen, PL + EN string files, CLDR-correct Polish plurals, no hardcoded copy (lint-enforced), device-locale resolution with persisted override seam — Phase 1
 
 ### Active
 
@@ -22,7 +23,6 @@ A user who has been avoiding a task can open Trinket and actually start it in th
 - [ ] Mascot module: placeholder Lottie assets driving the MVP state machine (greeting, idle with 3+ micro-behaviors, presence, dozing, acknowledge); no negative states exist in the asset set
 - [ ] Onboarding: 3 screens max (what Trinket is, pick your first task, meet the mascot), skippable
 - [ ] Subscription infrastructure: RevenueCat over StoreKit 2 / Play Billing, three tiers per market (PL: 9,99/24,99/199 PLN; US: 5.99/11.99/79 USD), free tier = unlimited Brain dump + 3 Co-pilot sessions/week, shame-free gate copy ("sessions refresh Monday", never "you've run out")
-- [ ] Localization: i18n from the first screen, PL + EN string files, no hardcoded copy, warm plain Polish register
 - [ ] Settings: locale, notification opt-in, subscription state
 - [ ] Analytics: privacy-first, EU-hosted, pseudonymous event tracking with no content payloads; funnel events instrumented before beta
 - [ ] Offline-first correctness: fully functional offline except purchase/restore; session state persists across backgrounding and force-quit
@@ -83,6 +83,8 @@ A user who has been avoiding a task can open Trinket and actually start it in th
 | Full MVP scope in this milestone (build order 1–9) | Dev synthesis build order ends at beta hardening; that is the deliverable | — Pending |
 | Vertical MVP phase structure | Co-pilot end-to-end first (activation event), other mechanics as end-to-end slices after | — Pending |
 | Semantic categorization: prefer on-device, spike early | Minimal API call (text only, no identifiers) acceptable fallback | — Pending |
+| Bundle/package identifier `com.trinket.app` | Founder decision at Phase 1 checkpoint: app belongs to a separate, not-yet-named business, so identifier is brand-only (supersedes provisional `com.everon.trinket`); uniqueness proven only at first store submission | ✓ Good |
+| iOS device verification deferred to Phase 2–3 | Founder decision: don't spend EAS builds before iOS-specific risk exists (first Lottie work); hard gate before Phase 9 beta hardening | — Pending |
 
 ## Evolution
 
@@ -102,4 +104,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-01 after initialization*
+*Last updated: 2026-07-02 after Phase 1 (Scaffold & Foundations) completion — app boots on Android hardware, walking skeleton proven end-to-end*
