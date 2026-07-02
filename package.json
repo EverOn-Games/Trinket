@@ -56,8 +56,9 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "lint:hex": "node scripts/check-hex-literals.mjs",
+    "lint:mascot-assets": "node scripts/check-mascot-asset-size.mjs",
     "test": "jest --watchAll=false",
-    "verify": "npm run lint && npm run lint:hex && npm test",
+    "verify": "npm run lint && npm run lint:hex && npm run lint:mascot-assets && npm test",
     "android:fresh": "expo prebuild --clean --platform android && expo run:android",
     "ios:fresh": "expo prebuild --clean --platform ios && expo run:ios"
   },
