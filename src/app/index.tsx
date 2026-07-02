@@ -1,98 +1,109 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+/**
+ * Home-hub screen (D-03, D-04, DUMP-05).
+ *
+ * The mascot's habitat: a MascotSlot placeholder, a primary "Start a
+ * session?" offer (offer grammar — never a command), a prominent secondary
+ * Brain dump entry reachable directly from home, and navigation to Starter,
+ * History, and Settings. No tab bar (D-03).
+ */
+import { Link, useRouter } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { Screen } from '@/components/Screen';
+import { MascotSlot } from '@/components/MascotSlot';
+import { useTheme } from '../../theme';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const router = useRouter();
+
+  const handleStartSession = () => {
+    router.push('/co-pilot');
+  };
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <Screen>
+      <ScrollView contentContainerStyle={{ gap: theme.spacing.lg }}>
+        <MascotSlot accessibilityLabel={t('home.mascotSlotLabel')} />
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <Text
+          style={[
+            styles.title,
+            { color: theme.colors.textPrimary, fontSize: theme.typography.scale.display },
+          ]}
+        >
+          {t('home.title')}
+        </Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <Pressable
+          accessibilityRole="button"
+          onPress={handleStartSession}
+          style={[
+            styles.primaryOffer,
+            { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
+          ]}
+        >
+          <Text
+            style={[
+              styles.primaryOfferLabel,
+              { color: theme.colors.background, fontSize: theme.typography.scale.title },
+            ]}
+          >
+            {t('home.startSessionOffer')}
+          </Text>
+        </Pressable>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        <Link href="/brain-dump" asChild>
+          <Pressable
+            accessibilityRole="button"
+            style={[
+              styles.secondaryOffer,
+              { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.md },
+            ]}
+          >
+            <Text
+              style={{ color: theme.colors.textPrimary, fontSize: theme.typography.scale.body }}
+            >
+              {t('home.brainDumpOffer')}
+            </Text>
+          </Pressable>
+        </Link>
+
+        <View style={[styles.linkRow, { gap: theme.spacing.lg }]}>
+          <Link href="/starter">
+            <Text style={{ color: theme.colors.accent }}>{t('home.starterLink')}</Text>
+          </Link>
+          <Link href="/history">
+            <Text style={{ color: theme.colors.accent }}>{t('home.historyLink')}</Text>
+          </Link>
+          <Link href="/settings">
+            <Text style={{ color: theme.colors.accent }}>{t('home.settingsLink')}</Text>
+          </Link>
+        </View>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
   title: {
+    fontWeight: '600',
+  },
+  primaryOffer: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+  },
+  primaryOfferLabel: {
     textAlign: 'center',
+    fontWeight: '600',
   },
-  code: {
-    textTransform: 'uppercase',
+  secondaryOffer: {
+    padding: 16,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  linkRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });

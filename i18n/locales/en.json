@@ -1,23 +1,34 @@
 {
   "home": {
     "title": "Trinket",
+    "mascotSlotLabel": "Your companion's spot",
     "startSessionOffer": "Start a session?",
-    "brainDumpOffer": "Brain dump"
+    "brainDumpOffer": "Brain dump",
+    "starterLink": "Starter",
+    "historyLink": "History",
+    "settingsLink": "Settings"
   },
   "coPilot": {
-    "title": "Co-pilot"
+    "title": "Co-pilot",
+    "description": "Your session space will live here."
   },
   "brainDump": {
-    "title": "Brain dump"
+    "title": "Brain dump",
+    "description": "A quick place to empty your head — nothing here becomes a task until you say so."
   },
   "starter": {
-    "title": "Starter"
+    "title": "Starter",
+    "description": "A gentle way to line up your next move."
   },
   "history": {
-    "title": "History"
+    "title": "History",
+    "description": "A quiet log of your sessions — no scores, no streaks.",
+    "emptyState": "Nothing here yet. Whenever you start a session, it will show up in this list.",
+    "sessionFallbackLabel": "Session"
   },
   "settings": {
-    "title": "Settings"
+    "title": "Settings",
+    "description": "Language, notifications, and your subscription will live here."
   },
   "sessionsRemaining_one": "{{count}} session left this week",
   "sessionsRemaining_other": "{{count}} sessions left this week"

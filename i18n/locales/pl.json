@@ -1,23 +1,34 @@
 {
   "home": {
     "title": "Trinket",
+    "mascotSlotLabel": "Miejsce twojego towarzysza",
     "startSessionOffer": "Zacząć sesję?",
-    "brainDumpOffer": "Zrzut myśli"
+    "brainDumpOffer": "Zrzut myśli",
+    "starterLink": "Starter",
+    "historyLink": "Historia",
+    "settingsLink": "Ustawienia"
   },
   "coPilot": {
-    "title": "Co-pilot"
+    "title": "Co-pilot",
+    "description": "Tu pojawi się przestrzeń twojej sesji."
   },
   "brainDump": {
-    "title": "Zrzut myśli"
+    "title": "Zrzut myśli",
+    "description": "Miejsce, żeby szybko wyrzucić z głowy myśli — nic tu nie staje się zadaniem, dopóki sam tego nie zdecydujesz."
   },
   "starter": {
-    "title": "Starter"
+    "title": "Starter",
+    "description": "Łagodny sposób, żeby przygotować kolejny krok."
   },
   "history": {
-    "title": "Historia"
+    "title": "Historia",
+    "description": "Spokojny zapis twoich sesji — bez ocen, bez serii.",
+    "emptyState": "Jeszcze nic tu nie ma. Gdy zaczniesz sesję, pojawi się na tej liście.",
+    "sessionFallbackLabel": "Sesja"
   },
   "settings": {
-    "title": "Ustawienia"
+    "title": "Ustawienia",
+    "description": "Tu znajdzie się język, powiadomienia i subskrypcja."
   },
   "sessionsRemaining_one": "{{count}} sesja pozostała w tym tygodniu",
   "sessionsRemaining_few": "{{count}} sesje pozostałe w tym tygodniu",
