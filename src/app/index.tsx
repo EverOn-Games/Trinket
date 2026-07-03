@@ -1,11 +1,16 @@
 /**
- * Home-hub screen (D-03, D-04, DUMP-05).
+ * Home-hub screen (D-03, D-04, DUMP-05, PILOT-06, D-11).
  *
  * The mascot's habitat: the real <Mascot />, greeting once per cold launch
  * then resting in idle (MASC-01, D-07), a primary "Start a session?" offer
  * (offer grammar — never a command), a prominent secondary Brain dump entry
  * reachable directly from home, and navigation to Starter, History, and
  * Settings. No tab bar (D-03).
+ *
+ * When a live Co-pilot session pointer exists (D-11), a warm resume card
+ * REPLACES the primary offer (UI-SPEC Flag 3) — continuity language only,
+ * never "interrupted"/"paused"/"you left". Resume re-enters the session;
+ * "Not now" silently ends it at lastAliveAt with zero confirmation/comment.
  */
 import { useRef, useState } from 'react';
 import { Link, useRouter } from 'expo-router';
@@ -15,8 +20,12 @@ import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { Mascot } from '@/components/Mascot/Mascot';
 import type { MascotState } from '@/components/Mascot/types';
+import { reconcileActiveSession } from '@/features/co-pilot/reconcileActiveSession';
 import { useTheme } from '../../theme';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
+import { activeSessionRepo } from '../../data/repositories/activeSession';
+import { sessionsRepo } from '../../data/repositories/sessions';
+import { STALE_THRESHOLD_MS } from './_layout';
 
 // D-07: greeting cadence lives in a plain module-level, in-memory flag —
 // NEVER persisted (no settingsRepo/useSettingsStore write, no
@@ -64,6 +73,61 @@ export default function HomeScreen() {
     router.push('/co-pilot');
   };
 
+  // D-11/D-16: once "Not now" has silently ended the session on this Home
+  // instance, treat the pointer as gone for the rest of this mount without
+  // re-reading MMKV — this is what forces Home to re-render showing the
+  // normal primary offer (activeSessionRepo.read() alone, called directly in
+  // the render body below, would never by itself trigger a re-render).
+  const [dismissedActiveSession, setDismissedActiveSession] = useState(false);
+  // A lazy useState initializer, never a bare Date.now() call in the render
+  // body itself (react-hooks/purity — mirrors history.tsx's SessionRow
+  // nowFallback precedent). A value frozen at mount is correct here: this
+  // only gates a one-time "should I show a resume card" render decision, not
+  // a live-ticking display.
+  const [nowAtMount] = useState(() => Date.now());
+
+  // D-11: read the pointer fresh on every render (mirrors co-pilot.tsx's
+  // SetupPhase dumpItemsRepo.list()-in-render-body precedent), then
+  // independently re-verify liveness via the exact same pure
+  // reconcileActiveSession gate _layout.tsx's boot sweep uses — not just
+  // "does a pointer exist". This is required, not just extra caution:
+  // React always fully renders and commits a component before any effect in
+  // the tree fires, so Home's very first render is guaranteed to happen
+  // before useReconcileActiveSession's effect has run, and that effect
+  // performs its write via plain MMKV calls (no React state), so it never
+  // triggers a Home re-render on its own. Trusting pointer-existence alone
+  // would risk showing a resume card for a session this same boot is about
+  // to silently close — a direct violation of D-12's "no mention anywhere".
+  const pointer = dismissedActiveSession ? undefined : activeSessionRepo.read();
+  const showResumeCard =
+    pointer !== undefined &&
+    reconcileActiveSession(pointer, nowAtMount, STALE_THRESHOLD_MS).kind === 'keep-live';
+
+  // T-03-05: shared guard across Resume and Not now — they are mutually
+  // exclusive alternatives on the same live-pointer card, so at most one of
+  // {a second Resume push, a second Not-now write+clear} may ever fire for a
+  // single rapid multi-tap. Distinct from isStartingSessionRef, which guards
+  // the unrelated primary offer that only ever renders when this card does not.
+  const isResumeCardActionRef = useRef(false);
+  const handleResume = () => {
+    if (isResumeCardActionRef.current) return;
+    isResumeCardActionRef.current = true;
+    router.push('/co-pilot'); // co-pilot.tsx reads the pointer on mount and
+    // resumes the active phase directly (D-16) — no new session created.
+  };
+
+  // D-11: silently ends the session at lastAliveAt — the same honest
+  // best-effort bound the D-12 boot sweep itself uses — with zero
+  // confirmation, toast, or comment. Home then re-renders the normal
+  // primary offer.
+  const handleNotNow = () => {
+    if (isResumeCardActionRef.current || !pointer) return;
+    isResumeCardActionRef.current = true;
+    sessionsRepo.update(pointer.sessionId, { endedAt: pointer.lastAliveAt });
+    activeSessionRepo.clear();
+    setDismissedActiveSession(true);
+  };
+
   // Every style below is flattened to a single object (never an array) —
   // expo-router's internal <Slot> shim throws when a route's root child (or
   // a <Link asChild> child) receives an array `style` prop (see
@@ -85,6 +149,26 @@ export default function HomeScreen() {
     { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.md },
   ]);
   const linkRowStyle = StyleSheet.flatten([styles.linkRow, { gap: theme.spacing.lg }]);
+  const resumeCardStyle = StyleSheet.flatten([
+    styles.resumeCard,
+    { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.lg },
+  ]);
+  const resumeCardKickerStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.caption,
+    fontWeight: '600' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1.2,
+  };
+  const resumeCardBodyStyle = {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.scale.body,
+  };
+  const notNowLabelStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.body,
+    textAlign: 'center' as const,
+  };
 
   return (
     <Screen>
@@ -98,9 +182,26 @@ export default function HomeScreen() {
 
         <Text style={titleStyle}>{t('home.title')}</Text>
 
-        <Pressable accessibilityRole="button" onPress={handleStartSession} style={primaryOfferStyle}>
-          <Text style={primaryOfferLabelStyle}>{t('home.startSessionOffer')}</Text>
-        </Pressable>
+        {showResumeCard && pointer ? (
+          <View style={resumeCardStyle}>
+            <Text style={resumeCardKickerStyle}>{t('home.resumeCard.kicker')}</Text>
+            <Text style={resumeCardBodyStyle}>
+              {pointer.taskLabel
+                ? t('home.resumeCard.withLabel', { taskLabel: pointer.taskLabel })
+                : t('home.resumeCard.withoutLabel')}
+            </Text>
+            <Pressable accessibilityRole="button" onPress={handleResume} style={primaryOfferStyle}>
+              <Text style={primaryOfferLabelStyle}>{t('home.resumeCard.resume')}</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={handleNotNow} style={styles.notNowButton}>
+              <Text style={notNowLabelStyle}>{t('home.resumeCard.notNow')}</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Pressable accessibilityRole="button" onPress={handleStartSession} style={primaryOfferStyle}>
+            <Text style={primaryOfferLabelStyle}>{t('home.startSessionOffer')}</Text>
+          </Pressable>
+        )}
 
         <Link href="/brain-dump" asChild>
           <Pressable accessibilityRole="button" style={secondaryOfferStyle}>
@@ -144,5 +245,13 @@ const styles = StyleSheet.create({
   linkRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  resumeCard: {
+    padding: 16,
+    gap: 8,
+  },
+  notNowButton: {
+    alignItems: 'center',
+    paddingVertical: 8,
   },
 });

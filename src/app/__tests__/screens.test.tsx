@@ -276,3 +276,82 @@ describe('History quiet-log rows (PILOT-07, D-15)', () => {
     expect(await screen.findByText(en.history.durationLessThanMinute)).toBeTruthy();
   });
 });
+
+describe('Home resume card (PILOT-06, D-11, D-12, T-03-05)', () => {
+  beforeEach(() => {
+    contentStorage.clearAll();
+  });
+
+  it('shows the resume card (not the primary offer) when a live session pointer exists at render (D-11)', async () => {
+    const session = sessionsRepo.create({ source: 'quick', taskLabel: 'write the report' });
+    activeSessionRepo.start(session.id, session.startedAt, session.taskLabel);
+
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    // Continuity-only copy: the kicker renders, and the withLabel body
+    // interpolates the pointer's own taskLabel — never "interrupted"/
+    // "paused"/"you left" anywhere (D-11).
+    expect(await screen.findByText(en.home.resumeCard.kicker)).toBeTruthy();
+    expect(
+      screen.getByText(en.home.resumeCard.withLabel.replace('{{taskLabel}}', 'write the report'))
+    ).toBeTruthy();
+    expect(screen.queryByRole('button', { name: en.home.startSessionOffer })).toBeNull();
+  });
+
+  it('"Resume" navigates to the live session without creating a new one (D-16)', async () => {
+    const session = sessionsRepo.create({ source: 'open' });
+    activeSessionRepo.start(session.id, session.startedAt);
+    const before = sessionsRepo.list().length;
+
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    await fireEvent.press(await screen.findByRole('button', { name: en.home.resumeCard.resume }));
+
+    // co-pilot.tsx's own flowPhase initializer resumes the active phase
+    // directly from the still-live pointer — no second Session is created.
+    expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+    expect(sessionsRepo.list().length).toBe(before);
+  });
+
+  it('"Not now" silently ends the session at lastAliveAt and clears the pointer, with no confirmation (D-11)', async () => {
+    const session = sessionsRepo.create({ source: 'open' });
+    activeSessionRepo.start(session.id, session.startedAt);
+    const pointerBeforeDismiss = activeSessionRepo.read();
+
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    await fireEvent.press(await screen.findByRole('button', { name: en.home.resumeCard.notNow }));
+
+    expect(activeSessionRepo.read()).toBeUndefined();
+    expect(sessionsRepo.get(session.id)?.endedAt).toBe(pointerBeforeDismiss?.lastAliveAt);
+    // Home falls back to the normal primary offer, silently — no toast, no
+    // Alert, no lingering resume card.
+    expect(await screen.findByRole('button', { name: en.home.startSessionOffer })).toBeTruthy();
+    expect(screen.queryByText(en.home.resumeCard.kicker)).toBeNull();
+  });
+
+  it('does not show a resume card for a stale pointer — it is reconciled at boot and appears as an ordinary History row (D-12)', async () => {
+    const staleStartedAt = Date.now() - 20 * 60 * 60 * 1000; // 20h ago
+    const staleLastAliveAt = Date.now() - 13 * 60 * 60 * 1000; // 13h ago — past the 12h threshold
+    const session = sessionsRepo.create({ source: 'quick', taskLabel: 'overnight task' });
+    sessionsRepo.update(session.id, { startedAt: staleStartedAt });
+    activeSessionRepo.start(session.id, staleStartedAt, session.taskLabel);
+    activeSessionRepo.heartbeat(staleLastAliveAt);
+
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    // Home: zero mention of the stale session — no resume card, ever — and
+    // the pointer itself has already been silently reconciled by the boot
+    // sweep (D-12).
+    expect(screen.queryByText(en.home.resumeCard.kicker)).toBeNull();
+    expect(await screen.findByRole('button', { name: en.home.startSessionOffer })).toBeTruthy();
+    expect(activeSessionRepo.read()).toBeUndefined();
+    expect(sessionsRepo.get(session.id)?.endedAt).toBe(staleLastAliveAt);
+
+    // History: the reconciled session reads as an ordinary completed row —
+    // zero interruption/pause language anywhere (PILOT-06 "zero mention").
+    await renderRouter(routeContext, { initialUrl: '/history' });
+    expect(await screen.findByText('overnight task')).toBeTruthy();
+    expect(screen.queryByText(/interrupt|paused|you left/i)).toBeNull();
+  });
+});
