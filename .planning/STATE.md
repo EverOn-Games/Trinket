@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-07-03T01:53:12.979Z"
+status: verifying
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-07-03T02:13:54.134Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 9
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 15
-  completed_plans: 14
-  percent: 22
+  completed_plans: 15
+  percent: 33
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 
 Phase: 3 (Co-pilot End-to-End) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-03
 
-Progress: [█████████░] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [█████████░] 93%
 | Phase 03 P01 | 8min | 3 tasks | 8 files |
 | Phase 03 P02 | 15min | 3 tasks | 5 files |
 | Phase 03 P03 | 13min | 3 tasks | 5 files |
+| Phase 03 P04 | 16min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,9 @@ Recent decisions affecting current work:
 - [Phase 03-03]: endSession (write + activeSessionRepo.clear + setFlowPhase('ending')) lives in the parent CoPilotScreen, not ActivePhase, since flowPhase/activeSession/sessionId already live there — ActivePhase keeps only its pre-existing isEndingSessionRef double-tap guard and calls the passed onEnd callback
 - [Phase 03-03]: Mood glyph/value mapping (UI-SPEC Flag 5, Claude's discretion): 🙂=3 (good) / 😐=2 (okay) / 😣=1 (tough)
 - [Phase 03-03]: Test navigation assertions use jest.spyOn(router, 'replace') on expo-router's shared imperative-api singleton rather than renderRouter's/screen's getPathname() — getPathname is Object.assign-attached onto the render Promise wrapper and does not survive @testing-library/react-native v14's async-render await unwrap
+- [Phase 03-04]: Home independently re-verifies pointer liveness via reconcileActiveSession, not just pointer existence — React commits a component's first render before any effect in the tree fires, so Home's very first render is guaranteed to happen before _layout.tsx's useReconcileActiveSession effect runs
+- [Phase 03-04]: STALE_THRESHOLD_MS (12h) defined and exported once from _layout.tsx, imported by index.tsx — satisfies the plan's grep-verifiable literal-constant requirement while avoiding a duplicated 12h literal across both files
+- [Phase 03-04]: Home's post-Not-now state (dismissedActiveSession) is a plain boolean useState, not a re-read counter — this is what forces a re-render after Not now since activeSessionRepo.read() alone in the render body has no reactive subscription
 
 ### Pending Todos
 
@@ -145,6 +149,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-03T01:53:12.950Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-07-03T02:13:54.104Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
