@@ -1,20 +1,14 @@
 ---
-status: partial
+status: complete
 phase: 03-co-pilot-end-to-end
 source: [03-VERIFICATION.md]
 started: 2026-07-03T03:25:00Z
-updated: 2026-07-03T03:55:00Z
+updated: 2026-07-03T04:00:00Z
 ---
 
 ## Current Test
 
-number: 5
-name: Screen-reader pass over the one-liner "Start" CTA enabled/disabled state
-expected: |
-  A screen-reader user (VoiceOver/TalkBack) can tell when the one-liner "Start"
-  button is disabled (before the field has focus) vs enabled — not only inferred
-  from color. Fix candidate: add accessibilityState={{ disabled: !hasFocusedOneLiner }}.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -39,15 +33,16 @@ note: "Tone sub-check passed; the reported defect is the ending moment's mood-ch
 
 ### 5. Screen-reader pass over the one-liner "Start" CTA enabled/disabled state (03-REVIEW.md IN-02, unfixed)
 expected: A screen-reader user (VoiceOver/TalkBack) can tell when the one-liner "Start" button is disabled (before the field has focus) vs enabled — not only inferred from color. Fix candidate: add `accessibilityState={{ disabled: !hasFocusedOneLiner }}` to the Pressable.
-result: [pending]
+result: skipped
+reason: "User deferred the screen-reader pass ('not gonna check that for now'). Known fix candidate (IN-02) is trivial and can ride along with the Test-4 gap-closure fix."
 
 ## Summary
 
 total: 5
 passed: 3
 issues: 1
-pending: 1
-skipped: 0
+pending: 0
+skipped: 1
 blocked: 0
 
 ## Gaps
