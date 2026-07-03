@@ -3,17 +3,17 @@ status: partial
 phase: 03-co-pilot-end-to-end
 source: [03-VERIFICATION.md]
 started: 2026-07-03T03:25:00Z
-updated: 2026-07-03T03:50:00Z
+updated: 2026-07-03T03:55:00Z
 ---
 
 ## Current Test
 
-number: 4
-name: Visual/tonal check of resume card and ending moment (shame-free / PDA intent)
+number: 5
+name: Screen-reader pass over the one-liner "Start" CTA enabled/disabled state
 expected: |
-  On an actual device screen, the resume card and the ending moment
-  (acknowledgment + mood check) read as warm and pressure-free — not clinical,
-  not guilt-inducing, no visual emphasis implying evaluation/judgment.
+  A screen-reader user (VoiceOver/TalkBack) can tell when the one-liner "Start"
+  button is disabled (before the field has focus) vs enabled — not only inferred
+  from color. Fix candidate: add accessibilityState={{ disabled: !hasFocusedOneLiner }}.
 awaiting: user response
 
 ## Tests
@@ -32,7 +32,10 @@ result: pass
 
 ### 4. Visual/tonal check of resume card and ending moment (shame-free / PDA intent)
 expected: The resume card and the ending moment (acknowledgment + mood check) read as warm and pressure-free on an actual device screen — not clinical, not guilt-inducing, no visual emphasis implying evaluation/judgment.
-result: [pending]
+result: issue
+reported: "Tone feels ok. But when ending a session, the mood-emoji screen appears for only ~1 second and then auto-redirects to the start screen — the mood check can't actually be used."
+severity: major
+note: "Tone sub-check passed; the reported defect is the ending moment's mood-check auto-dismiss, not the copy."
 
 ### 5. Screen-reader pass over the one-liner "Start" CTA enabled/disabled state (03-REVIEW.md IN-02, unfixed)
 expected: A screen-reader user (VoiceOver/TalkBack) can tell when the one-liner "Start" button is disabled (before the field has focus) vs enabled — not only inferred from color. Fix candidate: add `accessibilityState={{ disabled: !hasFocusedOneLiner }}` to the Pressable.
@@ -42,9 +45,17 @@ result: [pending]
 
 total: 5
 passed: 3
-issues: 0
-pending: 2
+issues: 1
+pending: 1
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+- truth: "Ending a session always shows a warm acknowledgment with a usable, skippable one-tap 3-level mood check (PILOT-05, D-13); the mood check must remain until the user taps a mood or Skip — it must not auto-dismiss."
+  status: failed
+  reason: "User reported (Test 4, on-device): the mood-emoji screen appears ~1s then auto-redirects to Home. Root cause: EndingPhase wires the Mascot `acknowledge` one-shot's onStateAnimationComplete → finishEnding() → router.replace('/'), so navigation is driven by the (short placeholder) animation length. D-13 'Pattern 3' treated animation-conclusion as an implicit skip, but on real hardware the ~1s placeholder makes the mood check unusable."
+  severity: major
+  test: 4
+  artifacts: ["src/app/co-pilot.tsx (EndingPhase, handleAnimationComplete)"]
+  missing: ["mood check must persist until an explicit mood tap or Skip; decouple navigation from acknowledge-animation completion"]
