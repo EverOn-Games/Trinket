@@ -14,6 +14,8 @@ import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-librar
 
 import { contentStorage } from '../../../data/mmkv';
 import { sessionsRepo } from '../../../data/repositories/sessions';
+import { dumpItemsRepo } from '../../../data/repositories/dumpItems';
+import { activeSessionRepo } from '../../../data/repositories/activeSession';
 import en from '../../../i18n/locales/en.json';
 
 import RootLayout from '../_layout';
@@ -109,5 +111,81 @@ describe('walking-skeleton slice', () => {
     // tests to account for.
     expect(screen.getAllByText(en.history.sessionFallbackLabel)).toHaveLength(1);
     expect(screen.queryByText(en.history.emptyState)).toBeNull();
+  });
+});
+
+describe('Co-pilot setup + active phases (PILOT-01, PILOT-03, T-03-05)', () => {
+  beforeEach(() => {
+    contentStorage.clearAll();
+  });
+
+  it('starts a session from the one-liner path with source "quick" (D-01)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    const before = sessionsRepo.list().length;
+    const input = screen.getByPlaceholderText(en.coPilot.setup.oneLiner.placeholder);
+    // fireEvent is async in @testing-library/react-native v14 — each call must
+    // be awaited so the field's focus/text state commits before the "Start"
+    // press reads it (chaining un-awaited fireEvent calls produces
+    // overlapping act() warnings and a stale `disabled`/text snapshot).
+    await fireEvent(input, 'focus');
+    await fireEvent.changeText(input, 'write the report');
+    await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.oneLiner.cta }));
+
+    const sessions = sessionsRepo.list();
+    expect(sessions.length).toBe(before + 1);
+    const created = sessions[sessions.length - 1];
+    expect(created.source).toBe('quick');
+    expect(created.taskLabel).toBe('write the report');
+  });
+
+  it('starts a session from the "Just work" path with source "open" (D-01)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    const before = sessionsRepo.list().length;
+    await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
+
+    const sessions = sessionsRepo.list();
+    expect(sessions.length).toBe(before + 1);
+    expect(sessions[sessions.length - 1].source).toBe('open');
+  });
+
+  it('starts a session from a dump item with source "dump" and links promotedTaskId (D-01, D-02)', async () => {
+    const item = dumpItemsRepo.create({ text: 'call the dentist', category: 'people' });
+
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    const before = sessionsRepo.list().length;
+    await fireEvent.press(screen.getByText(item.text));
+
+    const sessions = sessionsRepo.list();
+    expect(sessions.length).toBe(before + 1);
+    const created = sessions[sessions.length - 1];
+    expect(created.source).toBe('dump');
+    expect(dumpItemsRepo.get(item.id)?.promotedTaskId).toBe(created.id);
+  });
+
+  it('clears the active-session pointer and returns Home when End is pressed', async () => {
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
+    await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
+
+    expect(activeSessionRepo.read()).toBeUndefined();
+  });
+
+  it('resumes the active phase on re-entry instead of starting a new session (D-16)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
+    const before = sessionsRepo.list().length;
+
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    // Re-entering with a live pointer must land directly on the active
+    // phase (the End button is present) and must not create a second
+    // Session record for the same intent.
+    expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+    expect(sessionsRepo.list().length).toBe(before);
   });
 });

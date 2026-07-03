@@ -1,9 +1,8 @@
 /**
- * Co-pilot screen (D-01..D-03, D-16, PILOT-01). A single route driving a
+ * Co-pilot screen (D-01..D-07, D-16, PILOT-01..04). A single route driving a
  * `flowPhase` state machine: `setup` (three equal-weight entry paths, D-01)
- * -> `active` (mascot presence/dozing + subtle timer + single End, D-04/05/07
- * — filled in by this plan's Task 3) -> `ending` (warm acknowledgment + mood
- * check, Plan 03-03).
+ * -> `active` (mascot presence/dozing + subtle timer + single End, D-04/05/07)
+ * -> `ending` (warm acknowledgment + mood check, Plan 03-03).
  *
  * Nothing is persisted until a path is chosen on the setup screen (Pattern 1)
  * — the length-intent chips are ephemeral component state, never written to
@@ -12,15 +11,19 @@
  * (D-16) via the `flowPhase`/`activeSession` initializers below, which read
  * the Plan 03-01 `activeSessionRepo` pointer synchronously on mount.
  */
-import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { Screen } from '@/components/Screen';
+import { Mascot } from '@/components/Mascot/Mascot';
 import { useTheme } from '../../theme';
 import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
+import { useElapsedSession } from '@/features/co-pilot/useElapsedSession';
 import type { DumpItem, Session } from '../../data/types';
 
 type LiveSession = {
@@ -32,6 +35,21 @@ type LiveSession = {
 // D-03: preset length-intent suggestions, 25 pre-highlighted by default.
 // Never round-tripped through sessionsRepo — display-only, local state.
 const LENGTH_CHIP_VALUES = [15, 25, 45, 90];
+const CROSSFADE_MS = 325; // mirrors Mascot.tsx's opacity-fade idiom, within the 300-350ms band
+
+function crossfadeDurationMs(): number {
+  return CROSSFADE_MS;
+}
+
+function formatDuration(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const mm = String(minutes).padStart(2, '0');
+  const ss = String(seconds).padStart(2, '0');
+  return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+}
 
 export default function CoPilotScreen() {
   // D-16 / Open Question 2: reading the pointer synchronously in the
@@ -87,9 +105,7 @@ export default function CoPilotScreen() {
   return (
     <Screen>
       {flowPhase === 'active' && activeSession ? (
-        // Task 3 fills this in with mascot presence/dozing, the subtle
-        // timestamp-derived timer, and the single End button (D-04/05/07).
-        <ActivePhasePlaceholder session={activeSession} />
+        <ActivePhase session={activeSession} lengthIntentMin={lengthIntentMin} />
       ) : (
         <SetupPhase
           lengthIntentMin={lengthIntentMin}
@@ -218,7 +234,12 @@ function SetupPhase({
         </Pressable>
       </View>
 
-      <Pressable accessibilityRole="button" onPress={onStartOpen} style={justWorkCardStyle}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('coPilot.setup.justWork.label')}
+        onPress={onStartOpen}
+        style={justWorkCardStyle}
+      >
         <Text style={justWorkLabelStyle}>{t('coPilot.setup.justWork.label')}</Text>
         <Text style={justWorkSubcopyStyle}>{t('coPilot.setup.justWork.subcopy')}</Text>
       </Pressable>
@@ -296,17 +317,140 @@ function SetupPhase({
   );
 }
 
-// Minimal stand-in for the active phase — Task 3 replaces this with the
-// mascot presence/dozing host, the subtle timestamp-derived timer (with
-// opt-in countdown), and the single End button (D-04, D-05, D-06, D-07).
-function ActivePhasePlaceholder({ session }: { session: LiveSession }) {
+// Active session screen: mascot presence/dozing (D-04, D-07), a subtle
+// timestamp-derived timer with opt-in countdown (D-05, D-06), and the single
+// End button (D-04). The ending moment itself (warm acknowledgment + mood
+// check, D-13) lands in Plan 03-03 — End is a quiet-close stub here.
+function ActivePhase({
+  session,
+  lengthIntentMin,
+}: {
+  session: LiveSession;
+  lengthIntentMin: number | null;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const taskLabelStyle = { color: theme.colors.textPrimary, fontSize: theme.typography.scale.body };
+  const router = useRouter();
+
+  const { elapsedMs, isDozing, wake } = useElapsedSession(session.startedAt, (lastAliveAt) =>
+    activeSessionRepo.heartbeat(lastAliveAt)
+  );
+
+  const [timeMode, setTimeMode] = useState<'elapsed' | 'remaining'>('elapsed');
+  const [countdownRetired, setCountdownRetired] = useState(false);
+
+  // D-06: the crossfade back to elapsed at zero, and any manual toggle, both
+  // go through this shared opacity animation — mirrors Mascot.tsx's own
+  // "set to 0, withTiming back to 1 on every state change" idiom.
+  const opacity = useSharedValue(1);
+
+  const remainingMs =
+    lengthIntentMin != null ? Math.max(0, lengthIntentMin * 60 * 1000 - elapsedMs) : 0;
+
+  // D-06: no sound, no vibration, no color change, no mascot reaction when a
+  // countdown reaches zero — silently fall back to a plain elapsed count-up
+  // and permanently retire the toggle for the rest of the session. Adjusting
+  // state directly during render (not inside an effect) is the React-endorsed
+  // pattern for state derived purely from this render's own inputs — it
+  // never touches the Reanimated shared value, so it stays a plain,
+  // side-effect-free state update; the crossfade itself is driven by the
+  // effect below, which reacts to the resulting `timeMode` change.
+  if (timeMode === 'remaining' && lengthIntentMin != null && !countdownRetired && remainingMs <= 0) {
+    setTimeMode('elapsed');
+    setCountdownRetired(true);
+  }
+
+  // D-06 crossfade: mirrors Mascot.tsx's own "opacity.value = 0, withTiming
+  // back to 1" idiom, re-fading on every `timeMode` change regardless of
+  // whether it came from the manual toggle below or the auto-retire above.
+  useEffect(() => {
+    opacity.value = 0;
+    opacity.value = withTiming(1, { duration: crossfadeDurationMs() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: re-fade on every timeMode change only, mirrors Mascot.tsx's currentState-only effect
+  }, [timeMode]);
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  const canToggleTimeMode = lengthIntentMin != null && !countdownRetired;
+  const handleNumeralPress = () => {
+    if (!canToggleTimeMode) return;
+    setTimeMode((mode) => (mode === 'elapsed' ? 'remaining' : 'elapsed'));
+  };
+
+  // T-03-05: a dedicated ref, distinct from the setup phase's
+  // isStartingSessionRef — that ref is already permanently `true` once a
+  // session has started, so reusing it here would leave End permanently
+  // disabled. This one only guards against a double-tap on End itself.
+  const isEndingSessionRef = useRef(false);
+  const handleEnd = () => {
+    if (isEndingSessionRef.current) return;
+    isEndingSessionRef.current = true;
+    // Quiet-close stub (D-13's warm acknowledgment + mood check land in
+    // Plan 03-03) — ending here is still always a completed session, never
+    // an "abandoned" one, regardless of duration (D-14).
+    sessionsRepo.update(session.sessionId, { endedAt: Date.now() });
+    activeSessionRepo.clear();
+    router.replace('/');
+  };
+
+  const kickerStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.caption,
+    fontWeight: '600' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1.2,
+  };
+  const taskLabelStyle = {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.scale.body,
+  };
+  const timerStyle: TextStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.title,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  };
+  const timeModeCaptionStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.caption,
+  };
+  const endButtonStyle = StyleSheet.flatten([
+    styles.endButton,
+    { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
+  ]);
+  const endButtonLabelStyle = {
+    color: theme.colors.background,
+    fontSize: theme.typography.scale.body,
+    fontWeight: '600' as const,
+  };
+
+  const activeContainerStyle = StyleSheet.flatten([styles.activeContainer, { gap: theme.spacing.lg }]);
 
   return (
-    <View style={styles.activeContainer}>
+    <View style={activeContainerStyle}>
+      <Text style={kickerStyle}>{t('coPilot.active.kicker')}</Text>
+
       <Text style={taskLabelStyle}>{session.taskLabel ?? t('coPilot.setup.justWork.label')}</Text>
+
+      <Pressable onPress={wake}>
+        <Mascot
+          state={isDozing ? 'dozing' : 'presence'}
+          prominence="prominent"
+          accessibilityLabel={t(`mascot.accessibility.${isDozing ? 'dozing' : 'presence'}`)}
+        />
+      </Pressable>
+
+      <Animated.View style={[styles.timerBlock, fadeStyle]}>
+        <Pressable accessibilityRole="button" disabled={!canToggleTimeMode} onPress={handleNumeralPress}>
+          <Text style={timerStyle}>{formatDuration(timeMode === 'remaining' ? remainingMs : elapsedMs)}</Text>
+        </Pressable>
+        {lengthIntentMin != null && !countdownRetired && (
+          <Text style={timeModeCaptionStyle}>{t(`coPilot.active.timeMode.${timeMode}`)}</Text>
+        )}
+      </Animated.View>
+
+      <Pressable accessibilityRole="button" onPress={handleEnd} style={endButtonStyle}>
+        <Text style={endButtonLabelStyle}>{t('coPilot.active.endButton')}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -348,5 +492,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  timerBlock: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  endButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    marginTop: 8,
   },
 });
