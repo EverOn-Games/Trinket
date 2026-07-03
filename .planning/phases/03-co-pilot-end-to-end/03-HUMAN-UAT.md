@@ -30,11 +30,13 @@ result: issue
 reported: "Tone feels ok. But when ending a session, the mood-emoji screen appears for only ~1 second and then auto-redirects to the start screen — the mood check can't actually be used."
 severity: major
 note: "Tone sub-check passed; the reported defect is the ending moment's mood-check auto-dismiss, not the copy."
+resolution: "RESOLVED in plan 03-05 (commits 9f47ff4 RED test / e3deee8 fix). The ending moment now persists until an explicit mood tap or Skip — the acknowledge animation still plays but no longer drives navigation. Revises D-13 Pattern 3 (documented in-code + STATE.md). Regression test added; 116 tests green."
 
 ### 5. Screen-reader pass over the one-liner "Start" CTA enabled/disabled state (03-REVIEW.md IN-02, unfixed)
 expected: A screen-reader user (VoiceOver/TalkBack) can tell when the one-liner "Start" button is disabled (before the field has focus) vs enabled — not only inferred from color. Fix candidate: add `accessibilityState={{ disabled: !hasFocusedOneLiner }}` to the Pressable.
 result: skipped
 reason: "User deferred the screen-reader pass ('not gonna check that for now'). Known fix candidate (IN-02) is trivial and can ride along with the Test-4 gap-closure fix."
+resolution: "Code fix SHIPPED in plan 03-05 (commit 6978cbe) — the one-liner Start Pressable now carries accessibilityState={{ disabled: !hasFocusedOneLiner }}, with a before/after-focus test. The manual on-device screen-reader (TalkBack/VoiceOver) re-test remains deferred until hardware is available — the code is in place, only the human confirmation is pending."
 
 ## Summary
 
@@ -48,9 +50,10 @@ blocked: 0
 ## Gaps
 
 - truth: "Ending a session always shows a warm acknowledgment with a usable, skippable one-tap 3-level mood check (PILOT-05, D-13); the mood check must remain until the user taps a mood or Skip — it must not auto-dismiss."
-  status: failed
+  status: resolved
   reason: "User reported (Test 4, on-device): the mood-emoji screen appears ~1s then auto-redirects to Home. Root cause: EndingPhase wires the Mascot `acknowledge` one-shot's onStateAnimationComplete → finishEnding() → router.replace('/'), so navigation is driven by the (short placeholder) animation length. D-13 'Pattern 3' treated animation-conclusion as an implicit skip, but on real hardware the ~1s placeholder makes the mood check unusable."
+  resolution: "Fixed in plan 03-05 (commits 9f47ff4 / e3deee8). Removed the onStateAnimationComplete→navigate wiring; the ending moment now persists until an explicit mood tap or Skip. Acknowledge animation still plays (PILOT-05 preserved). Revises locked decision D-13 Pattern 3 (documented in-code + STATE.md decision log). RED regression test + skip-path + single-fire-guard assertions added; npm run verify green (116 tests)."
   severity: major
   test: 4
-  artifacts: ["src/app/co-pilot.tsx (EndingPhase, handleAnimationComplete)"]
-  missing: ["mood check must persist until an explicit mood tap or Skip; decouple navigation from acknowledge-animation completion"]
+  artifacts: ["src/app/co-pilot.tsx (EndingPhase)", "src/app/__tests__/screens.test.tsx"]
+  missing: []

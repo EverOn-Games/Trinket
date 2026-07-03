@@ -208,5 +208,18 @@ Status is `human_needed` rather than `passed` solely because five items in this 
 
 ---
 
+## Post-UAT Resolution (2026-07-03, after `/gsd-verify-work 3`)
+
+The five `human_needed` items were walked on-device via `03-HUMAN-UAT.md`:
+
+- **Items 1–3 (force-quit survival, mascot smoothness, real-time dozing/backgrounding): PASS** on the user's hardware.
+- **Item 4 (subjective tone): PASS** on tone, but on-device testing surfaced a functional defect — the ending mood check auto-dismissed after ~1s because navigation was wired to the acknowledge animation's completion. Logged as a major UAT issue and **fixed in gap-closure plan 03-05** (commits `9f47ff4` RED test / `e3deee8` fix): the ending moment now persists until an explicit mood tap or Skip; the acknowledge animation still always plays. **This revises the behavior recorded in Truth #9 above** — `handleAnimationComplete`/`onStateAnimationComplete` navigation was removed, and "the animation concluding stores nothing / lands on Home" is no longer true; only a mood tap or Skip navigates. This is an intentional revision of locked decision **D-13 Pattern 3**, documented in-code and in STATE.md's decision log.
+- **Item 5 (screen-reader pass): code fix shipped, manual re-test deferred.** The IN-02 fix (`accessibilityState` on the one-liner Start CTA) shipped in 03-05 (commit `6978cbe`) with a test; the on-device TalkBack/VoiceOver confirmation remains pending until hardware is available.
+
+Post-fix suite: `npm run verify` green — 15 suites, **116 tests**. The only residual is the single deferred manual screen-reader re-test (its code is in place). This joins the standing pre-Phase-9 iOS-device gate.
+
+---
+
 _Verified: 2026-07-03T03:25:00Z_
 _Verifier: Claude (gsd-verifier)_
+_Post-UAT resolution appended: 2026-07-03 after 03-05 gap closure_
