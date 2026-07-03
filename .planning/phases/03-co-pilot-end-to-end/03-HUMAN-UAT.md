@@ -3,18 +3,18 @@ status: partial
 phase: 03-co-pilot-end-to-end
 source: [03-VERIFICATION.md]
 started: 2026-07-03T03:25:00Z
-updated: 2026-07-03T03:40:00Z
+updated: 2026-07-03T03:45:00Z
 ---
 
 ## Current Test
 
-number: 2
-name: Mascot animation smoothness in the new Co-pilot hosting contexts
+number: 3
+name: Dozing + wake-on-touch over real elapsed time with genuine backgrounding
 expected: |
-  On a real low/mid-tier Android device, the mascot renders smoothly (no dropped
-  frames / jank) in presence on the active screen, transitioning to dozing after
-  ~30 min, waking on tap, and playing the acknowledge one-shot at End. No stutter
-  during the Reanimated elapsed/remaining crossfade or the mascot's own state-fade.
+  Start a session, lock the phone / switch apps for 30+ real minutes, return.
+  Mascot is dozing; tapping returns it to presence smoothly. Elapsed timer shows
+  the correct real-world duration immediately on return, no visible catch-up lag
+  or incorrect jump.
 awaiting: user response
 
 ## Tests
@@ -25,7 +25,7 @@ result: pass
 
 ### 2. Mascot animation smoothness in the new Co-pilot hosting contexts (real low/mid-tier Android)
 expected: Mascot renders smoothly (no dropped frames/jank) in presence on the active screen, transitioning to dozing after ~30 min, waking on tap, and playing the acknowledge one-shot at End. No stutter during the Reanimated elapsed/remaining crossfade or the mascot's own state-fade.
-result: [pending]
+result: pass
 
 ### 3. Dozing + wake-on-touch over real elapsed time with genuine backgrounding
 expected: Start a session, lock the phone / switch apps for 30+ real minutes, return. Mascot is dozing; tapping returns it to presence smoothly. Elapsed timer shows the correct real-world duration immediately on return, no visible catch-up lag or incorrect jump.
@@ -42,9 +42,9 @@ result: [pending]
 ## Summary
 
 total: 5
-passed: 1
+passed: 2
 issues: 0
-pending: 4
+pending: 3
 skipped: 0
 blocked: 0
 
