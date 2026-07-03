@@ -6,7 +6,14 @@
     "brainDumpOffer": "Brain dump",
     "starterLink": "Starter",
     "historyLink": "History",
-    "settingsLink": "Settings"
+    "settingsLink": "Settings",
+    "resumeCard": {
+      "kicker": "A session is open.",
+      "withLabel": "Still with \"{{taskLabel}}.\" Pick it up?",
+      "withoutLabel": "Still with you. Pick it up?",
+      "resume": "Resume",
+      "notNow": "Not now"
+    }
   },
   "coPilot": {
     "title": "Co-pilot",

@@ -6,7 +6,14 @@
     "brainDumpOffer": "Zrzut myśli",
     "starterLink": "Starter",
     "historyLink": "Historia",
-    "settingsLink": "Ustawienia"
+    "settingsLink": "Ustawienia",
+    "resumeCard": {
+      "kicker": "Sesja jest otwarta.",
+      "withLabel": "Nadal przy: „{{taskLabel}}”. Wrócić do tego?",
+      "withoutLabel": "Nadal tu jesteśmy. Wrócić?",
+      "resume": "Wznów",
+      "notNow": "Nie teraz"
+    }
   },
   "coPilot": {
     "title": "Co-pilot",
