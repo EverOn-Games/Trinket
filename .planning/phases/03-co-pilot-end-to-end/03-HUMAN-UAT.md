@@ -3,27 +3,25 @@ status: partial
 phase: 03-co-pilot-end-to-end
 source: [03-VERIFICATION.md]
 started: 2026-07-03T03:25:00Z
-updated: 2026-07-03T03:25:00Z
+updated: 2026-07-03T03:40:00Z
 ---
 
 ## Current Test
 
-number: 1
-name: Real force-quit / OS-kill session survival
+number: 2
+name: Mascot animation smoothness in the new Co-pilot hosting contexts
 expected: |
-  Start a Co-pilot session, force-kill the app process (not just background it),
-  reopen the app. If killed within ~12h, Home shows the warm resume card
-  (continuity copy — never "interrupted"/"paused"). Resume returns to the active
-  screen with elapsed correctly derived from the real startedAt (including dead
-  time). A pointer last alive > ~12h ago shows NO resume card — it is already
-  folded into History as an ordinary row.
+  On a real low/mid-tier Android device, the mascot renders smoothly (no dropped
+  frames / jank) in presence on the active screen, transitioning to dozing after
+  ~30 min, waking on tap, and playing the acknowledge one-shot at End. No stutter
+  during the Reanimated elapsed/remaining crossfade or the mascot's own state-fade.
 awaiting: user response
 
 ## Tests
 
 ### 1. Real force-quit / OS-kill session survival
 expected: Start a Co-pilot session, force-kill the app process (not just background it), reopen the app. If killed within ~12h, Home shows the warm resume card (continuity copy — never "interrupted"/"paused"). Resume returns to the active screen with elapsed correctly derived from the real startedAt (including dead time). A pointer last alive > ~12h ago shows NO resume card — it is already folded into History as an ordinary row.
-result: [pending]
+result: pass
 
 ### 2. Mascot animation smoothness in the new Co-pilot hosting contexts (real low/mid-tier Android)
 expected: Mascot renders smoothly (no dropped frames/jank) in presence on the active screen, transitioning to dozing after ~30 min, waking on tap, and playing the acknowledge one-shot at End. No stutter during the Reanimated elapsed/remaining crossfade or the mascot's own state-fade.
@@ -44,9 +42,9 @@ result: [pending]
 ## Summary
 
 total: 5
-passed: 0
+passed: 1
 issues: 0
-pending: 5
+pending: 4
 skipped: 0
 blocked: 0
 
