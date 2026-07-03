@@ -206,4 +206,41 @@ describe('useElapsedSession', () => {
     expect(secondHeartbeat).toHaveBeenCalledTimes(1);
     expect(firstHeartbeat).toHaveBeenCalledTimes(1);
   });
+
+  it('does not leak an interval when AppState fires a duplicate "active" event with no intervening backgrounding (WR-03)', async () => {
+    jest.setSystemTime(new Date('2026-07-03T10:00:00.000Z'));
+    const { fire } = mockAppState();
+    const startedAt = Date.now();
+
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
+    const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+
+    const { unmount } = await renderHook(() => useElapsedSession(startedAt, jest.fn()));
+    // Mount-time `AppState.currentState === 'active'` check starts the one
+    // interval a healthy mount should ever have running at this point.
+    expect(setIntervalSpy).toHaveBeenCalledTimes(1);
+    expect(clearIntervalSpy).toHaveBeenCalledTimes(0);
+
+    await act(async () => {
+      fire('active'); // duplicate 'active' change event, no intervening background
+    });
+
+    // WR-03: startTicking must be idempotent. Pre-fix, this second 'active'
+    // event called setInterval again with no matching clearInterval,
+    // silently leaking the first interval forever. Fixed, it clears the
+    // live interval before starting a fresh one — exactly one clearInterval,
+    // exactly one more setInterval, never two simultaneously-live intervals.
+    expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
+    expect(setIntervalSpy).toHaveBeenCalledTimes(2);
+
+    // Unmounting must clear exactly the single remaining live interval —
+    // if the first interval had leaked (pre-fix), only one of the two
+    // started intervals would ever be cleared in total (the second one, by
+    // this unmount), permanently orphaning the first. Asserting the
+    // cumulative clearInterval count now matches the cumulative
+    // setInterval count proves every interval that was ever started was
+    // also eventually cleared.
+    await unmount();
+    expect(clearIntervalSpy).toHaveBeenCalledTimes(2);
+  });
 });

@@ -56,12 +56,22 @@ export function useElapsedSession(
       }
     };
 
-    const startTicking = () => {
-      tick(); // immediate recompute on (re)start — never trust a stale value
-      intervalId = setInterval(tick, TICK_MS);
-    };
     const stopTicking = () => {
       if (intervalId) clearInterval(intervalId);
+      intervalId = undefined;
+    };
+    // WR-03: idempotent — clears any already-running interval before
+    // starting a new one. AppState can fire two 'active' change events with
+    // no intervening non-active transition on some OS/device/RN-version
+    // combinations (e.g. duplicate focus events around permission dialogs
+    // or app-switcher transitions). Without this, the second call would
+    // silently overwrite intervalId and leak the first interval forever —
+    // stopTicking/the unmount cleanup below can only ever clear whichever
+    // single id this closure currently holds.
+    const startTicking = () => {
+      stopTicking();
+      tick(); // immediate recompute on (re)start — never trust a stale value
+      intervalId = setInterval(tick, TICK_MS);
     };
 
     if (AppState.currentState === 'active') startTicking();
