@@ -32,7 +32,17 @@ function SessionRow({ session }: { session: Session }) {
   // impure function directly during render is a purity violation
   // (react-hooks/purity), and this row's data doesn't need to tick live.
   const [nowFallback] = useState(() => Date.now());
-  const durationMs = (session.endedAt ?? nowFallback) - session.startedAt;
+  // WR-04: floor at 0 — mirrors useElapsedSession.ts's own T-03-02
+  // Math.max(0, now - startedAt) clock-skew guard. endedAt can legitimately
+  // land earlier than startedAt if the device clock moves backward
+  // mid-session (lastAliveAt is a raw, unclamped Date.now() heartbeat
+  // snapshot later persisted verbatim as endedAt by _layout.tsx's
+  // reconciliation sweep or index.tsx's "Not now" handler); without this,
+  // a resulting negative durationMs is silently absorbed by the
+  // durationMs < 60000 branch below into "Under a minute", incidentally
+  // rather than explicitly, which could mislabel what was actually a long
+  // session.
+  const durationMs = Math.max(0, (session.endedAt ?? nowFallback) - session.startedAt);
   const durationMinutes = Math.floor(durationMs / 60000);
   const durationText =
     durationMs < 60000
