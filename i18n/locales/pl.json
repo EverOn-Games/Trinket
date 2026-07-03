@@ -42,6 +42,16 @@
         "remaining": "zostało"
       },
       "endButton": "Zakończ sesję"
+    },
+    "ending": {
+      "acknowledgment": "Jesteś tutaj. To się liczy.",
+      "moodCheck": {
+        "heading": "Jak to było?",
+        "good": "Dobrze",
+        "okay": "Tak sobie",
+        "tough": "Ciężko",
+        "skip": "Pomiń"
+      }
     }
   },
   "brainDump": {
@@ -56,7 +66,11 @@
     "title": "Historia",
     "description": "Spokojny zapis twoich sesji — bez ocen, bez serii.",
     "emptyState": "Jeszcze nic tu nie ma. Gdy zaczniesz sesję, pojawi się na tej liście.",
-    "sessionFallbackLabel": "Sesja"
+    "sessionFallbackLabel": "Po prostu praca",
+    "duration_one": "{{count}} minuta",
+    "duration_few": "{{count}} minuty",
+    "duration_many": "{{count}} minut",
+    "durationLessThanMinute": "Mniej niż minuta"
   },
   "settings": {
     "title": "Ustawienia",

@@ -41,6 +41,16 @@
         "remaining": "left"
       },
       "endButton": "End session"
+    },
+    "ending": {
+      "acknowledgment": "You're here. That's what matters.",
+      "moodCheck": {
+        "heading": "How did that feel?",
+        "good": "Good",
+        "okay": "Okay",
+        "tough": "Tough",
+        "skip": "Skip"
+      }
     }
   },
   "brainDump": {
@@ -55,7 +65,10 @@
     "title": "History",
     "description": "A quiet log of your sessions — no scores, no streaks.",
     "emptyState": "Nothing here yet. Whenever you start a session, it will show up in this list.",
-    "sessionFallbackLabel": "Session"
+    "sessionFallbackLabel": "Just worked",
+    "duration_one": "{{count}} min",
+    "duration_other": "{{count}} min",
+    "durationLessThanMinute": "Under a minute"
   },
   "settings": {
     "title": "Settings",
