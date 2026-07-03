@@ -583,19 +583,19 @@ Not applicable in the usual "library X replaced library Y" sense — this phase 
 | A3 | iOS suspends JS timers almost immediately on backgrounding; Android's timer suspension is looser but still eventually stops firing | Common Pitfall 2 | Low-Medium — sourced from a GitHub issue (facebook/react-native#38711) and multiple independent blog posts (WebSearch, not Context7/official-docs-verified this session); the *architectural conclusion* (never depend on tick firing count) holds regardless of the exact platform timing details, so this assumption being imprecise doesn't change the recommendation |
 | A4 | Reconciliation should gate on `lastAliveAt`, not `startedAt`, contrary to D-11's literal wording | Summary, Pattern 4, Pitfall 3, Open Question 1 | **Medium** — this revises a locked decision's literal mechanism (though not its intent). If the planner/user actually meant `startedAt` deliberately (e.g., "any session older than 12h should always be closed regardless of recent activity, to keep History tidy"), implementing against `lastAliveAt` would produce different behavior than intended. Flagged explicitly for confirmation before planning locks it in. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should D-11/D-12's staleness threshold be measured from `lastAliveAt` or `startedAt`?**
+1. **RESOLVED: Should D-11/D-12's staleness threshold be measured from `lastAliveAt` or `startedAt`?** — Resolved in CONTEXT.md's amended D-11 ("gate on `lastAliveAt`, NOT `startedAt`, per RESEARCH.md Open Question 1"), committed 28dcd3e. Plans implement the `lastAliveAt` gate.
    - What we know: D-09 explicitly builds a `lastAliveAt` heartbeat mechanism whose only purpose is to answer "was this session confirmed alive recently." D-11's literal decision text says "now − `startedAt`."
    - What's unclear: Whether D-11's wording was a deliberate technical choice or informal shorthand (most likely the latter, given no other CONTEXT.md text discusses the two fields as distinct).
    - Recommendation: Gate on `lastAliveAt` (see Pattern 4, Pitfall 3) — surface this explicitly to the user during planning/discuss-phase as a one-line confirmation rather than silently overriding the literal wording.
 
-2. **What happens if the user navigates back to Home while a session is active (not via backgrounding, cold-launch, or the End button)?**
+2. **RESOLVED: What happens if the user navigates back to Home while a session is active (not via backgrounding, cold-launch, or the End button)?** — Resolved by CONTEXT.md's new D-16 (navigation not blocked; resume-on-reentry via the active-session pointer), implemented in Plan 03-02 Task 2's `flowPhase` initializer.
    - What we know: D-10 covers OS-level backgrounding-then-return (lands back on the session screen automatically, no code needed — this is just how RN navigation state persists across backgrounding). D-11/D-12 cover cold-launch. Neither covers in-process back-navigation while the app never left foreground.
    - What's unclear: CONTEXT.md's D-01..D-15 are silent on this case entirely — it wasn't discussed.
    - Recommendation: Don't block back navigation (see Anti-Patterns — trapping conflicts with PDA-aware grammar and isn't necessary since the session data is unaffected by what's on screen). Instead, make session-start entry points idempotent: Home's "Start a session?" action should check `activeSessionRepo.read()` first and route straight to the `active` phase (resuming, not duplicating) if a pointer exists. This closes the gap without adding any navigation-blocking complexity. Recommend confirming this approach during planning since it's a new, previously undiscussed behavior.
 
-3. **Exact copy for the D-11 resume card and D-13 warm-ending line** — not resolvable by research (copywriting, not a technical question); CONTEXT.md's `<specifics>` section gives strong directional guidance ("We were {taskLabel}. Pick it up?", never evaluative language) but final PL/EN strings are an implementation-time task, not a research gap.
+3. **RESOLVED: Exact copy for the D-11 resume card and D-13 warm-ending line** — Resolved in 03-UI-SPEC.md's Screen Contracts (~25 i18n keys with EN + PL reference copy, approved by gsd-ui-checker); final strings ship via those keys.
 
 ## Environment Availability
 
