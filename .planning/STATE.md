@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-07-03T01:17:42.810Z"
+last_updated: "2026-07-03T01:36:23.470Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 13
   percent: 22
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 3 (Co-pilot End-to-End) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-07-03
 
-Progress: [████████░░] 80%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [████████░░] 80%
 | Phase 2 P04 | 32min | 2 tasks | 4 files |
 | Phase 2 P05 | 33min | 3 tasks | 10 files |
 | Phase 03 P01 | 8min | 3 tasks | 8 files |
+| Phase 03 P02 | 15min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,9 @@ Recent decisions affecting current work:
 - [Phase 02-05]: Root-caused device-checkpoint blink jolt to Lottie's instant, non-interpolated seek on play(start,end); fixed by anchoring marker-boundary scale and moving blink to opacity-only, with zero component-code changes
 - [Phase 03-01]: Discretion constants fixed: 45s heartbeat interval, 60s wake-grace window, 12h D-11 staleness threshold (midpoints of CONTEXT.md's discretion bands), gated on lastAliveAt per amended D-11 — Consumed verbatim by Plan 03-02+ (session screen, root layout reconciliation hook); confirms RESEARCH.md Open Question 1's resolution
 - [Phase 03-01]: lastTouchAt implemented as React state, not a ref, in useElapsedSession — TDD-caught bug: a ref mutation in wake() does not schedule a re-render, leaving isDozing stale until the next incidental tick
+- [Phase 03-02]: Cross-test render leak in expo-router/testing-library: avoid asserting on a destination screen's content right after fireEvent.press in the same it() block — Home offer press test failed 3 unrelated subsequent tests when it also asserted post-navigation screen content; simplified to only assert session-count, verified navigation separately
+- [Phase 03-02]: @testing-library/react-native v14's fireEvent is async and must be awaited on every call, including fireEvent.press/.changeText, in any chained interaction sequence — Un-awaited chained fireEvent calls caused overlapping act() warnings and a stale-state test failure (0 sessions created instead of 1)
+- [Phase 03-02]: eslint-plugin-react-hooks' immutability check for Reanimated shared values is hook-declaration-order sensitive: mutate opacity.value in a useEffect declared BEFORE the useAnimatedStyle call reading it — Mirrors Mascot.tsx's existing hook order; declaring useAnimatedStyle first caused a false-positive immutability lint violation
 
 ### Pending Todos
 
@@ -137,6 +141,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-03T01:17:42.784Z
+Last session: 2026-07-03T01:36:23.444Z
 Stopped at: Completed 03-01-PLAN.md
 Resume file: None
