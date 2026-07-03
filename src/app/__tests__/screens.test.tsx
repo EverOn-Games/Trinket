@@ -11,6 +11,7 @@
  * test file itself is never treated as a route module.
  */
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { router } from 'expo-router';
 
 import { contentStorage } from '../../../data/mmkv';
 import { sessionsRepo } from '../../../data/repositories/sessions';
@@ -165,13 +166,17 @@ describe('Co-pilot setup + active phases (PILOT-01, PILOT-03, T-03-05)', () => {
     expect(dumpItemsRepo.get(item.id)?.promotedTaskId).toBe(created.id);
   });
 
-  it('clears the active-session pointer and returns Home when End is pressed', async () => {
+  it('clears the active-session pointer and enters the ending phase when End is pressed', async () => {
     await renderRouter(routeContext, { initialUrl: '/co-pilot' });
 
     await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
     await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
 
+    // D-13/D-14: End no longer navigates home directly — it clears the
+    // pointer immediately (so reconciliation can never resurrect this
+    // session) but stays on-screen for the inline warm ending moment.
     expect(activeSessionRepo.read()).toBeUndefined();
+    expect(await screen.findByText(en.coPilot.ending.acknowledgment)).toBeTruthy();
   });
 
   it('resumes the active phase on re-entry instead of starting a new session (D-16)', async () => {
@@ -187,5 +192,56 @@ describe('Co-pilot setup + active phases (PILOT-01, PILOT-03, T-03-05)', () => {
     // Session record for the same intent.
     expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
     expect(sessionsRepo.list().length).toBe(before);
+  });
+});
+
+describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
+  beforeEach(() => {
+    contentStorage.clearAll();
+  });
+
+  it('stores the tapped mood on the session and navigates home (D-13)', async () => {
+    const replaceSpy = jest.spyOn(router, 'replace');
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
+    const sessions = sessionsRepo.list();
+    const sessionId = sessions[sessions.length - 1].id;
+
+    await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
+    await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.ending.moodCheck.good }));
+
+    expect(sessionsRepo.get(sessionId)?.mood).toBe(3);
+    // router.replace('/') — never .push — so back from Home can never return
+    // to the now-ended session screen (D-13).
+    expect(replaceSpy).toHaveBeenCalledWith('/');
+    replaceSpy.mockRestore();
+  });
+
+  it('navigates home leaving mood undefined when the acknowledge animation concludes with no tap (Pattern 3)', async () => {
+    jest.useFakeTimers();
+    const replaceSpy = jest.spyOn(router, 'replace');
+    try {
+      await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+      await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
+      const sessions = sessionsRepo.list();
+      const sessionId = sessions[sessions.length - 1].id;
+
+      await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
+      await screen.findByText(en.coPilot.ending.acknowledgment);
+
+      // mascot_acknowledge.json: op=45, fr=30 -> 1500ms duration (mirrors
+      // Mascot.test.tsx's own one-shot-completion assertion).
+      await act(async () => {
+        jest.advanceTimersByTime(1500);
+      });
+
+      expect(sessionsRepo.get(sessionId)?.mood).toBeUndefined();
+      expect(replaceSpy).toHaveBeenCalledWith('/');
+    } finally {
+      replaceSpy.mockRestore();
+      jest.useRealTimers();
+    }
   });
 });

@@ -1,8 +1,9 @@
 /**
- * Co-pilot screen (D-01..D-07, D-16, PILOT-01..04). A single route driving a
- * `flowPhase` state machine: `setup` (three equal-weight entry paths, D-01)
- * -> `active` (mascot presence/dozing + subtle timer + single End, D-04/05/07)
- * -> `ending` (warm acknowledgment + mood check, Plan 03-03).
+ * Co-pilot screen (D-01..D-07, D-13, D-14, D-16, PILOT-01..05). A single
+ * route driving a `flowPhase` state machine: `setup` (three equal-weight
+ * entry paths, D-01) -> `active` (mascot presence/dozing + subtle timer +
+ * single End, D-04/05/07) -> `ending` (mascot acknowledge one-shot + a warm,
+ * numberless line + a skippable 3-level mood check, D-13/D-14).
  *
  * Nothing is persisted until a path is chosen on the setup screen (Pattern 1)
  * — the length-intent chips are ephemeral component state, never written to
@@ -102,10 +103,27 @@ export default function CoPilotScreen() {
     beginSession(session);
   };
 
+  // D-13/D-14: End always transitions into the inline warm ending moment
+  // (mascot acknowledge one-shot + numberless line + skippable mood check)
+  // rather than navigating home immediately — Plan 03-02's quiet-close stub
+  // is replaced here. `activeSessionRepo.clear()` still fires synchronously
+  // on End so a cold-launch reconciliation sweep can never resurrect this
+  // session, but `activeSession` (the sessionId) is deliberately kept in
+  // local state so the ending phase below still has something to write its
+  // mood against.
+  const endSession = () => {
+    if (!activeSession) return;
+    sessionsRepo.update(activeSession.sessionId, { endedAt: Date.now() });
+    activeSessionRepo.clear();
+    setFlowPhase('ending');
+  };
+
   return (
     <Screen>
       {flowPhase === 'active' && activeSession ? (
-        <ActivePhase session={activeSession} lengthIntentMin={lengthIntentMin} />
+        <ActivePhase session={activeSession} lengthIntentMin={lengthIntentMin} onEnd={endSession} />
+      ) : flowPhase === 'ending' && activeSession ? (
+        <EndingPhase sessionId={activeSession.sessionId} />
       ) : (
         <SetupPhase
           lengthIntentMin={lengthIntentMin}
@@ -319,18 +337,20 @@ function SetupPhase({
 
 // Active session screen: mascot presence/dozing (D-04, D-07), a subtle
 // timestamp-derived timer with opt-in countdown (D-05, D-06), and the single
-// End button (D-04). The ending moment itself (warm acknowledgment + mood
-// check, D-13) lands in Plan 03-03 — End is a quiet-close stub here.
+// End button (D-04). Ending itself (mascot acknowledge + warm line + mood
+// check, D-13/D-14) is owned by the parent's `endSession`/`EndingPhase` —
+// this component only guards against a double-tap on End and delegates.
 function ActivePhase({
   session,
   lengthIntentMin,
+  onEnd,
 }: {
   session: LiveSession;
   lengthIntentMin: number | null;
+  onEnd: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
 
   const { elapsedMs, isDozing, wake } = useElapsedSession(session.startedAt, (lastAliveAt) =>
     activeSessionRepo.heartbeat(lastAliveAt)
@@ -379,17 +399,15 @@ function ActivePhase({
   // T-03-05: a dedicated ref, distinct from the setup phase's
   // isStartingSessionRef — that ref is already permanently `true` once a
   // session has started, so reusing it here would leave End permanently
-  // disabled. This one only guards against a double-tap on End itself.
+  // disabled. This one only guards against a double-tap on End itself; the
+  // actual session-end write + phase transition live in the parent's
+  // `endSession` (ending here is always a completed session, never an
+  // "abandoned" one, regardless of duration — D-14).
   const isEndingSessionRef = useRef(false);
   const handleEnd = () => {
     if (isEndingSessionRef.current) return;
     isEndingSessionRef.current = true;
-    // Quiet-close stub (D-13's warm acknowledgment + mood check land in
-    // Plan 03-03) — ending here is still always a completed session, never
-    // an "abandoned" one, regardless of duration (D-14).
-    sessionsRepo.update(session.sessionId, { endedAt: Date.now() });
-    activeSessionRepo.clear();
-    router.replace('/');
+    onEnd();
   };
 
   const kickerStyle = {
@@ -455,6 +473,133 @@ function ActivePhase({
   );
 }
 
+type MoodValue = 1 | 2 | 3;
+
+// UI-SPEC Flag 5 (Claude's discretion): 🙂=3 / 😐=2 / 😣=1, listed good-to-
+// tough to mirror the mockup's left-to-right reading order.
+const MOOD_OPTIONS: ReadonlyArray<{ mood: MoodValue; glyph: string; labelKey: string }> = [
+  { mood: 3, glyph: '🙂', labelKey: 'coPilot.ending.moodCheck.good' },
+  { mood: 2, glyph: '😐', labelKey: 'coPilot.ending.moodCheck.okay' },
+  { mood: 1, glyph: '😣', labelKey: 'coPilot.ending.moodCheck.tough' },
+];
+
+// V5 / T-03-04: an explicit lookup, mirroring Mascot.tsx's own `clampState` —
+// a mood value is never persisted straight from a tap handler's raw input.
+const ALLOWED_MOODS: readonly MoodValue[] = [1, 2, 3];
+function clampMood(raw: number): MoodValue {
+  return (ALLOWED_MOODS as readonly number[]).includes(raw) ? (raw as MoodValue) : 2;
+}
+
+// The inline ending moment (D-13/D-14, PILOT-05): same dark canvas as setup/
+// active (no route change) — only the mascot's state and this lower content
+// swap in. The acknowledgment line renders immediately, independent of the
+// mascot animation's own timing (D-14: never waits for, or is driven by, a
+// duration/count of any kind).
+function EndingPhase({ sessionId }: { sessionId: string }) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const router = useRouter();
+
+  // T-03-05: a single shared guard — whichever of {a mood tap, Skip, the
+  // acknowledge one-shot concluding on its own} fires first is the only one
+  // that may write and navigate; every path funnels through this ref before
+  // calling `router.replace`, so tapping a mood right as the animation
+  // concludes can never double-navigate or double-write.
+  const isFinishingRef = useRef(false);
+  const [tappedMood, setTappedMood] = useState<MoodValue | null>(null);
+
+  const finishEnding = () => {
+    if (isFinishingRef.current) return;
+    isFinishingRef.current = true;
+    router.replace('/'); // never .push — back from Home must not return here
+  };
+
+  const handleMoodTap = (raw: number) => {
+    if (isFinishingRef.current) return;
+    const mood = clampMood(raw);
+    setTappedMood(mood);
+    sessionsRepo.update(sessionId, { mood });
+    finishEnding();
+  };
+
+  const handleSkip = () => finishEnding();
+
+  // Pattern 3 (RESEARCH.md): the acknowledge one-shot simply concluding,
+  // with neither a mood tap nor Skip having happened yet, IS the implicit
+  // skip — no mood stored, still navigates home exactly once.
+  const handleAnimationComplete = () => finishEnding();
+
+  const acknowledgmentStyle = {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.scale.title,
+    fontWeight: '600' as const,
+    textAlign: 'center' as const,
+  };
+  const moodHeadingStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.caption,
+    fontWeight: '600' as const,
+  };
+  const moodRowStyle = StyleSheet.flatten([styles.moodRow, { gap: theme.spacing.sm }]);
+  const skipLabelStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.body,
+  };
+
+  const endingContainerStyle = StyleSheet.flatten([styles.endingContainer, { gap: theme.spacing.lg }]);
+
+  return (
+    <View style={endingContainerStyle}>
+      <Mascot
+        state="acknowledge"
+        prominence="prominent"
+        accessibilityLabel={t('mascot.accessibility.acknowledge')}
+        onStateAnimationComplete={handleAnimationComplete}
+      />
+
+      <Text style={acknowledgmentStyle}>{t('coPilot.ending.acknowledgment')}</Text>
+
+      <View style={{ gap: theme.spacing.sm, alignItems: 'center' }}>
+        <Text style={moodHeadingStyle}>{t('coPilot.ending.moodCheck.heading')}</Text>
+        <View style={moodRowStyle}>
+          {MOOD_OPTIONS.map(({ mood, glyph, labelKey }) => {
+            const selected = tappedMood === mood;
+            const moodButtonStyle = StyleSheet.flatten([
+              styles.tapTarget,
+              styles.moodButton,
+              {
+                backgroundColor: selected ? theme.colors.accent : theme.colors.surfaceElevated,
+                borderRadius: theme.radii.lg,
+              },
+            ]);
+            const moodLabelStyle = {
+              color: selected ? theme.colors.background : theme.colors.textPrimary,
+              fontSize: theme.typography.scale.caption,
+              fontWeight: '600' as const,
+            };
+            return (
+              <Pressable
+                key={mood}
+                accessibilityRole="button"
+                accessibilityLabel={t(labelKey)}
+                hitSlop={8}
+                onPress={() => handleMoodTap(mood)}
+                style={moodButtonStyle}
+              >
+                <Text style={styles.moodGlyph}>{glyph}</Text>
+                <Text style={moodLabelStyle}>{t(labelKey)}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <Pressable accessibilityRole="button" onPress={handleSkip} style={styles.tapTarget}>
+          <Text style={skipLabelStyle}>{t('coPilot.ending.moodCheck.skip')}</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   title: {
     fontWeight: '600',
@@ -501,5 +646,21 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 32,
     marginTop: 8,
+  },
+  endingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moodRow: {
+    flexDirection: 'row',
+  },
+  moodButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 4,
+  },
+  moodGlyph: {
+    fontSize: 24,
   },
 });
