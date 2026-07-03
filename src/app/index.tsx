@@ -12,8 +12,8 @@
  * never "interrupted"/"paused"/"you left". Resume re-enters the session;
  * "Not now" silently ends it at lastAliveAt with zero confirmation/comment.
  */
-import { useRef, useState } from 'react';
-import { Link, useRouter } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -63,9 +63,16 @@ export default function HomeScreen() {
   // isStartingSessionRef guards against a rapid double-press firing two
   // navigations for one user intent (WR-04) — touch UI double-taps are
   // common, and more so with this app's target ADHD-adjacent user
-  // population. The flag never resets to false on this mount, which is fine:
-  // once navigation has started, this specific Pressable's job is done for
-  // the lifetime of this screen instance.
+  // population. CR-01: Home stays mounted beneath a pushed /co-pilot screen
+  // (Expo Router's Stack does not unmount a screen a route is pushed on top
+  // of) — popping back reveals this exact HomeScreen instance, not a fresh
+  // one, so a ref that only ever latches to `true` would permanently
+  // dead-tap this offer the moment a user opens the setup screen and
+  // changes their mind. This ref (and isResumeCardActionRef below) is reset
+  // on every focus by the useFocusEffect further down, so a real
+  // return-from-navigation restores the offer while a rapid double-tap
+  // within a single visit is still blocked (both taps land before the
+  // screen ever blurs).
   const isStartingSessionRef = useRef(false);
   const handleStartSession = () => {
     if (isStartingSessionRef.current) return;
@@ -108,6 +115,10 @@ export default function HomeScreen() {
   // {a second Resume push, a second Not-now write+clear} may ever fire for a
   // single rapid multi-tap. Distinct from isStartingSessionRef, which guards
   // the unrelated primary offer that only ever renders when this card does not.
+  // CR-02: same never-resets hazard as isStartingSessionRef — pressing
+  // Resume and then backing out of the still-live session (without ending
+  // it) re-reveals this same Home instance with both Resume and Not now
+  // permanently dead. Reset on every focus, see useFocusEffect below.
   const isResumeCardActionRef = useRef(false);
   const handleResume = () => {
     if (isResumeCardActionRef.current) return;
@@ -127,6 +138,21 @@ export default function HomeScreen() {
     activeSessionRepo.clear();
     setDismissedActiveSession(true);
   };
+
+  // CR-01/CR-02: reset both "already-acted" guards every time Home regains
+  // focus (e.g. after backing out of a pushed /co-pilot without completing
+  // or resuming a session) — useFocusEffect's re-run-on-focus cadence is
+  // exactly the right primitive here, since Home never unmounts across a
+  // push/pop. dismissedActiveSession is deliberately NOT reset here — it
+  // only suppresses the pointer for the remainder of this Home mount after
+  // an explicit "Not now", which is a separate concern from these two
+  // double-tap guards.
+  useFocusEffect(
+    useCallback(() => {
+      isStartingSessionRef.current = false;
+      isResumeCardActionRef.current = false;
+    }, [])
+  );
 
   // Every style below is flattened to a single object (never an array) —
   // expo-router's internal <Slot> shim throws when a route's root child (or

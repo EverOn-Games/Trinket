@@ -355,3 +355,82 @@ describe('Home resume card (PILOT-06, D-11, D-12, T-03-05)', () => {
     expect(screen.queryByText(/interrupt|paused|you left/i)).toBeNull();
   });
 });
+
+describe('Home focus-reset guards after back-navigation (CR-01, CR-02)', () => {
+  beforeEach(() => {
+    contentStorage.clearAll();
+  });
+
+  // Simulates "back out of /co-pilot to the still-mounted Home instance
+  // beneath it" via the imperative router directly, wrapped in our own
+  // act(). This is deliberately the raw `router.back()` (imported straight
+  // from 'expo-router', same singleton `jest.spyOn(router, 'replace')` uses
+  // elsewhere in this file) rather than `testRouter.back()`:
+  // `testRouter.back()`'s own wrapper reads `router.canGoBack()` and (when
+  // given a path) asserts via `toHavePathnameWithParams` against the bare
+  // re-exported `screen` — in this project's installed
+  // expo-router@~56.2.12 + @testing-library/react-native@14.0.1
+  // combination that matcher throws ("screen.getPathnameWithParams is not a
+  // function", since that introspection method only exists on
+  // renderRouter's own return value, not the bare `screen` singleton), and
+  // separately, going through `testRouter`'s wrapper at all left the global
+  // router store broken for every subsequent `renderRouter` call for the
+  // rest of the test file in an isolated repro. Calling `router.back()`
+  // directly (still inside `act()`, still asserting the resulting UI via
+  // `screen.findBy*` below) avoids both: it is the same underlying pop
+  // used by a real hardware back / header back button / iOS swipe-back, and
+  // — confirmed via an instrumented mount-counter spike — correctly pops to
+  // Home's *existing* instance (mount count stays at 1) rather than
+  // mounting a fresh one, which is the exact precondition CR-01/CR-02 need:
+  // a remounted Home would trivially reset a useRef guard on its own,
+  // making the regression untestable.
+  async function navigateBackToHome(): Promise<void> {
+    await act(async () => {
+      router.back();
+    });
+  }
+
+  it('re-enables the primary offer after backing out of /co-pilot without starting a session (CR-01)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    const before = sessionsRepo.list().length;
+    await fireEvent.press(screen.getByRole('button', { name: en.home.startSessionOffer }));
+    expect(await screen.findByText(en.coPilot.setup.subheading)).toBeTruthy();
+
+    // Back out without committing to a session. Home is not unmounted by
+    // this — Expo Router's Stack keeps a popped-back-to screen's prior
+    // instance mounted — so the CR-01 regression is exactly "the same
+    // instance's isStartingSessionRef is still true, and the button is now
+    // permanently dead".
+    await navigateBackToHome();
+
+    await fireEvent.press(await screen.findByRole('button', { name: en.home.startSessionOffer }));
+
+    // A dead button would never navigate a second time; reaching the setup
+    // screen again proves the guard reset on refocus instead of staying
+    // permanently latched.
+    expect(await screen.findByText(en.coPilot.setup.subheading)).toBeTruthy();
+    expect(sessionsRepo.list().length).toBe(before);
+  });
+
+  it('re-enables Resume after backing out of a still-live session without ending it (CR-02)', async () => {
+    const session = sessionsRepo.create({ source: 'open' });
+    activeSessionRepo.start(session.id, session.startedAt);
+
+    await renderRouter(routeContext, { initialUrl: '/' });
+
+    await fireEvent.press(await screen.findByRole('button', { name: en.home.resumeCard.resume }));
+    expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+
+    // Back out of the still-live session (never pressed End) — the resume
+    // card's pointer is unchanged, so it must still render, and Resume must
+    // still respond rather than being permanently dead from the first press
+    // (CR-02).
+    await navigateBackToHome();
+
+    expect(await screen.findByText(en.home.resumeCard.kicker)).toBeTruthy();
+    await fireEvent.press(await screen.findByRole('button', { name: en.home.resumeCard.resume }));
+
+    expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+  });
+});
