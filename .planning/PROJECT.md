@@ -15,10 +15,10 @@ A user who has been avoiding a task can open Trinket and actually start it in th
 - ✓ Foundation: Expo SDK 56 scaffold (New Architecture, TS strict, dev-client/prebuild workflow), MMKV repositories for all four collections with schema denylist guard, dark earthy theme token module with hex-literal gate — Phase 1
 - ✓ Localization: i18n from the first screen, PL + EN string files, CLDR-correct Polish plurals, no hardcoded copy (lint-enforced), device-locale resolution with persisted override seam — Phase 1
 - ✓ Mascot module: reusable feature-agnostic `<Mascot />` with placeholder Lottie assets driving the MVP state machine (greeting, idle with 3 micro-behaviors, presence, dozing, acknowledge), structurally no negative states, single persistent LottieView, Android device-verified smooth — Phase 2
+- ✓ Co-pilot end-to-end: async body-doubling session, three equal start paths (dump item / one-liner / open) with optional non-persisted length intent, presence/dozing active screen with subtle timestamp-derived timer and single End, warm always-same acknowledgment + skippable 3-level mood check, force-quit/background survival via `lastAliveAt` heartbeat + silent cold-launch reconciliation (warm resume card for live sessions, no interruption language), quiet chronological history — Phase 3 (code-verified 18/18; device UAT tracked in 03-HUMAN-UAT.md)
 
 ### Active
 
-- [ ] Co-pilot: async body-doubling session, end to end (task pick / quick one-liner / open session → presence screen with mascot → warm acknowledgment on end, regardless of duration or completion)
 - [ ] Brain dump: free text + on-device voice capture, multi-item, semantic category suggestions (errands/work/home/people/someday), items inert by default, one-tap promotion to Co-pilot task
 - [ ] Starter: two-step "when X, then Y" implementation-intention builder with localized cue library and optional single self-worded notification
 - [ ] Onboarding: 3 screens max (what Trinket is, pick your first task, meet the mascot), skippable
@@ -104,4 +104,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after Phase 2 (Mascot Module) completion — mascot presence live on Home, device-verified calm and smooth on Android*
+*Last updated: 2026-07-03 after Phase 3 (Co-pilot End-to-End) completion — the activation event is live: a user can start a session three ways, sit with the mascot, and always get a warm ending; force-quit survival and quiet history included. Code-verified 18/18; device UAT (real force-quit, mascot smoothness, tone) tracked in 03-HUMAN-UAT.md alongside the standing pre-Phase-9 iOS-device gate.*
