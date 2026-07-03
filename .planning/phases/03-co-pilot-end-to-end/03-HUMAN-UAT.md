@@ -3,18 +3,17 @@ status: partial
 phase: 03-co-pilot-end-to-end
 source: [03-VERIFICATION.md]
 started: 2026-07-03T03:25:00Z
-updated: 2026-07-03T03:45:00Z
+updated: 2026-07-03T03:50:00Z
 ---
 
 ## Current Test
 
-number: 3
-name: Dozing + wake-on-touch over real elapsed time with genuine backgrounding
+number: 4
+name: Visual/tonal check of resume card and ending moment (shame-free / PDA intent)
 expected: |
-  Start a session, lock the phone / switch apps for 30+ real minutes, return.
-  Mascot is dozing; tapping returns it to presence smoothly. Elapsed timer shows
-  the correct real-world duration immediately on return, no visible catch-up lag
-  or incorrect jump.
+  On an actual device screen, the resume card and the ending moment
+  (acknowledgment + mood check) read as warm and pressure-free — not clinical,
+  not guilt-inducing, no visual emphasis implying evaluation/judgment.
 awaiting: user response
 
 ## Tests
@@ -29,7 +28,7 @@ result: pass
 
 ### 3. Dozing + wake-on-touch over real elapsed time with genuine backgrounding
 expected: Start a session, lock the phone / switch apps for 30+ real minutes, return. Mascot is dozing; tapping returns it to presence smoothly. Elapsed timer shows the correct real-world duration immediately on return, no visible catch-up lag or incorrect jump.
-result: [pending]
+result: pass
 
 ### 4. Visual/tonal check of resume card and ending moment (shame-free / PDA intent)
 expected: The resume card and the ending moment (acknowledgment + mood check) read as warm and pressure-free on an actual device screen — not clinical, not guilt-inducing, no visual emphasis implying evaluation/judgment.
@@ -42,9 +41,9 @@ result: [pending]
 ## Summary
 
 total: 5
-passed: 2
+passed: 3
 issues: 0
-pending: 3
+pending: 2
 skipped: 0
 blocked: 0
 
