@@ -109,7 +109,24 @@ Plans:
   4. Force-quitting or backgrounding the app mid-session and reopening it later silently reconciles elapsed time from persisted timestamps with zero mention of the interruption
   5. Session history displays as a plain chronological log with no statistics, completion rates, or daily boundaries
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Session-lifecycle logic foundation: activeSession pointer repo, useElapsedSession hook, reconcileActiveSession pure fn (TDD)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 03-02-PLAN.md — Co-pilot setup + active screen: three equal start paths, mascot presence/dozing, subtle timer, single End; Home entry refactor
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 03-03-PLAN.md — Warm ending (acknowledge + skippable 3-level mood check) + quiet History log (duration + mood)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 03-04-PLAN.md — Interruption survival: cold-launch reconciliation sweep + Home resume card
 **UI hint**: yes
 
 ### Phase 4: Brain Dump
@@ -215,7 +232,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
-| 3. Co-pilot End-to-End | 0/TBD | Not started | - |
+| 3. Co-pilot End-to-End | 0/4 | Not started | - |
 | 4. Brain Dump | 0/TBD | Not started | - |
 | 5. Starter | 0/TBD | Not started | - |
 | 6. Onboarding | 0/TBD | Not started | - |
