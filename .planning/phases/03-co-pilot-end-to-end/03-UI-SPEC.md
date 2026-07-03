@@ -121,6 +121,8 @@ Base table (most representative entries — full per-screen copy in **Screen Con
 
 **Purpose:** Mascot in `presence` (or `dozing` after ~30 min), a single subtle timer, a single End button. Mirrors the mockup's dark-habitat tone; excludes "Take a break," ambient sound, and the "23 others" co-presence count entirely (D-04).
 
+**Visual hierarchy:** The mascot is the primary visual anchor of this screen — largest element, `prominent` prominence, centered focal position. Every other element (kicker, task label, timer, End button) is visually subordinate to it; the timer numeral in particular is deliberately undersized and muted (see Session Timer Display) so the screen reads as "sitting with the mascot," never as a timer app.
+
 | Element | EN copy | PL copy (reference) | Notes |
 |---|---|---|---|
 | Section kicker | "Quiet session" (`coPilot.active.kicker`) | "Cicha sesja" | Rendered uppercase + letter-spaced via style (Label role); i18n string itself stays natural-case for translators |
