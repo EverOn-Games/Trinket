@@ -244,8 +244,35 @@ describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
     replaceSpy.mockRestore();
   });
 
-  it('navigates home leaving mood undefined when the acknowledge animation concludes with no tap (Pattern 3)', async () => {
+  it('does NOT navigate when the acknowledge animation concludes — the ending moment persists until an explicit choice (revised D-13, 03-HUMAN-UAT.md Test 4)', async () => {
     jest.useFakeTimers();
+    const replaceSpy = jest.spyOn(router, 'replace');
+    try {
+      await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+      await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
+
+      await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
+      await screen.findByText(en.coPilot.ending.acknowledgment);
+
+      // mascot_acknowledge.json: op=45, fr=30 -> 1500ms duration (mirrors
+      // Mascot.test.tsx's own one-shot-completion assertion). Advancing past
+      // it with neither a mood tap nor Skip having happened must NOT
+      // navigate — REVISED D-13 (03-HUMAN-UAT.md Test 4): the ending moment
+      // persists until the user makes an explicit choice.
+      await act(async () => {
+        jest.advanceTimersByTime(1500);
+      });
+
+      expect(replaceSpy).not.toHaveBeenCalled();
+      expect(screen.getByText(en.coPilot.ending.acknowledgment)).toBeTruthy();
+    } finally {
+      replaceSpy.mockRestore();
+      jest.useRealTimers();
+    }
+  });
+
+  it('navigates home leaving mood undefined when Skip is tapped', async () => {
     const replaceSpy = jest.spyOn(router, 'replace');
     try {
       await renderRouter(routeContext, { initialUrl: '/co-pilot' });
@@ -255,19 +282,41 @@ describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
       const sessionId = sessions[sessions.length - 1].id;
 
       await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
-      await screen.findByText(en.coPilot.ending.acknowledgment);
+      await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.ending.moodCheck.skip }));
 
-      // mascot_acknowledge.json: op=45, fr=30 -> 1500ms duration (mirrors
-      // Mascot.test.tsx's own one-shot-completion assertion).
-      await act(async () => {
-        jest.advanceTimersByTime(1500);
-      });
-
-      expect(sessionsRepo.get(sessionId)?.mood).toBeUndefined();
       expect(replaceSpy).toHaveBeenCalledWith('/');
+      expect(sessionsRepo.get(sessionId)?.mood).toBeUndefined();
     } finally {
       replaceSpy.mockRestore();
-      jest.useRealTimers();
+    }
+  });
+
+  it('never double-navigates or double-writes on a mood tap immediately followed by Skip (T-03-05)', async () => {
+    const replaceSpy = jest.spyOn(router, 'replace');
+    const updateSpy = jest.spyOn(sessionsRepo, 'update');
+    try {
+      await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+      await fireEvent.press(screen.getByRole('button', { name: en.coPilot.setup.justWork.label }));
+
+      await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
+      const moodButton = await screen.findByRole('button', { name: en.coPilot.ending.moodCheck.good });
+      const skipButton = screen.getByRole('button', { name: en.coPilot.ending.moodCheck.skip });
+
+      // isFinishingRef is a synchronous ref (not state), so even two
+      // sequential awaited presses prove the guard: the first press sets it
+      // before the second handler ever runs.
+      await fireEvent.press(moodButton);
+      await fireEvent.press(skipButton);
+
+      expect(replaceSpy).toHaveBeenCalledTimes(1);
+      const moodWriteCalls = updateSpy.mock.calls.filter(
+        ([, patch]) => patch !== undefined && 'mood' in (patch as Record<string, unknown>)
+      );
+      expect(moodWriteCalls.length).toBeLessThanOrEqual(1);
+    } finally {
+      replaceSpy.mockRestore();
+      updateSpy.mockRestore();
     }
   });
 });
