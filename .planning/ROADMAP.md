@@ -122,7 +122,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 03-03-PLAN.md — Warm ending (acknowledge + skippable 3-level mood check) + quiet History log (duration + mood)
+- [x] 03-03-PLAN.md — Warm ending (acknowledge + skippable 3-level mood check) + quiet History log (duration + mood)
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -232,7 +232,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
-| 3. Co-pilot End-to-End | 2/4 | In Progress|  |
+| 3. Co-pilot End-to-End | 3/4 | In Progress|  |
 | 4. Brain Dump | 0/TBD | Not started | - |
 | 5. Starter | 0/TBD | Not started | - |
 | 6. Onboarding | 0/TBD | Not started | - |

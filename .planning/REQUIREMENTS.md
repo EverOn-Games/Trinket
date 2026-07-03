@@ -28,9 +28,9 @@ Requirements for the MVP (beta-ready build). Each maps to roadmap phases.
 - [x] **PILOT-02**: User can optionally set a session length intent (25 min default suggestion, freely adjustable); ending early is a completed session, never an abandoned one
 - [x] **PILOT-03**: Session screen shows the mascot in presence state, subtle elapsed time (no countdown pressure unless user chose one), and a single End button
 - [x] **PILOT-04**: Mascot may doze after ~30 minutes of session time and wakes on touch or session end
-- [ ] **PILOT-05**: Ending a session always plays a warm acknowledgment, with an optional skippable one-tap mood check (3 emoji levels)
+- [x] **PILOT-05**: Ending a session always plays a warm acknowledgment, with an optional skippable one-tap mood check (3 emoji levels)
 - [x] **PILOT-06**: A session survives app backgrounding, force-quit, and OS kill — elapsed time is derived from persisted timestamps, and orphaned sessions are silently reconciled at next launch with zero mention
-- [ ] **PILOT-07**: Session history exists as a quiet log — no statistics dashboards, no completion rates, no daily boundaries
+- [x] **PILOT-07**: Session history exists as a quiet log — no statistics dashboards, no completion rates, no daily boundaries
 
 ### Brain Dump
 
@@ -123,9 +123,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PILOT-02 | Phase 3 - Co-pilot End-to-End | Complete |
 | PILOT-03 | Phase 3 - Co-pilot End-to-End | Complete |
 | PILOT-04 | Phase 3 - Co-pilot End-to-End | Complete |
-| PILOT-05 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-05 | Phase 3 - Co-pilot End-to-End | Complete |
 | PILOT-06 | Phase 3 - Co-pilot End-to-End | Complete |
-| PILOT-07 | Phase 3 - Co-pilot End-to-End | Pending |
+| PILOT-07 | Phase 3 - Co-pilot End-to-End | Complete |
 | DUMP-01 | Phase 4 - Brain Dump | Pending |
 | DUMP-02 | Phase 4 - Brain Dump | Pending |
 | DUMP-03 | Phase 4 - Brain Dump | Pending |
