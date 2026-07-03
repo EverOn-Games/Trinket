@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-07-03T00:59:04.164Z"
-last_activity: 2026-07-03 -- Phase 3 planning complete
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-07-03T01:17:42.810Z"
+last_activity: 2026-07-03
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 15
-  completed_plans: 11
+  completed_plans: 12
   percent: 22
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-01)
 
 **Core value:** A user who has been avoiding a task can open Trinket and actually start it in the mascot's presence — Co-pilot lowers the threshold to start.
-**Current focus:** Phase 3 — co pilot end to end
+**Current focus:** Phase 3 — Co-pilot End-to-End
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 3 (Co-pilot End-to-End) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-03 -- Phase 3 planning complete
+Last activity: 2026-07-03
 
-Progress: [██████████] 100%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 | Phase 02 P03 | 8min | 3 tasks | 6 files |
 | Phase 2 P04 | 32min | 2 tasks | 4 files |
 | Phase 2 P05 | 33min | 3 tasks | 10 files |
+| Phase 03 P01 | 8min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,8 @@ Recent decisions affecting current work:
 - [Phase 2]: mockLottieRef test assertions must import via the bare 'lottie-react-native' specifier, not a relative path into __mocks__/, to guarantee the same module instance Mascot.tsx resolves via jest.mock automock
 - [Phase 02-05]: Greeting cadence uses a module-level in-memory flag only, never a persisted timestamp (D-07) — keeps schema denylist intent
 - [Phase 02-05]: Root-caused device-checkpoint blink jolt to Lottie's instant, non-interpolated seek on play(start,end); fixed by anchoring marker-boundary scale and moving blink to opacity-only, with zero component-code changes
+- [Phase 03-01]: Discretion constants fixed: 45s heartbeat interval, 60s wake-grace window, 12h D-11 staleness threshold (midpoints of CONTEXT.md's discretion bands), gated on lastAliveAt per amended D-11 — Consumed verbatim by Plan 03-02+ (session screen, root layout reconciliation hook); confirms RESEARCH.md Open Question 1's resolution
+- [Phase 03-01]: lastTouchAt implemented as React state, not a ref, in useElapsedSession — TDD-caught bug: a ref mutation in wake() does not schedule a re-render, leaving isDozing stale until the next incidental tick
 
 ### Pending Todos
 
@@ -134,6 +137,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-03T00:30:49.568Z
-Stopped at: Phase 3 UI-SPEC approved
-Resume file: .planning/phases/03-co-pilot-end-to-end/03-UI-SPEC.md
+Last session: 2026-07-03T01:17:42.784Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None

@@ -114,7 +114,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Session-lifecycle logic foundation: activeSession pointer repo, useElapsedSession hook, reconcileActiveSession pure fn (TDD)
+- [x] 03-01-PLAN.md — Session-lifecycle logic foundation: activeSession pointer repo, useElapsedSession hook, reconcileActiveSession pure fn (TDD)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -232,7 +232,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
-| 3. Co-pilot End-to-End | 0/4 | Not started | - |
+| 3. Co-pilot End-to-End | 1/4 | In Progress|  |
 | 4. Brain Dump | 0/TBD | Not started | - |
 | 5. Starter | 0/TBD | Not started | - |
 | 6. Onboarding | 0/TBD | Not started | - |
