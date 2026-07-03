@@ -193,6 +193,32 @@ describe('Co-pilot setup + active phases (PILOT-01, PILOT-03, T-03-05)', () => {
     expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
     expect(sessionsRepo.list().length).toBe(before);
   });
+
+  it('resumes with an honest elapsed-only display, never a fabricated 25-minute countdown (WR-02)', async () => {
+    // 10 minutes elapsed is the load-bearing choice here: under the old
+    // hardcoded-25-minute default this is still comfortably short of the
+    // false "0 remaining" auto-retire trip (that only fires once elapsed
+    // time would exceed 25 min), so a still-live "elapsed"/"left" toggle
+    // caption would be visibly showing at this point if the bug regressed
+    // — asserting only past the auto-retire threshold would incorrectly
+    // pass either way, since the buggy default silently self-corrects to
+    // the same "no caption" end state once it trips.
+    const startedAt = Date.now() - 10 * 60 * 1000;
+    const session = sessionsRepo.create({ source: 'open' });
+    sessionsRepo.update(session.id, { startedAt });
+    activeSessionRepo.start(session.id, startedAt);
+
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+    // D-03: the original length intent (if any) was never persisted, so a
+    // resumed session must not guess — no timeMode caption of either kind
+    // means the countdown toggle never activated (canToggleTimeMode false),
+    // rather than having incorrectly activated against a fabricated default
+    // and shown a live countdown against an intent the user never chose.
+    expect(screen.queryByText(en.coPilot.active.timeMode.elapsed)).toBeNull();
+    expect(screen.queryByText(en.coPilot.active.timeMode.remaining)).toBeNull();
+  });
 });
 
 describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {

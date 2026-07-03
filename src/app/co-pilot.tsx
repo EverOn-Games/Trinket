@@ -20,12 +20,14 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 
 import { Screen } from '@/components/Screen';
 import { Mascot } from '@/components/Mascot/Mascot';
+import { reconcileActiveSession } from '@/features/co-pilot/reconcileActiveSession';
 import { useTheme } from '../../theme';
 import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
 import { useElapsedSession } from '@/features/co-pilot/useElapsedSession';
-import type { DumpItem, Session } from '../../data/types';
+import type { ActiveSessionPointer, DumpItem, Session } from '../../data/types';
+import { STALE_THRESHOLD_MS } from './_layout';
 
 type LiveSession = {
   sessionId: string;
@@ -53,21 +55,58 @@ function formatDuration(ms: number): string {
 }
 
 export default function CoPilotScreen() {
+  // WR-01: a lazy useState initializer, never a bare Date.now() call in the
+  // render body itself (react-hooks/purity — mirrors index.tsx's own
+  // nowAtMount precedent), captured once so every initializer below that
+  // needs to know "is there a still-live session to resume" agrees on the
+  // same instant instead of each independently reading the clock.
+  const [nowAtMount] = useState(() => Date.now());
+  // WR-01: `/co-pilot` is normally only reached through Home, which already
+  // filters out stale pointers before ever offering "Resume" — but this
+  // route is itself a fully valid direct entry point (a deep link, or an
+  // Android process-death-and-restore-to-last-route), so trusting "a
+  // pointer exists" alone — as every initializer below previously did —
+  // risks resuming and ticking a session that _layout.tsx's own
+  // reconciliation effect is about to silently close out from under it
+  // moments later. Mirrors index.tsx's identical
+  // reconcileActiveSession(...).kind === 'keep-live' gate, computed once
+  // here so flowPhase/activeSession/lengthIntentMin below can never
+  // disagree about whether a session is actually being resumed.
+  const [resumablePointer] = useState<ActiveSessionPointer | undefined>(() => {
+    const pointer = activeSessionRepo.read();
+    if (!pointer) return undefined;
+    return reconcileActiveSession(pointer, nowAtMount, STALE_THRESHOLD_MS).kind === 'keep-live'
+      ? pointer
+      : undefined;
+  });
   // D-16 / Open Question 2: reading the pointer synchronously in the
   // initializer (not an effect) means a re-entered route lands on the
   // active phase on its very first render, never flashing 'setup' first.
   const [flowPhase, setFlowPhase] = useState<'setup' | 'active' | 'ending'>(() =>
-    activeSessionRepo.read() ? 'active' : 'setup'
+    resumablePointer ? 'active' : 'setup'
   );
-  const [activeSession, setActiveSession] = useState<LiveSession | null>(() => {
-    const pointer = activeSessionRepo.read();
-    if (!pointer) return null;
-    return { sessionId: pointer.sessionId, startedAt: pointer.startedAt, taskLabel: pointer.taskLabel };
-  });
+  const [activeSession, setActiveSession] = useState<LiveSession | null>(() =>
+    resumablePointer
+      ? {
+          sessionId: resumablePointer.sessionId,
+          startedAt: resumablePointer.startedAt,
+          taskLabel: resumablePointer.taskLabel,
+        }
+      : null
+  );
   // D-03: ephemeral UI state only — held here (not in sessionsRepo) so it can
   // be forwarded into the active phase's countdown display without ever
-  // becoming a schema field.
-  const [lengthIntentMin, setLengthIntentMin] = useState<number | null>(25);
+  // becoming a schema field. WR-02: the user's original length intent is
+  // never persisted (D-03), so it is unrecoverable across a Resume
+  // re-entry — defaulting to 25 regardless would compute a false "0
+  // remaining" against a possibly-hours-old elapsedMs and permanently
+  // retire the countdown toggle with incorrect information (see
+  // ActivePhase's auto-retire branch below). A resumed session therefore
+  // gets an honest `null` (elapsed-only, no countdown toggle); only a
+  // genuinely fresh setup flow starts at the 25-minute default.
+  const [lengthIntentMin, setLengthIntentMin] = useState<number | null>(() =>
+    resumablePointer ? null : 25
+  );
 
   // Shared across all three start affordances (WR-04/T-03-05) — only one of
   // one-liner/just-work/dump-item may ever create a session for a single
