@@ -84,7 +84,6 @@ export function useElapsedSession(
       stopTicking();
       subscription.remove();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- onHeartbeat forwarded via ref; startedAt is stable for the hook's lifetime
   }, []);
 
   // T-03-02: clamp backward clock skew to 0 — never a negative elapsed value.
