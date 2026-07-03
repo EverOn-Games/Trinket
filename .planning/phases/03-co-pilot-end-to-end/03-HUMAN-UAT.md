@@ -8,7 +8,16 @@ updated: 2026-07-03T03:25:00Z
 
 ## Current Test
 
-[awaiting human testing on a physical / emulated device]
+number: 1
+name: Real force-quit / OS-kill session survival
+expected: |
+  Start a Co-pilot session, force-kill the app process (not just background it),
+  reopen the app. If killed within ~12h, Home shows the warm resume card
+  (continuity copy — never "interrupted"/"paused"). Resume returns to the active
+  screen with elapsed correctly derived from the real startedAt (including dead
+  time). A pointer last alive > ~12h ago shows NO resume card — it is already
+  folded into History as an ordinary row.
+awaiting: user response
 
 ## Tests
 
