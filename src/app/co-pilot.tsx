@@ -477,7 +477,7 @@ type MoodValue = 1 | 2 | 3;
 
 // UI-SPEC Flag 5 (Claude's discretion): 🙂=3 / 😐=2 / 😣=1, listed good-to-
 // tough to mirror the mockup's left-to-right reading order.
-const MOOD_OPTIONS: ReadonlyArray<{ mood: MoodValue; glyph: string; labelKey: string }> = [
+const MOOD_OPTIONS: readonly { mood: MoodValue; glyph: string; labelKey: string }[] = [
   { mood: 3, glyph: '🙂', labelKey: 'coPilot.ending.moodCheck.good' },
   { mood: 2, glyph: '😐', labelKey: 'coPilot.ending.moodCheck.okay' },
   { mood: 1, glyph: '😣', labelKey: 'coPilot.ending.moodCheck.tough' },

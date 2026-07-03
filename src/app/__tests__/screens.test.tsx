@@ -245,3 +245,34 @@ describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
     }
   });
 });
+
+describe('History quiet-log rows (PILOT-07, D-15)', () => {
+  beforeEach(() => {
+    contentStorage.clearAll();
+  });
+
+  it("renders a session's duration and mood glyph, with no day-group headers", async () => {
+    const startedAt = Date.now() - 5 * 60 * 1000;
+    const created = sessionsRepo.create({ source: 'quick', taskLabel: 'stretch' });
+    sessionsRepo.update(created.id, { startedAt, endedAt: startedAt + 5 * 60 * 1000, mood: 2 });
+
+    await renderRouter(routeContext, { initialUrl: '/history' });
+
+    // count=5 resolves to English's "other" CLDR plural category.
+    const expectedDuration = en.history.duration_other.replace('{{count}}', '5');
+    expect(await screen.findByText(expectedDuration)).toBeTruthy();
+    expect(screen.getByText('😐')).toBeTruthy();
+    // D-15: still a flat quiet log — no day-group heading of any kind.
+    expect(screen.queryByText(/^(Today|Yesterday|This week)$/)).toBeNull();
+  });
+
+  it('shows "Under a minute" instead of "0 min" for a sub-minute session', async () => {
+    const startedAt = Date.now() - 10 * 1000;
+    const created = sessionsRepo.create({ source: 'open' });
+    sessionsRepo.update(created.id, { startedAt, endedAt: startedAt + 10 * 1000 });
+
+    await renderRouter(routeContext, { initialUrl: '/history' });
+
+    expect(await screen.findByText(en.history.durationLessThanMinute)).toBeTruthy();
+  });
+});
