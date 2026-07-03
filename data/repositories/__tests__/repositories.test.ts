@@ -11,6 +11,8 @@ import { sessionsRepo } from '../sessions';
 import { dumpItemsRepo } from '../dumpItems';
 import { intentionsRepo } from '../intentions';
 import { settingsRepo } from '../settings';
+import { activeSessionRepo } from '../activeSession';
+import { contentStorage } from '../../mmkv';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 
 describe('sessionsRepo', () => {
@@ -109,6 +111,40 @@ describe('create() spread order (WR-03 regression)', () => {
     expect(created.id).not.toBe(stale.id);
     expect(created.createdAt).toBeGreaterThanOrEqual(stale.createdAt);
     expect(intentionsRepo.list().filter((intention) => intention.id === created.id)).toHaveLength(1);
+  });
+});
+
+describe('activeSessionRepo', () => {
+  it('supports start/heartbeat/read/clear lifecycle', () => {
+    const startedAt = Date.now();
+    activeSessionRepo.start('session-1', startedAt, 'write report');
+
+    const started = activeSessionRepo.read();
+    expect(started?.sessionId).toBe('session-1');
+    expect(started?.startedAt).toBe(startedAt);
+    expect(started?.lastAliveAt).toBe(startedAt);
+    expect(started?.taskLabel).toBe('write report');
+
+    activeSessionRepo.heartbeat(startedAt + 1000);
+    const heartbeated = activeSessionRepo.read();
+    expect(heartbeated?.lastAliveAt).toBe(startedAt + 1000);
+    expect(heartbeated?.sessionId).toBe('session-1');
+    expect(heartbeated?.startedAt).toBe(startedAt);
+    expect(heartbeated?.taskLabel).toBe('write report');
+
+    activeSessionRepo.clear();
+    expect(activeSessionRepo.read()).toBeUndefined();
+  });
+
+  it('heartbeat() is a no-op when no pointer exists', () => {
+    activeSessionRepo.clear();
+    activeSessionRepo.heartbeat(Date.now());
+    expect(activeSessionRepo.read()).toBeUndefined();
+  });
+
+  it('read() returns undefined for a corrupted (non-JSON) stored value (T-03-01)', () => {
+    contentStorage.set('activeSession:pointer', 'not-json{{{');
+    expect(activeSessionRepo.read()).toBeUndefined();
   });
 });
 

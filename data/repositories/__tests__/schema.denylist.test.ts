@@ -20,6 +20,7 @@ import { join } from 'node:path';
 import { sessionsRepo } from '../sessions';
 import { dumpItemsRepo } from '../dumpItems';
 import { intentionsRepo } from '../intentions';
+import { activeSessionRepo } from '../activeSession';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 
 // Denylist *stems*, matched as case-insensitive substrings — not exact field names.
@@ -67,6 +68,12 @@ describe('schema denylist guard', () => {
       actionText: 'denylist probe action',
     });
 
+    // Belt-and-suspenders (03-PATTERNS.md): probe the active-session pointer's
+    // runtime keys too, even though the source-scan check below already covers
+    // ActiveSessionPointer's declared fields via data/types.ts.
+    activeSessionRepo.start('denylist-probe-session', Date.now(), 'denylist probe task');
+    const activeSessionPointer = activeSessionRepo.read();
+
     // Exclude the store's action functions (setLocale/setNotificationsOptIn/
     // setMascotProminence) — the schema under test is the persisted data shape,
     // not the store's imperative API.
@@ -82,6 +89,7 @@ describe('schema denylist guard', () => {
       ...schemaKeys(dumpItem),
       ...schemaKeys(intention),
       ...schemaKeys(settingsData),
+      ...(activeSessionPointer ? schemaKeys(activeSessionPointer) : []),
     ]);
 
     const violations = [...allKeys].filter((key) => violatingStems(key).length > 0);
