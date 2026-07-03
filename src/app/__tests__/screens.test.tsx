@@ -140,6 +140,20 @@ describe('Co-pilot setup + active phases (PILOT-01, PILOT-03, T-03-05)', () => {
     expect(created.taskLabel).toBe('write the report');
   });
 
+  it('announces the one-liner Start CTA disabled state to assistive tech before/after focus (IN-02)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/co-pilot' });
+
+    const startButton = screen.getByRole('button', { name: en.coPilot.setup.oneLiner.cta });
+    expect(startButton).toBeDisabled();
+    expect(startButton.props.accessibilityState?.disabled).toBe(true);
+
+    const input = screen.getByPlaceholderText(en.coPilot.setup.oneLiner.placeholder);
+    await fireEvent(input, 'focus');
+
+    expect(startButton).toBeEnabled();
+    expect(startButton.props.accessibilityState?.disabled).toBe(false);
+  });
+
   it('starts a session from the "Just work" path with source "open" (D-01)', async () => {
     await renderRouter(routeContext, { initialUrl: '/co-pilot' });
 

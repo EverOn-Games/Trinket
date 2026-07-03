@@ -283,6 +283,7 @@ function SetupPhase({
         />
         <Pressable
           accessibilityRole="button"
+          accessibilityState={{ disabled: !hasFocusedOneLiner }}
           disabled={!hasFocusedOneLiner}
           onPress={() => onStartOneLiner(oneLinerText)}
           style={oneLinerCtaStyle}
