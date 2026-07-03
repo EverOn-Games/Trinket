@@ -42,6 +42,18 @@ export interface Session {
   mood?: 1 | 2 | 3;
 }
 
+// Single-key pointer marking the one currently-live session, if any (there is
+// never more than 0 or 1). lastAliveAt is a liveness heartbeat, NOT an aggregate —
+// it must remain named exactly this way (the more "natural" alternative spelling,
+// swapping Alive for Active, trips the schema denylist's `lastactive` stem — see
+// data/repositories/__tests__/schema.denylist.test.ts).
+export interface ActiveSessionPointer {
+  sessionId: string;
+  startedAt: number; // epoch ms — mirrors the linked Session's startedAt
+  lastAliveAt: number; // epoch ms — heartbeat; liveness signal, NOT an aggregate
+  taskLabel?: string; // denormalized for the D-11 resume card's copy, avoids a second read
+}
+
 export type Locale = 'pl' | 'en';
 
 export interface SettingsState {
