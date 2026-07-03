@@ -539,11 +539,13 @@ function EndingPhase({ sessionId }: { sessionId: string }) {
   const theme = useTheme();
   const router = useRouter();
 
-  // T-03-05: a single shared guard — whichever of {a mood tap, Skip, the
-  // acknowledge one-shot concluding on its own} fires first is the only one
-  // that may write and navigate; every path funnels through this ref before
-  // calling `router.replace`, so tapping a mood right as the animation
-  // concludes can never double-navigate or double-write.
+  // T-03-05: a single shared guard — whichever of {a mood tap, Skip} fires
+  // first is the only one that may write and navigate; every path funnels
+  // through this ref before calling `router.replace`, so a mood tap
+  // immediately followed by Skip (or a double tap) can never double-navigate
+  // or double-write. (Prior to the D-13 revision above, the acknowledge
+  // one-shot concluding was a third trigger funneled through this same
+  // guard; that trigger no longer exists.)
   const isFinishingRef = useRef(false);
   const [tappedMood, setTappedMood] = useState<MoodValue | null>(null);
 
@@ -562,11 +564,6 @@ function EndingPhase({ sessionId }: { sessionId: string }) {
   };
 
   const handleSkip = () => finishEnding();
-
-  // Pattern 3 (RESEARCH.md): the acknowledge one-shot simply concluding,
-  // with neither a mood tap nor Skip having happened yet, IS the implicit
-  // skip — no mood stored, still navigates home exactly once.
-  const handleAnimationComplete = () => finishEnding();
 
   const acknowledgmentStyle = {
     color: theme.colors.textPrimary,
@@ -589,11 +586,25 @@ function EndingPhase({ sessionId }: { sessionId: string }) {
 
   return (
     <View style={endingContainerStyle}>
+      {/*
+        REVISES D-13 Pattern 3 (03-HUMAN-UAT.md Test 4): the original Pattern
+        3 treated the acknowledge one-shot simply concluding as an implicit
+        skip that navigated Home. On real hardware the short (~1500ms
+        placeholder) animation made the mood check unusable — it auto-
+        dismissed before the user could tap anything. The ending moment now
+        PERSISTS on screen until an explicit choice (a mood tap or Skip,
+        below); the acknowledge one-shot still always plays (PILOT-05) but
+        its completion no longer drives navigation — no
+        onStateAnimationComplete prop is wired here. Every other D-13/D-14
+        property is unchanged: the warm line is numberless and identical
+        regardless of duration, Skip stores no mood, and isFinishingRef still
+        guarantees at most one navigation/write across whichever explicit
+        trigger fires first.
+      */}
       <Mascot
         state="acknowledge"
         prominence="prominent"
         accessibilityLabel={t('mascot.accessibility.acknowledge')}
-        onStateAnimationComplete={handleAnimationComplete}
       />
 
       <Text style={acknowledgmentStyle}>{t('coPilot.ending.acknowledgment')}</Text>
