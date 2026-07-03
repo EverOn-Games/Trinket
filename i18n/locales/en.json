@@ -10,7 +10,38 @@
   },
   "coPilot": {
     "title": "Co-pilot",
-    "description": "Your session space will live here."
+    "setup": {
+      "subheading": "However you want to begin.",
+      "oneLiner": {
+        "label": "What are we doing?",
+        "placeholder": "Type a task, or leave it blank",
+        "cta": "Start"
+      },
+      "justWork": {
+        "label": "Just work",
+        "subcopy": "No task to name."
+      },
+      "dumpPicker": {
+        "heading": "From your brain dump"
+      },
+      "lengthIntent": {
+        "heading": "How long, roughly?",
+        "caption": "Just a rough guess — nothing happens when it's up."
+      },
+      "lengthChip_one": "{{count}} min",
+      "lengthChip_other": "{{count}} min",
+      "lengthChip": {
+        "noTimer": "No timer"
+      }
+    },
+    "active": {
+      "kicker": "Quiet session",
+      "timeMode": {
+        "elapsed": "elapsed",
+        "remaining": "left"
+      },
+      "endButton": "End session"
+    }
   },
   "brainDump": {
     "title": "Brain dump",

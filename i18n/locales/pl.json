@@ -10,7 +10,39 @@
   },
   "coPilot": {
     "title": "Co-pilot",
-    "description": "Tu pojawi się przestrzeń twojej sesji."
+    "setup": {
+      "subheading": "Jak chcesz zacząć.",
+      "oneLiner": {
+        "label": "Co robimy?",
+        "placeholder": "Wpisz zadanie albo zostaw puste",
+        "cta": "Zacznij"
+      },
+      "justWork": {
+        "label": "Po prostu praca",
+        "subcopy": "Bez nazywania zadania."
+      },
+      "dumpPicker": {
+        "heading": "Z Twojego zrzutu myśli"
+      },
+      "lengthIntent": {
+        "heading": "Ile czasu, w przybliżeniu?",
+        "caption": "To tylko przybliżenie — nic się nie stanie, gdy minie."
+      },
+      "lengthChip_one": "{{count}} minuta",
+      "lengthChip_few": "{{count}} minuty",
+      "lengthChip_many": "{{count}} minut",
+      "lengthChip": {
+        "noTimer": "Bez minutnika"
+      }
+    },
+    "active": {
+      "kicker": "Cicha sesja",
+      "timeMode": {
+        "elapsed": "minęło",
+        "remaining": "zostało"
+      },
+      "endButton": "Zakończ sesję"
+    }
   },
   "brainDump": {
     "title": "Zrzut myśli",

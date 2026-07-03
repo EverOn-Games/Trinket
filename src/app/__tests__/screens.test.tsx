@@ -57,17 +57,21 @@ describe('walking-skeleton slice', () => {
     expect(screen.getByText(en.history.emptyState)).toBeTruthy();
   });
 
-  it('creates exactly one session via sessionsRepo when the home offer is pressed', async () => {
+  it('navigates to /co-pilot without creating a session when the home offer is pressed (D-01, Pitfall 4)', async () => {
     await renderRouter(routeContext, { initialUrl: '/' });
 
     const before = sessionsRepo.list().length;
 
     fireEvent.press(screen.getByRole('button', { name: en.home.startSessionOffer }));
 
-    expect(sessionsRepo.list().length).toBe(before + 1);
+    // Home is now plain navigation — the setup screen owns session creation
+    // (D-01), so pressing the offer alone must never write a Session record.
+    // (Navigation itself to /co-pilot is exercised by the setup-screen
+    // integration tests added alongside co-pilot.tsx's rewrite.)
+    expect(sessionsRepo.list().length).toBe(before);
   });
 
-  it('creates only one session record on a rapid double-press of the home offer (WR-04)', async () => {
+  it('still creates zero sessions on a rapid double-press of the home offer (WR-04)', async () => {
     await renderRouter(routeContext, { initialUrl: '/' });
 
     const before = sessionsRepo.list().length;
@@ -84,7 +88,7 @@ describe('walking-skeleton slice', () => {
       fireEvent.press(startOffer);
     });
 
-    expect(sessionsRepo.list().length).toBe(before + 1);
+    expect(sessionsRepo.list().length).toBe(before);
   });
 
   it('mounts the real <Mascot /> (not the MascotSlot placeholder) on Home', async () => {

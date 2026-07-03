@@ -16,7 +16,6 @@ import { Screen } from '@/components/Screen';
 import { Mascot } from '@/components/Mascot/Mascot';
 import type { MascotState } from '@/components/Mascot/types';
 import { useTheme } from '../../theme';
-import { sessionsRepo } from '../../data/repositories/sessions';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
 
 // D-07: greeting cadence lives in a plain module-level, in-memory flag —
@@ -44,21 +43,24 @@ export default function HomeScreen() {
     setMascotState('idle');
   };
 
-  // Walking-skeleton write side (Task 2): the offer is the thinnest possible
-  // real session record (just a start timestamp + source) — full session
-  // lifecycle (timers, dozing, warm ending) is Phase 3 (PILOT-*).
+  // D-01/PILOT-01: Home no longer eagerly creates a Session (Phase 1
+  // walking-skeleton behavior, now wrong — see 03-RESEARCH.md Pitfall 4).
+  // The setup screen at /co-pilot owns all three entry paths and creates a
+  // Session only once the user actually commits to one of them; this offer
+  // is plain navigation. If a session is already live (D-16), co-pilot.tsx's
+  // own flowPhase initializer resumes it rather than starting a new one —
+  // Home does not need to special-case that here.
   //
-  // isStartingSessionRef guards against a rapid double-press creating two
-  // Session records for one user intent (WR-04) — touch UI double-taps are
+  // isStartingSessionRef guards against a rapid double-press firing two
+  // navigations for one user intent (WR-04) — touch UI double-taps are
   // common, and more so with this app's target ADHD-adjacent user
   // population. The flag never resets to false on this mount, which is fine:
-  // once a session has started, this specific Pressable's job is done for
+  // once navigation has started, this specific Pressable's job is done for
   // the lifetime of this screen instance.
   const isStartingSessionRef = useRef(false);
   const handleStartSession = () => {
     if (isStartingSessionRef.current) return;
     isStartingSessionRef.current = true;
-    sessionsRepo.create({ source: 'quick' });
     router.push('/co-pilot');
   };
 
