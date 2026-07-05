@@ -26,6 +26,12 @@ const listeners = new Map<Channel, Set<() => void>>();
 
 function bump(channel: Channel): void {
   versions.set(channel, (versions.get(channel) ?? 0) + 1);
+  // TEMP DEBUG (device UAT stale-list hunt — remove after): listener count 0
+  // while a screen is mounted+subscribed would prove a split module copy.
+  // eslint-disable-next-line no-console
+  console.log(
+    `[TDBG] bus notify ${channel} v=${versions.get(channel)} listeners=${listeners.get(channel)?.size ?? 0}`
+  );
   listeners.get(channel)?.forEach((fn) => fn());
 }
 
