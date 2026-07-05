@@ -11,18 +11,23 @@
  * @testing-library/react-native version.
  */
 import { act, renderHook } from '@testing-library/react-native';
-import {
-  ExpoSpeechRecognitionModule,
-  __emitSpeechEvent,
-  __resetSpeechListeners,
-} from 'expo-speech-recognition';
+import { ExpoSpeechRecognitionModule } from 'expo-speech-recognition';
+
+// The __emit/__reset test helpers exist only on the Jest fake (not in the
+// real library's type surface), so they are pulled via jest.requireMock and
+// typed from the mock module itself — the real-module import above stays
+// tsc-clean.
+const { __emitSpeechEvent, __resetSpeechListeners } = jest.requireMock(
+  'expo-speech-recognition'
+) as typeof import('../../../../__mocks__/expo-speech-recognition');
 
 import { useVoiceCapture } from '../useVoiceCapture';
 
 function mockAvailableHappyPath() {
   (ExpoSpeechRecognitionModule.isRecognitionAvailable as jest.Mock).mockReturnValue(true);
   (ExpoSpeechRecognitionModule.supportsOnDeviceRecognition as jest.Mock).mockReturnValue(true);
-  (ExpoSpeechRecognitionModule.getSupportedLocales as jest.Mock).mockReturnValue({
+  // Async, matching the REAL getSupportedLocales(options) => Promise signature.
+  (ExpoSpeechRecognitionModule.getSupportedLocales as jest.Mock).mockResolvedValue({
     locales: ['en-US', 'pl-PL'],
     installedLocales: ['en-US', 'pl-PL'],
   });
@@ -47,21 +52,41 @@ describe('useVoiceCapture', () => {
     expect(result.current.available).toBe(false);
   });
 
-  it('is unavailable when the active locale is not in installedLocales', async () => {
-    (ExpoSpeechRecognitionModule.getSupportedLocales as jest.Mock).mockReturnValue({
+  it('folds a definitively-missing locale into the quiet unavailable fallback at start() (D-02)', async () => {
+    // The locale probe is async and therefore lives in start(), not render —
+    // getSupportedLocales() returns a Promise in the real library (the
+    // original render-time sync probe always threw, hiding the mic on every
+    // device; caught by tsc post-review).
+    (ExpoSpeechRecognitionModule.getSupportedLocales as jest.Mock).mockResolvedValue({
       locales: ['en-US', 'pl-PL'],
       installedLocales: ['en-US'], // pl-PL not installed
     });
     const { result } = await renderHook(() => useVoiceCapture('', jest.fn(), 'pl'));
-    expect(result.current.available).toBe(false);
+    expect(result.current.available).toBe(true); // capability yes; locale unknown until probed
+
+    await act(async () => {
+      await result.current.start();
+    });
+
+    expect(ExpoSpeechRecognitionModule.start).not.toHaveBeenCalled();
+    expect(result.current.recording).toBe(false);
+    expect(result.current.available).toBe(false); // now quietly unavailable
   });
 
-  it('treats a throwing getSupportedLocales() as unavailable (Android <=12 defensive probe)', async () => {
-    (ExpoSpeechRecognitionModule.getSupportedLocales as jest.Mock).mockImplementation(() => {
-      throw new Error('not supported on this Android version');
-    });
+  it('treats an inconclusive locale probe as unknown and proceeds (Android <=12 — the error event owns real failures)', async () => {
+    (ExpoSpeechRecognitionModule.getSupportedLocales as jest.Mock).mockRejectedValue(
+      new Error('not supported on this Android version')
+    );
     const { result } = await renderHook(() => useVoiceCapture('', jest.fn(), 'en'));
-    expect(result.current.available).toBe(false);
+
+    await act(async () => {
+      await result.current.start();
+    });
+
+    // Probe inconclusive → start proceeds; a genuinely unsupported locale
+    // would surface via the 'error' event and fold into the same fallback.
+    expect(ExpoSpeechRecognitionModule.start).toHaveBeenCalledTimes(1);
+    expect(result.current.recording).toBe(true);
   });
 
   it('appends a final segment via appendFinalSegmentToDraft and surfaces it through onChange', async () => {

@@ -50,16 +50,20 @@ function localeTag(locale: Locale): string {
   return locale === 'pl' ? 'pl-PL' : 'en-US';
 }
 
-// T-04-06-CRASH: getSupportedLocales() is undocumented/unsupported on
-// Android 12 and below — a throw there hides the mic instead of crashing
-// the capture view.
-function probeAvailability(locale: Locale): boolean {
-  if (!ExpoSpeechRecognitionModule.isRecognitionAvailable()) return false;
+// T-04-06-CRASH: the on-device locale probe lives in probeLocaleInstalled(),
+// called from start() — getSupportedLocales() is ASYNC in the real library
+// (the original sync destructure here always threw at runtime, silently
+// hiding the mic on every device; caught by tsc, fixed post-review). It is
+// also undocumented/unsupported on Android 12 and below — an inconclusive or
+// throwing probe returns 'unknown' and start() proceeds, letting the existing
+// 'error' event fallback catch a genuinely unsupported locale.
+async function probeLocaleInstalled(locale: Locale): Promise<'installed' | 'missing' | 'unknown'> {
   try {
-    const { installedLocales } = ExpoSpeechRecognitionModule.getSupportedLocales();
-    return installedLocales.includes(localeTag(locale));
+    const { installedLocales } = await ExpoSpeechRecognitionModule.getSupportedLocales({});
+    if (!Array.isArray(installedLocales) || installedLocales.length === 0) return 'unknown';
+    return installedLocales.includes(localeTag(locale)) ? 'installed' : 'missing';
   } catch {
-    return false;
+    return 'unknown';
   }
 }
 
@@ -128,11 +132,12 @@ export function useVoiceCapture(
     };
   }, []);
 
-  const probedAvailable = probeAvailability(locale);
-  const available = probedAvailable && !runtimeUnavailable;
+  // Render-time availability is the cheap sync capability check only; the
+  // async locale probe happens inside start() where awaiting is possible.
+  const available = ExpoSpeechRecognitionModule.isRecognitionAvailable() && !runtimeUnavailable;
 
   const start = async (): Promise<void> => {
-    if (!available || startingRef.current) return;
+    if (!available || startingRef.current || recording) return;
     startingRef.current = true;
 
     try {
@@ -140,6 +145,15 @@ export function useVoiceCapture(
       // every) mic tap, never on mount/upfront.
       const { granted } = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
       if (!granted) {
+        setRuntimeUnavailable(true);
+        return;
+      }
+
+      // The Polish-on-device question (D-02): a definitive 'missing' folds
+      // into the same quiet unavailable fallback; 'unknown' (probe
+      // unsupported, e.g. Android <=12) proceeds and lets the 'error' event
+      // catch a real failure at start.
+      if ((await probeLocaleInstalled(localeRef.current)) === 'missing') {
         setRuntimeUnavailable(true);
         return;
       }

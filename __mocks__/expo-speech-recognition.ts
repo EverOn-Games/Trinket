@@ -26,7 +26,14 @@ export const ExpoSpeechRecognitionModule = {
   getPermissionsAsync: jest.fn(async () => ({ granted: true })),
   isRecognitionAvailable: jest.fn(() => true),
   supportsOnDeviceRecognition: jest.fn(() => true),
-  getSupportedLocales: jest.fn(() => ({ locales: ['en-US', 'pl-PL'], installedLocales: ['en-US'] })),
+  // Async + options-taking, matching the REAL library signature
+  // (getSupportedLocales(options) => Promise<...>). The original sync shape
+  // here masked a production bug (sync destructure of a Promise) that tsc
+  // caught — the mock must never be "easier" than the real API again.
+  getSupportedLocales: jest.fn(async (_options?: { androidRecognitionServicePackage?: string }) => ({
+    locales: ['en-US', 'pl-PL'],
+    installedLocales: ['en-US', 'pl-PL'],
+  })),
   start: jest.fn(),
   stop: jest.fn(),
 };

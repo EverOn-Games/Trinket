@@ -57,7 +57,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, SectionList, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { Screen } from '@/components/Screen';
@@ -242,11 +242,14 @@ function CapturePhase({
     styles.recordingPill,
     { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.pill, gap: theme.spacing.xs },
   ]);
-  const recordingPillLabelStyle = {
+  // Typed as TextStyle (co-pilot.tsx timerStyle precedent) — `as const` on
+  // fontVariant produces a readonly tuple RN's mutable FontVariant[] rejects
+  // under tsc --noEmit.
+  const recordingPillLabelStyle: TextStyle = {
     color: theme.colors.textSecondary,
     fontSize: theme.typography.scale.caption,
-    fontWeight: '600' as const,
-    fontVariant: ['tabular-nums'] as const,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
   };
   // UI-SPEC Flag 5: a soft mascotGlow ring in addition to the accent fill
   // while actively recording — "the mascot is listening too", not a new
