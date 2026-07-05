@@ -25,6 +25,8 @@ export type AnalyticsEvents = {
   item_promoted: Record<string, never>;
   starter_created: Record<string, never>;
   reminder_scheduled: { dayChosen: 'today' | 'tomorrow' };
+  /** MECH-02 Bridge v0: did the post-ending offer bridge into a next session? */
+  bridge_next: { startedNext: boolean };
   /** Freemium gate funnel (Phase 7). */
   gate_shown: { sessionsThisWeek: number };
   paywall_viewed: { trigger: 'gate' | 'settings' };
@@ -42,6 +44,7 @@ export const ALLOWED_EVENT_NAMES: readonly AnalyticsEventName[] = [
   'item_promoted',
   'starter_created',
   'reminder_scheduled',
+  'bridge_next',
   'gate_shown',
   'paywall_viewed',
   'paywall_dismissed',

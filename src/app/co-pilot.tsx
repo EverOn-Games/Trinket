@@ -94,7 +94,7 @@ export default function CoPilotScreen() {
   // D-16 / Open Question 2: reading the pointer synchronously in the
   // initializer (not an effect) means a re-entered route lands on the
   // active phase on its very first render, never flashing 'setup' first.
-  const [flowPhase, setFlowPhase] = useState<'setup' | 'active' | 'ending'>(() =>
+  const [flowPhase, setFlowPhase] = useState<'setup' | 'active' | 'ending' | 'bridge'>(() =>
     resumablePointer ? 'active' : 'setup'
   );
   const [activeSession, setActiveSession] = useState<LiveSession | null>(() =>
@@ -230,12 +230,53 @@ export default function CoPilotScreen() {
     setFlowPhase('ending');
   };
 
+  // MECH-02 Bridge v0: after the warm ending resolves, offer a quiet "what's
+  // next" beat — but only when there's genuinely something to offer. Zero
+  // un-promoted dump items → straight Home exactly as before (an empty offer
+  // would be noise, not a bridge). Items are snapshotted here so the list
+  // can't shift under the user mid-beat.
+  const [bridgeItems, setBridgeItems] = useState<DumpItem[]>([]);
+  const handleEndingFinished = () => {
+    const candidates = dumpItemsRepo
+      .list()
+      .filter((item) => item.promotedTaskId === undefined)
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 3);
+    if (candidates.length === 0) {
+      router.replace('/'); // never .push — back from Home must not return here
+      return;
+    }
+    // The prior session has fully ended (endSession wrote endedAt + cleared
+    // the pointer), so the permanently-latched start guard may legitimately
+    // re-arm for a bridge-started follow-up session.
+    isStartingSessionRef.current = false;
+    setBridgeItems(candidates);
+    setFlowPhase('bridge');
+  };
+
+  const handleBridgePick = (item: DumpItem) => {
+    startFromDumpItem(item);
+    // startFromDumpItem is gate-aware: at the free-tier limit it opens the
+    // paywall as an offer and starts nothing (the latch stays false, so the
+    // bridge remains tappable after "Not now"). Only a real start counts.
+    if (isStartingSessionRef.current) {
+      track('bridge_next', { startedNext: true });
+    }
+  };
+
+  const handleBridgeDone = () => {
+    track('bridge_next', { startedNext: false });
+    router.replace('/');
+  };
+
   return (
     <Screen>
       {flowPhase === 'active' && activeSession ? (
         <ActivePhase session={activeSession} lengthIntentMin={lengthIntentMin} onEnd={endSession} />
       ) : flowPhase === 'ending' && activeSession ? (
-        <EndingPhase sessionId={activeSession.sessionId} />
+        <EndingPhase sessionId={activeSession.sessionId} onFinished={handleEndingFinished} />
+      ) : flowPhase === 'bridge' ? (
+        <BridgePhase items={bridgeItems} onPick={handleBridgePick} onDone={handleBridgeDone} />
       ) : (
         <SetupPhase
           lengthIntentMin={lengthIntentMin}
@@ -626,14 +667,13 @@ function clampMood(raw: number): MoodValue {
 // swap in. The acknowledgment line renders immediately, independent of the
 // mascot animation's own timing (D-14: never waits for, or is driven by, a
 // duration/count of any kind).
-function EndingPhase({ sessionId }: { sessionId: string }) {
+function EndingPhase({ sessionId, onFinished }: { sessionId: string; onFinished: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
 
   // T-03-05: a single shared guard — whichever of {a mood tap, Skip} fires
   // first is the only one that may write and navigate; every path funnels
-  // through this ref before calling `router.replace`, so a mood tap
+  // through this ref before calling `onFinished`, so a mood tap
   // immediately followed by Skip (or a double tap) can never double-navigate
   // or double-write. (Prior to the D-13 revision above, the acknowledge
   // one-shot concluding was a third trigger funneled through this same
@@ -653,7 +693,10 @@ function EndingPhase({ sessionId }: { sessionId: string }) {
         moodGiven: record.mood !== undefined,
       });
     }
-    router.replace('/'); // never .push — back from Home must not return here
+    // The parent decides what follows the ending moment (Bridge offer when
+    // un-promoted dump items exist, otherwise straight Home) — this phase
+    // only guarantees the single-fire write/track semantics above.
+    onFinished();
   };
 
   const handleMoodTap = (raw: number) => {
@@ -751,9 +794,95 @@ function EndingPhase({ sessionId }: { sessionId: string }) {
   );
 }
 
+// MECH-02 Bridge v0: the quiet beat after the ending moment — an OFFER of up
+// to three un-promoted brain-dump items, with an equally-weighted warm exit.
+// Transitions are the second hardest ADHD moment the brief names; this is
+// its smallest honest mechanic. Nothing here auto-advances (D-13 lesson),
+// nothing counts down, and "done for now" is a full-dignity choice, not a
+// consolation prize. Item taps ride the parent's gate-aware
+// startFromDumpItem, so the free-tier gate stays an offer here too.
+function BridgePhase({
+  items,
+  onPick,
+  onDone,
+}: {
+  items: DumpItem[];
+  onPick: (item: DumpItem) => void;
+  onDone: () => void;
+}) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+
+  // Single-navigation guard for the Done exit only — item taps deliberately
+  // stay re-tappable (a gated tap opens the paywall and starts nothing; the
+  // user may come back with "Not now" and pick again or leave).
+  const isLeavingRef = useRef(false);
+  const handleDone = () => {
+    if (isLeavingRef.current) return;
+    isLeavingRef.current = true;
+    onDone();
+  };
+
+  const headingStyle = {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.scale.title,
+    fontWeight: '600' as const,
+    textAlign: 'center' as const,
+  };
+  const itemButtonStyle = StyleSheet.flatten([
+    styles.tapTarget,
+    styles.bridgeItem,
+    {
+      backgroundColor: theme.colors.surfaceElevated,
+      borderRadius: theme.radii.lg,
+    },
+  ]);
+  const itemLabelStyle = {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.scale.body,
+  };
+  const doneLabelStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.body,
+  };
+
+  return (
+    <View style={StyleSheet.flatten([styles.endingContainer, { gap: theme.spacing.lg }])}>
+      <Mascot state="idle" prominence="prominent" accessibilityLabel={t('mascot.accessibility.idle')} />
+
+      <Text style={headingStyle}>{t('coPilot.bridge.heading')}</Text>
+
+      <View style={{ gap: theme.spacing.sm, alignSelf: 'stretch' }}>
+        {items.map((item) => (
+          <Pressable
+            key={item.id}
+            accessibilityRole="button"
+            onPress={() => onPick(item)}
+            style={itemButtonStyle}
+          >
+            <Text style={itemLabelStyle} numberOfLines={2}>
+              {item.text}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Pressable accessibilityRole="button" onPress={handleDone} style={styles.tapTarget}>
+        <Text style={doneLabelStyle}>{t('coPilot.bridge.done')}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   title: {
     fontWeight: '600',
+  },
+  bridgeItem: {
+    alignSelf: 'stretch',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: 'flex-start',
   },
   sectionLabel: {
     fontWeight: '600',

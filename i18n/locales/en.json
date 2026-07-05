@@ -58,6 +58,10 @@
         "tough": "Tough",
         "skip": "Skip"
       }
+    },
+    "bridge": {
+      "heading": "Anything next?",
+      "done": "Nothing — I'm done for now"
     }
   },
   "brainDump": {

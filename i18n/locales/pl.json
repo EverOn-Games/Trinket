@@ -60,6 +60,10 @@
         "tough": "Ciężko",
         "skip": "Pomiń"
       }
+    },
+    "bridge": {
+      "heading": "Coś jeszcze?",
+      "done": "Nie — na dziś wystarczy"
     }
   },
   "brainDump": {
