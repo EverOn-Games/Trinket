@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 4 context gathered
-last_updated: "2026-07-05T01:39:55.575Z"
-last_activity: 2026-07-05 -- Phase 4 planning complete
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-07-05T01:45:22.313Z"
+last_activity: 2026-07-05
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 22
-  completed_plans: 16
+  completed_plans: 17
   percent: 33
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-01)
 
 **Core value:** A user who has been avoiding a task can open Trinket and actually start it in the mascot's presence — Co-pilot lowers the threshold to start.
-**Current focus:** Phase 3 — Co-pilot End-to-End
+**Current focus:** Phase 4 — Brain Dump
 
 ## Current Position
 
-Phase: 3 (Co-pilot End-to-End) — COMPLETE
-Plan: 5 of 5
+Phase: 4 (Brain Dump) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-07-05 -- Phase 4 planning complete
+Last activity: 2026-07-05
 
-Progress: [██████████] 100%
+Progress: [████████░░] 77%
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [██████████] 100%
 | Phase 03 P03 | 13min | 3 tasks | 5 files |
 | Phase 03 P04 | 16min | 2 tasks | 5 files |
 | Phase 03 P05 | 6min | 2 tasks | 2 files |
+| Phase 04 P01 | 8min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,7 @@ Recent decisions affecting current work:
 - [Phase 03-04]: STALE_THRESHOLD_MS (12h) defined and exported once from _layout.tsx, imported by index.tsx — satisfies the plan's grep-verifiable literal-constant requirement while avoiding a duplicated 12h literal across both files
 - [Phase 03-04]: Home's post-Not-now state (dismissedActiveSession) is a plain boolean useState, not a re-read counter — this is what forces a re-render after Not now since activeSessionRepo.read() alone in the render body has no reactive subscription
 - [Phase 03-05]: REVISES D-13 Pattern 3: acknowledge-animation completion no longer navigates Home; the ending moment persists until an explicit mood tap or Skip — 03-HUMAN-UAT.md Test 4 (major): the ~1500ms placeholder animation auto-dismissed the mood check before the user could tap anything
+- [Phase 04-01]: Corrected classify.ts's tie-break logic beyond 04-PATTERNS.md's literal skeleton — Strict '>' alone only protects the zero-score 'someday' default from being displaced; added an equal-score-and-nonzero branch resetting to 'someday' so genuine ties between two nonzero-scoring categories resolve correctly per D-09/Pitfall 4
 
 ### Pending Todos
 
@@ -152,6 +154,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-04T16:15:20.336Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-brain-dump/04-CONTEXT.md
+Last session: 2026-07-05T01:45:22.288Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
