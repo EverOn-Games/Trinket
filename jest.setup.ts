@@ -61,3 +61,16 @@ jest.mock('react-native-worklets', () => require('react-native-worklets/lib/modu
 // since reanimated's mock.ts internally imports the real './index', which in
 // turn requires 'react-native-worklets' — now safely resolving to its mock.
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
+// Register the in-memory react-native-purchases fake (see
+// __mocks__/react-native-purchases.ts). RevenueCat's StoreKit/Play Billing
+// binding cannot initialize under Jest's Node environment; every test that
+// touches the purchases seam (purchases.ts) must go through this mock. Real
+// on-device purchases remain a device-only verification.
+jest.mock('react-native-purchases');
+
+// Register the recording posthog-react-native fake (see
+// __mocks__/posthog-react-native.ts). The native analytics client cannot
+// initialize under Jest's Node environment; the transport wiring (posthog.ts)
+// goes through this mock, which records each constructed client for assertion.
+jest.mock('posthog-react-native');

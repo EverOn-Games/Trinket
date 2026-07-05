@@ -82,6 +82,7 @@ describe('schema denylist guard', () => {
       setNotificationsOptIn: _setNotificationsOptIn,
       setMascotProminence: _setMascotProminence,
       setOnboardingComplete: _setOnboardingComplete,
+      setSubscriptionCache: _setSubscriptionCache,
       ...settingsData
     } = useSettingsStore.getState();
 

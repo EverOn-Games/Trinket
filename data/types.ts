@@ -59,9 +59,18 @@ export interface ActiveSessionPointer {
 
 export type Locale = 'pl' | 'en';
 
+/**
+ * Locally-cached entitlement state (MONEY-03). `null` = never resolved (fresh
+ * install / offline-unknown) → free tier, quietly. A positively-cached
+ * `{ tier: 'plus' }` is the ONLY thing entitlements.getTier treats as paid.
+ * A plain tier flag, never a counter/streak — written by the RevenueCat seam
+ * (src/features/subscription/purchases.ts) on a granted entitlement.
+ */
+export type SubscriptionCache = { tier: 'free' | 'plus' } | null;
+
 export interface SettingsState {
   locale: Locale;
   notificationsOptIn: boolean;
-  subscriptionCache: unknown; // typed placeholder, populated in Phase 7
+  subscriptionCache: SubscriptionCache;
   mascotProminence: MascotProminence;
 }

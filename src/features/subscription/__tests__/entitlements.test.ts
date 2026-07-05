@@ -6,6 +6,7 @@
 import { contentStorage } from '../../../../data/mmkv';
 import { sessionsRepo } from '../../../../data/repositories/sessions';
 import { useSettingsStore } from '../../../../data/stores/useSettingsStore';
+import type { SubscriptionCache } from '../../../../data/types';
 import {
   FREE_WEEKLY_SESSION_LIMIT,
   canStartSession,
@@ -80,7 +81,10 @@ describe('getTier — offline/unknown defaults to free with no drama (MONEY-03)'
     ['malformed object', { tear: 'plus' }],
     ['unknown tier value', { tier: 'diamond' }],
   ])('%s cache → free', (_label, cache) => {
-    useSettingsStore.setState({ subscriptionCache: cache });
+    // Cast through unknown on purpose: these shapes model CORRUPTED / older
+    // persisted MMKV values the store's type would never produce, which is
+    // exactly what getTier's runtime guard must survive (MONEY-03).
+    useSettingsStore.setState({ subscriptionCache: cache as unknown as SubscriptionCache });
     expect(getTier()).toBe('free');
   });
 

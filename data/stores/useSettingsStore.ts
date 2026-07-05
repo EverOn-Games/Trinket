@@ -12,7 +12,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import { settingsStorage } from '../mmkv';
-import type { Locale } from '../types';
+import type { Locale, SubscriptionCache } from '../types';
 import type { MascotProminence } from '../../src/components/Mascot/types';
 
 const mmkvStateStorage: StateStorage = {
@@ -30,7 +30,7 @@ export interface SettingsStoreState {
   // from key presence — see src/app/_layout.tsx's usePersistResolvedLocale.
   localeResolved: boolean;
   notificationsOptIn: boolean;
-  subscriptionCache: unknown; // typed placeholder, populated in Phase 7
+  subscriptionCache: SubscriptionCache;
   // Default 'prominent' for every new install (UI-SPEC Presence prominence levels).
   // The Settings screen to change this doesn't land until Phase 8; this field gives
   // the Mascot module a real value to read via host-provided prop from day one.
@@ -44,6 +44,7 @@ export interface SettingsStoreState {
   setNotificationsOptIn: (notificationsOptIn: boolean) => void;
   setMascotProminence: (mascotProminence: MascotProminence) => void;
   setOnboardingComplete: () => void;
+  setSubscriptionCache: (subscriptionCache: SubscriptionCache) => void;
 }
 
 export const useSettingsStore = create<SettingsStoreState>()(
@@ -63,6 +64,7 @@ export const useSettingsStore = create<SettingsStoreState>()(
       setNotificationsOptIn: (notificationsOptIn) => set({ notificationsOptIn }),
       setMascotProminence: (mascotProminence) => set({ mascotProminence }),
       setOnboardingComplete: () => set({ onboardingComplete: true }),
+      setSubscriptionCache: (subscriptionCache) => set({ subscriptionCache }),
     }),
     {
       name: 'settings',

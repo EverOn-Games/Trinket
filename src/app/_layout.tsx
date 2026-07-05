@@ -35,6 +35,8 @@ import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { reconcileActiveSession } from '../features/co-pilot/reconcileActiveSession';
 import { track } from '../analytics/analytics';
+import { initPostHogTransport } from '../analytics/posthog';
+import { configurePurchases } from '../features/subscription/purchases';
 
 // Foreground presentation for the Starter's quiet reminders (device UAT
 // 2026-07-05: a reminder that fired while the app was open displayed NOTHING
@@ -61,6 +63,18 @@ function useTrackAppOpened(): void {
       hasTrackedColdLaunch = true;
       track('app_opened', { coldLaunch: true });
     }
+  }, []);
+}
+
+// Env-gated native integrations, attached once at startup (both no-ops with no
+// key): PostHog EU becomes the analytics transport (before app_opened fires, so
+// the first cold-launch event is captured when a key exists), and RevenueCat is
+// configured + its live pricing warmed. Neither ever throws — a purchases or
+// analytics init failure must never break boot (offline posture / MONEY-03).
+function useStartupIntegrations(): void {
+  useEffect(() => {
+    initPostHogTransport();
+    void configurePurchases();
   }, []);
 }
 
@@ -158,6 +172,9 @@ export default function RootLayout() {
   usePersistResolvedLocale();
   usePersistLocaleOnChange();
   useReconcileActiveSession();
+  // Attach the analytics transport before app_opened fires (effects run in
+  // declaration order, so this precedes useTrackAppOpened below).
+  useStartupIntegrations();
   useTrackAppOpened();
 
   return (
