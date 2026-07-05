@@ -152,3 +152,7 @@ None beyond the two auto-fixed lint findings above.
 ---
 *Phase: 04-brain-dump*
 *Completed: 2026-07-05*
+
+## Self-Check: PASSED
+
+All 10 created/modified files verified present on disk (app.json, __mocks__/expo-speech-recognition.ts, jest.setup.ts, i18n/locales/{en,pl}.json, src/features/brain-dump/appendFinalSegmentToDraft.ts + its test, src/features/brain-dump/useVoiceCapture.ts + its test, src/app/brain-dump.tsx, this SUMMARY.md); all 7 commit hashes (2b57b8f, c9301de, 9394a1c, 8cb8fa9, 37042b2, 26c3b3e, ee9822d) verified present in git history.
