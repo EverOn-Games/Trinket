@@ -1,9 +1,9 @@
 ---
 phase: 4
 slug: brain-dump
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-03
 ---
 
@@ -38,11 +38,18 @@ created: 2026-07-03
 
 *Filled by the planner — one row per task. Key phase-specific verification seams: the pure keyword `classify()` function (TDD, PL+EN cases, ties→someday), the newline stream parser (trim/drop-blanks/1–N items), the draft persist/restore/clear cycle, the STT fallback + permission logic (mocked `expo-speech-recognition`), the grouped-by-category list + inline re-categorize, and the promote→beginSession hand-off. The real on-device Polish STT recognition is a MANUAL/device item (see below), not automatable here.*
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------|-------------------|-------------|--------|
-| — | — | — | DUMP-01..05 | — | unit/integration | `npm run verify` | ❌ W0 | ⬜ pending |
+*(Rollup — one row per plan's primary automated gate; authoritative per-task `<verify>` blocks live in each PLAN.md. All commands use the correct singular `--testPathPattern` — the plural-flag defect the plan-checker found was fixed across all 6 plans before this table was filled.)*
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+| Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
+|------|------|-------------|-----------|-------------------|-------------|--------|
+| 04-01 | 1 | DUMP-01, DUMP-03 | unit (TDD) | `npm test -- --testPathPattern=parseDumpText`; `npm test -- --testPathPattern=classify` | ❌ W0 (new pure-fn tests) | ⬜ pending |
+| 04-02 | 1 | DUMP-01 | unit + i18n-key assertion | `npm test -- --testPathPattern=draft`; node i18n-key presence check (en+pl) | ❌ W0 (draft test) / ✅ (i18n) | ⬜ pending |
+| 04-03 | 2 | DUMP-01, DUMP-05 | integration (TDD) | `npm test -- --testPathPattern=brainDumpCapture` | ❌ W0 (new screen test) | ⬜ pending |
+| 04-04 | 3 | DUMP-03, DUMP-04 | integration | `npm test -- --testPathPattern=brainDumpItemRow` | ❌ W0 (new row test) | ⬜ pending |
+| 04-05 | 3 | DUMP-04 | integration | `npm test -- --testPathPattern=screens` | ✅ (extends existing) | ⬜ pending |
+| 04-06 | 4 | DUMP-02 | unit (mocked STT) + config assertion | `npm test -- --testPathPattern="appendFinalSegmentToDraft\|useVoiceCapture"`; app.json plugin + voice-copy check | ❌ W0 (STT mock + hook tests) | ⬜ pending |
+
+*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky. Real Polish on-device STT recognition is NOT in this table — it is a device/manual item (see below), by design.*
 
 ---
 
@@ -68,11 +75,11 @@ created: 2026-07-03
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (incl. the STT Jest mock)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 90s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (incl. the STT Jest mock — 04-06)
+- [x] No watch-mode flags
+- [x] Feedback latency < 90s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-07-03 (after the plan-checker's `--testPathPatterns`→`--testPathPattern` fix across all 6 plans)

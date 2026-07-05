@@ -499,14 +499,14 @@ import { SectionList } from 'react-native';
 | A3 | The router-param hand-off (vs. an exported shared helper) is the cleaner mechanism for the promote path | Pattern 6 | LOW — this is explicitly Claude's-discretion per D-14; either mechanism satisfies "reuse beginSession, don't duplicate," so choosing the other approach at planning time is not a correctness risk, only a stylistic one |
 | A4 | `requiresOnDeviceRecognition: true` should be the default `start()` option, with the D-02 spike confirming it doesn't cause silent unavailability | Pattern 4 (STT integration) | MEDIUM — if the spike finds Polish on-device recognition unavailable, this default may need to become conditional (`requiresOnDeviceRecognition: supportsOnDeviceRecognition() && localeIsInstalled`), which is exactly the founder-facing decision point D-02 already anticipates surfacing |
 
-## Open Questions
+## Open Questions (RESOLVED: both deferred to the manual D-02 device spike — tracked in 04-VALIDATION.md's Manual-Only Verifications table and 04-06-PLAN.md; neither is a code blocker, and the phase is structured so all STT-independent work ships regardless of their outcome)
 
-1. **Does Android's `getSupportedLocales()` reliably report Polish (`pl-PL`) as installed on real budget/mid-tier Android hardware, and does the on-device model need an explicit user-triggered download first?**
+1. **RESOLVED (deferred to D-02 device spike): Does Android's `getSupportedLocales()` reliably report Polish (`pl-PL`) as installed on real budget/mid-tier Android hardware, and does the on-device model need an explicit user-triggered download first?**
    - What we know: The API exists and returns `{ locales, installedLocales }`, but is explicitly "Not supported on Android 12 and below" per the library's own README, and general platform knowledge (per `.planning/research/PITFALLS.md` Pitfall 6) says on-device language packs sometimes require a separate OS-level download the app can't trigger.
    - What's unclear: Real behavior on the actual low/mid-tier Android hardware this product targets, with system locale set to Polish — this is precisely un-verifiable in this remote, deviceless container.
    - Recommendation: This is the D-02 device spike's exact job. Do not attempt to resolve it here; the planner should schedule it as an explicit human/device task, structured so all other Phase 4 work (text/classifier/list/promote) does not block on its outcome (per D-02's own framing).
 
-2. **Will Android's "segmented continuous session" behavior actually align with "one final utterance = one line" (D-03) in practice, or will manufacturer SpeechRecognizer variants (Samsung, etc.) produce different segment boundaries?**
+2. **RESOLVED (deferred to D-02 device spike): Will Android's "segmented continuous session" behavior actually align with "one final utterance = one line" (D-03) in practice, or will manufacturer SpeechRecognizer variants (Samsung, etc.) produce different segment boundaries?**
    - What we know: The library's README describes the intended behavior; `.planning/research/PITFALLS.md` Pitfall 6 flags Android manufacturer inconsistency as a known general risk for platform STT.
    - What's unclear: Whether this specific library's abstraction smooths over manufacturer differences or inherits them.
    - Recommendation: Also a D-02 spike question. Isolate the segment-handling logic (Pitfall 2 above) so it's a one-function fix if real-hardware behavior diverges from the docs.
@@ -534,22 +534,22 @@ import { SectionList } from 'react-native';
 |----------|-------|
 | Framework | Jest 29.7.0 + `jest-expo` 56.0.5 preset `[VERIFIED: package.json]` |
 | Config file | `jest.config.js` (repo root) — `preset: 'jest-expo'`, `setupFilesAfterEnv: ['./jest.setup.ts']` |
-| Quick run command | `npm test -- --testPathPatterns=brain-dump` (or the specific new test file path) |
+| Quick run command | `npm test -- --testPathPattern=brain-dump` (or the specific new test file path) |
 | Full suite command | `npm run verify` (eslint + `lint:hex` + `lint:mascot-assets` + `npm test`) |
 
 ### Phase Requirements → Test Map
 
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
-| DUMP-01 | Multiline text splits into N trimmed, non-empty items; blank lines dropped; empty field = no-op | unit | `npm test -- --testPathPatterns=parseDumpText` | ❌ Wave 0 — `src/features/brain-dump/__tests__/parseDumpText.test.ts` |
-| DUMP-02 | Mic hidden/disabled when `isRecognitionAvailable()` is false or permission denied; text field remains usable in every case | unit + component | `npm test -- --testPathPatterns=brain-dump` (component test using the new `__mocks__/expo-speech-recognition.ts`) | ❌ Wave 0 — mock file + a capture-view test |
-| DUMP-03 | `classify()` returns correct category for clear keyword matches in both PL and EN; ties/no-match resolve to `'someday'` | unit | `npm test -- --testPathPatterns=classify` | ❌ Wave 0 — `src/features/brain-dump/__tests__/classify.test.ts` |
-| DUMP-04 | Promoting an item sets `promotedTaskId` via the existing `beginSession`/`startFromDumpItem` path; item remains visible afterward (D-15) | integration (route-level, via `renderRouter`) | `npm test -- --testPathPatterns=screens` (extend the existing `screens.test.tsx` route-tree test, or a new sibling test file using the same `renderRouter` pattern) | Partially — `src/app/__tests__/screens.test.tsx` exists and already renders `BrainDumpScreen`/`CoPilotScreen` together; extend it, don't replace it |
+| DUMP-01 | Multiline text splits into N trimmed, non-empty items; blank lines dropped; empty field = no-op | unit | `npm test -- --testPathPattern=parseDumpText` | ❌ Wave 0 — `src/features/brain-dump/__tests__/parseDumpText.test.ts` |
+| DUMP-02 | Mic hidden/disabled when `isRecognitionAvailable()` is false or permission denied; text field remains usable in every case | unit + component | `npm test -- --testPathPattern=brain-dump` (component test using the new `__mocks__/expo-speech-recognition.ts`) | ❌ Wave 0 — mock file + a capture-view test |
+| DUMP-03 | `classify()` returns correct category for clear keyword matches in both PL and EN; ties/no-match resolve to `'someday'` | unit | `npm test -- --testPathPattern=classify` | ❌ Wave 0 — `src/features/brain-dump/__tests__/classify.test.ts` |
+| DUMP-04 | Promoting an item sets `promotedTaskId` via the existing `beginSession`/`startFromDumpItem` path; item remains visible afterward (D-15) | integration (route-level, via `renderRouter`) | `npm test -- --testPathPattern=screens` (extend the existing `screens.test.tsx` route-tree test, or a new sibling test file using the same `renderRouter` pattern) | Partially — `src/app/__tests__/screens.test.tsx` exists and already renders `BrainDumpScreen`/`CoPilotScreen` together; extend it, don't replace it |
 | DUMP-05 | Brain dump reachable in ≤2 taps | already covered | N/A — already satisfied by Phase 1's Home routing; no new test needed, only a non-regression check | ✓ (`src/app/index.tsx`'s existing `<Link href="/brain-dump">`) |
 
 ### Sampling Rate
 
-- **Per task commit:** targeted `npm test -- --testPathPatterns=<area>` for the file(s) just touched
+- **Per task commit:** targeted `npm test -- --testPathPattern=<area>` for the file(s) just touched
 - **Per wave merge:** `npm run verify` (full lint + hex gate + mascot-asset gate + full Jest suite)
 - **Phase gate:** Full suite green before `/gsd:verify-work`; the D-02 device spike is tracked and gated separately (a human/device task, not part of the automated suite)
 
