@@ -99,3 +99,7 @@ Task 1 (`tdd="true"`) followed the mandatory gate sequence:
 - No REFACTOR commit needed (implementation was already minimal).
 
 Task 2 was a plain `auto` task (no `tdd` attribute) — verified via the plan's node script asserting all 20 keys present in both locales.
+
+## Self-Check: PASSED
+
+All created files found on disk; all 4 commit hashes (5f698ba, 426e2b3, ebd0e39, 9ea09db) present in git log.
