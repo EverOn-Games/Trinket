@@ -66,10 +66,19 @@
     "capture": {
       "prompt": {
         "idle": "What's on your mind?",
-        "idleSub": "Tap the mic, or start typing."
+        "idleSub": "Tap the mic, or start typing.",
+        "listening": "I'm listening.",
+        "listeningSub": "Take your time."
       },
       "placeholder": "Errands, calls, that thing about deposits, Friday's meeting… whatever's in your head.",
-      "save": "Save these"
+      "save": "Save these",
+      "recordingLabel": "Live · {{duration}} · recording",
+      "micLabel": {
+        "idle": "Microphone — tap to speak",
+        "active": "Listening — tap to stop"
+      },
+      "voiceUnavailable": "Voice isn't available right now — typing works great too.",
+      "textFallback": "or type instead"
     },
     "list": {
       "captureAffordance": "Add to your brain dump",

@@ -67,10 +67,19 @@
     "capture": {
       "prompt": {
         "idle": "Co masz w głowie?",
-        "idleSub": "Stuknij mikrofon albo zacznij pisać."
+        "idleSub": "Stuknij mikrofon albo zacznij pisać.",
+        "listening": "Słucham.",
+        "listeningSub": "Nie spiesz się."
       },
       "placeholder": "Sprawy, telefony, to coś o wpłacie, spotkanie w piątek… wszystko, co masz w głowie.",
-      "save": "Zapisz wpisy"
+      "save": "Zapisz wpisy",
+      "recordingLabel": "Na żywo · {{duration}} · nagrywanie",
+      "micLabel": {
+        "idle": "Mikrofon — stuknij, aby mówić",
+        "active": "Słucham — stuknij, aby zatrzymać"
+      },
+      "voiceUnavailable": "Głos teraz niedostępny — pisanie też świetnie działa.",
+      "textFallback": "albo napisz zamiast tego"
     },
     "list": {
       "captureAffordance": "Dodaj do zrzutu myśli",

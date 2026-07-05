@@ -15,6 +15,15 @@ jest.mock('expo-localization');
 // this mock instead.
 jest.mock('lottie-react-native');
 
+// Register the in-memory expo-speech-recognition fake (see
+// __mocks__/expo-speech-recognition.ts). The native STT module cannot
+// initialize under Jest's Node environment; every module/test that touches
+// voice capture (useVoiceCapture) must go through this mock instead. Real
+// on-device Polish recognition + segment behavior remain a device-only
+// verification (D-02 spike, 04-VALIDATION.md Manual-Only) — this mock only
+// closes the permission/availability/error fallback logic at the Jest layer.
+jest.mock('expo-speech-recognition');
+
 // Register react-native-worklets' own official Jest mock (Reanimated 4 split its
 // worklets runtime out into this separate peer). Without this, importing
 // 'react-native-reanimated' under Jest throws "[Worklets] Native part of
