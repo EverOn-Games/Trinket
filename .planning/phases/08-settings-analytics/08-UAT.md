@@ -26,7 +26,7 @@ result: pass
 
 ### 4. Plan row + See plans
 expected: Settings shows the current plan (Free) with shame-free copy and a quiet "See plans" link that opens the paywall in its settings variant (different lead copy than the gate variant).
-result: [pending]
+result: pass
 
 ## Summary
 
