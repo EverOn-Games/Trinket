@@ -133,4 +133,57 @@ describe('useVoiceCapture', () => {
     });
     expect(result.current.micLabelKey).toBe('brainDump.capture.micLabel.active');
   });
+
+  it('stops the native recognition session on unmount (CR-01: no hot-mic leak)', async () => {
+    const { result, unmount } = await renderHook(() => useVoiceCapture('', jest.fn(), 'en'));
+
+    await act(async () => {
+      await result.current.start();
+    });
+    expect(result.current.recording).toBe(true);
+    expect(ExpoSpeechRecognitionModule.stop).not.toHaveBeenCalled();
+
+    await unmount();
+
+    expect(ExpoSpeechRecognitionModule.stop).toHaveBeenCalled();
+  });
+
+  it('ignores a second start() call fired while the first is still in-flight (WR-01)', async () => {
+    let resolvePermission: (value: { granted: boolean }) => void = () => {};
+    (ExpoSpeechRecognitionModule.requestPermissionsAsync as jest.Mock).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvePermission = resolve;
+        })
+    );
+    const { result } = await renderHook(() => useVoiceCapture('', jest.fn(), 'en'));
+
+    await act(async () => {
+      const firstStart = result.current.start();
+      const secondStart = result.current.start();
+      resolvePermission({ granted: true });
+      await Promise.all([firstStart, secondStart]);
+    });
+
+    expect(ExpoSpeechRecognitionModule.requestPermissionsAsync).toHaveBeenCalledTimes(1);
+    expect(ExpoSpeechRecognitionModule.start).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not drop a segment when two final results arrive back-to-back (WR-02)', async () => {
+    // Deliberately does not call start() first: doing so would cause a
+    // setRecording(true)-triggered re-render, and this mock's
+    // useSpeechRecognitionEvent (unlike the real library, which subscribes
+    // once per mount via a stable listenerRef) re-registers a fresh
+    // listener on every render — an unrelated mock limitation this test
+    // must avoid tripping to isolate the draftRef race fix under test.
+    const onChange = jest.fn();
+    const { result: _result } = await renderHook(() => useVoiceCapture('', onChange, 'en'));
+
+    await act(async () => {
+      __emitSpeechEvent.result({ results: [{ transcript: 'buy milk' }], isFinal: true });
+      __emitSpeechEvent.result({ results: [{ transcript: 'call dentist' }], isFinal: true });
+    });
+
+    expect(onChange).toHaveBeenLastCalledWith('buy milk\ncall dentist');
+  });
 });

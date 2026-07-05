@@ -82,6 +82,11 @@ export function useVoiceCapture(
   const draftRef = useRef(draftText);
   const onChangeRef = useRef(onChange);
   const localeRef = useRef(locale);
+  // WR-01: guards start() against a rapid double-tap firing a second
+  // requestPermissionsAsync()/start() call while the first is still
+  // in-flight (recording is still false during that async window).
+  // Mirrors this codebase's isSavingRef/isDeletingRef/isPromotingRef idiom.
+  const startingRef = useRef(false);
   useEffect(() => {
     draftRef.current = draftText;
     onChangeRef.current = onChange;
@@ -91,7 +96,15 @@ export function useVoiceCapture(
   useSpeechRecognitionEvent('result', (event) => {
     if (!event.isFinal) return; // D-03: only final segments become a new line
     const transcript = event.results[0]?.transcript ?? '';
-    onChangeRef.current(appendFinalSegmentToDraft(draftRef.current, transcript));
+    const next = appendFinalSegmentToDraft(draftRef.current, transcript);
+    // WR-02: write back immediately (synchronously, before the next event)
+    // rather than relying solely on the prop-sync effect above, which only
+    // runs after React commits a render. Without this, two 'result' events
+    // dispatched in the same tick (before the first event's re-render has
+    // committed) would both read the same stale draftRef.current and the
+    // earlier segment would be silently dropped.
+    draftRef.current = next;
+    onChangeRef.current(next);
   });
 
   useSpeechRecognitionEvent('error', () => {
@@ -102,27 +115,45 @@ export function useVoiceCapture(
     setRuntimeUnavailable(true);
   });
 
+  // CR-01: the JS event listeners registered above are torn down on unmount
+  // by useSpeechRecognitionEvent itself (it wraps useEventListener, which
+  // returns `() => subscription.remove()`), but that does NOT stop the
+  // native audio/recognition session. Without this explicit cleanup, an
+  // unmount mid-recording (Save transitioning the view, or navigating away)
+  // leaves the microphone listening indefinitely — a privacy/battery leak
+  // in a wellness app. `stop()` is a safe no-op when nothing is recording.
+  useEffect(() => {
+    return () => {
+      ExpoSpeechRecognitionModule.stop();
+    };
+  }, []);
+
   const probedAvailable = probeAvailability(locale);
   const available = probedAvailable && !runtimeUnavailable;
 
   const start = async (): Promise<void> => {
-    if (!available) return;
+    if (!available || startingRef.current) return;
+    startingRef.current = true;
 
-    // D-03: contextual permission ask — only here, on the first (and every)
-    // mic tap, never on mount/upfront.
-    const { granted } = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-    if (!granted) {
-      setRuntimeUnavailable(true);
-      return;
+    try {
+      // D-03: contextual permission ask — only here, on the first (and
+      // every) mic tap, never on mount/upfront.
+      const { granted } = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      if (!granted) {
+        setRuntimeUnavailable(true);
+        return;
+      }
+
+      ExpoSpeechRecognitionModule.start({
+        lang: localeTag(localeRef.current),
+        interimResults: true,
+        continuous: true, // D-03: needed for one-final-utterance-per-line
+        requiresOnDeviceRecognition: true, // on-device-preferred; A4 (04-RESEARCH.md)
+      });
+      setRecording(true);
+    } finally {
+      startingRef.current = false;
     }
-
-    ExpoSpeechRecognitionModule.start({
-      lang: localeTag(localeRef.current),
-      interimResults: true,
-      continuous: true, // D-03: needed for one-final-utterance-per-line
-      requiresOnDeviceRecognition: true, // on-device-preferred; A4 (04-RESEARCH.md)
-    });
-    setRecording(true);
   };
 
   const stop = (): void => {
