@@ -55,11 +55,16 @@ export default function PaywallScreen() {
   const handleChoose = async () => {
     // Reference mode resolves 'unavailable' — the caption below already says
     // so; nothing else happens, nothing charges (MONEY-03 honesty posture).
-    await purchase(selectedPlan);
+    // With RevenueCat live, a granted purchase quietly closes the offer (the
+    // gate is already lifted via subscriptionCache); 'cancelled'/'unavailable'
+    // stay on-screen with no error theater.
+    const result = await purchase(selectedPlan);
+    if (result === 'purchased') router.back();
   };
 
   const handleRestore = async () => {
-    await restore();
+    const result = await restore();
+    if (result === 'purchased') router.back();
   };
 
   const titleStyle = StyleSheet.flatten([

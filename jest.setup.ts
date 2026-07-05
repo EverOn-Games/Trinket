@@ -1,3 +1,11 @@
+// Deterministic env for the two env-gated integrations: a developer machine
+// may have real keys exported in its shell (.env.local is NOT loaded by
+// jest-expo, but a shell export or CI secret would leak in). Tests must always
+// start key-less — purchases.test.ts / posthog.test.ts set keys explicitly,
+// per-case, when exercising the wired paths.
+delete process.env.EXPO_PUBLIC_REVENUECAT_KEY;
+delete process.env.EXPO_PUBLIC_POSTHOG_API_KEY;
+
 // Repositories are memory-first (data/repoCache.ts): reads serve from an
 // in-memory cache hydrated from MMKV. Tests reset MMKV via
 // contentStorage.clearAll() in their own beforeEach hooks — this global hook
