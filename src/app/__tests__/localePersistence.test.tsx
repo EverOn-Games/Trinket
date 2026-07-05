@@ -32,6 +32,10 @@ function resetLocaleState() {
     localeResolved: false,
     notificationsOptIn: false,
     subscriptionCache: null,
+    // ONBD-01: these tests exercise the post-onboarding Home mount — without
+    // this flag Home <Redirect>s to /onboarding and the locale listeners under
+    // test never observe the expected route tree.
+    onboardingComplete: true,
   });
 }
 

@@ -14,6 +14,7 @@ import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-librar
 import { router } from 'expo-router';
 
 import { contentStorage } from '../../../data/mmkv';
+import { useSettingsStore } from '../../../data/stores/useSettingsStore';
 import { sessionsRepo } from '../../../data/repositories/sessions';
 import { dumpItemsRepo } from '../../../data/repositories/dumpItems';
 import { activeSessionRepo } from '../../../data/repositories/activeSession';
@@ -41,6 +42,13 @@ const routeContext = {
   history: HistoryScreen,
   settings: SettingsScreen,
 };
+
+// ONBD-01: every test in this file exercises post-onboarding surfaces — set
+// the one-way flag file-globally so Home doesn't redirect to /onboarding
+// (the redirect itself is covered in onboarding.test.tsx).
+beforeEach(() => {
+  useSettingsStore.setState({ onboardingComplete: true });
+});
 
 describe('walking-skeleton slice', () => {
   // All three tests below share one in-memory MMKV instance (the mock's
