@@ -22,7 +22,7 @@ result: [pending]
 
 ### 3. Mascot prominence chips
 expected: Changing prominence in Settings visibly changes how present the mascot is, and the choice persists across restart.
-result: [pending]
+result: pass
 
 ### 4. Plan row + See plans
 expected: Settings shows the current plan (Free) with shame-free copy and a quiet "See plans" link that opens the paywall in its settings variant (different lead copy than the gate variant).
