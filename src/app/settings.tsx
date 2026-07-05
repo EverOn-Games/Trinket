@@ -16,6 +16,7 @@
  * of what's included ("sessions refresh Monday"), never a depletion warning.
  */
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -34,6 +35,7 @@ const PROMINENCES: readonly MascotProminence[] = ['prominent', 'subtle', 'hidden
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const router = useRouter();
 
   const notificationsOptIn = useSettingsStore((s) => s.notificationsOptIn);
   const setNotificationsOptIn = useSettingsStore((s) => s.setNotificationsOptIn);
@@ -188,6 +190,17 @@ export default function SettingsScreen() {
               ? t('settings.subscription.plusSub')
               : t('settings.subscription.freeSub')}
           </Text>
+          {tier === 'free' && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push({ pathname: '/paywall', params: { trigger: 'settings' } })}
+              style={styles.tapTarget}
+            >
+              <Text style={{ color: theme.colors.accent, fontSize: theme.typography.scale.body }}>
+                {t('settings.subscription.seePlans')}
+              </Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
     </Screen>

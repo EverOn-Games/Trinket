@@ -26,6 +26,7 @@ import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
 import { useElapsedSession } from '@/features/co-pilot/useElapsedSession';
+import { canStartSession, sessionsStartedThisWeek } from '@/features/subscription/entitlements';
 import { track } from '../analytics/analytics';
 import type { ActiveSessionPointer, DumpItem, Session } from '../../data/types';
 import { STALE_THRESHOLD_MS } from './_layout';
@@ -114,11 +115,45 @@ export default function CoPilotScreen() {
   // session" button). Read-only; the actual session-start reuse lives in the
   // guarded effect below, after startFromDumpItem is defined.
   const { dumpItemId } = useLocalSearchParams<{ dumpItemId?: string }>();
+  // For the MONEY-02 gate's paywall push below (EndingPhase has its own).
+  const router = useRouter();
 
   // Shared across all three start affordances (WR-04/T-03-05) — only one of
   // one-liner/just-work/dump-item may ever create a session for a single
   // rapid multi-tap.
   const isStartingSessionRef = useRef(false);
+
+  // MONEY-02: the freemium gate, checked ONLY here at session start — never
+  // mid-session, never against history. Gated ≠ disabled: the start
+  // affordances stay fully tappable (no greyed-out shame); tapping while
+  // gated opens the paywall as an OFFER with "Not now" always available.
+  // The guard runs BEFORE isStartingSessionRef is set (this screen stays
+  // mounted under the pushed paywall — a latched ref here would dead-tap
+  // every start button on return, the exact CR-01/CR-02 lesson). The gate
+  // push itself is debounced with the same timeout-reset pattern as
+  // brain-dump's promote button.
+  const gatePushRef = useRef(false);
+  const gateResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (gateResetTimeoutRef.current !== null) {
+        clearTimeout(gateResetTimeoutRef.current);
+      }
+    };
+  }, []);
+  const gateBlocksStart = (): boolean => {
+    const now = Date.now();
+    if (canStartSession(now)) return false;
+    if (!gatePushRef.current) {
+      gatePushRef.current = true;
+      track('gate_shown', { sessionsThisWeek: sessionsStartedThisWeek(now) });
+      router.push({ pathname: '/paywall', params: { trigger: 'gate' } });
+      gateResetTimeoutRef.current = setTimeout(() => {
+        gatePushRef.current = false;
+      }, 800);
+    }
+    return true;
+  };
 
   const beginSession = (session: Session) => {
     activeSessionRepo.start(session.id, session.startedAt, session.taskLabel);
@@ -130,6 +165,7 @@ export default function CoPilotScreen() {
 
   const startFromOneLiner = (text: string) => {
     if (isStartingSessionRef.current) return;
+    if (gateBlocksStart()) return;
     isStartingSessionRef.current = true;
     const trimmed = text.trim();
     const session = sessionsRepo.create({ source: 'quick', taskLabel: trimmed.length > 0 ? trimmed : undefined });
@@ -138,6 +174,7 @@ export default function CoPilotScreen() {
 
   const startFromDumpItem = (item: DumpItem) => {
     if (isStartingSessionRef.current) return;
+    if (gateBlocksStart()) return;
     isStartingSessionRef.current = true;
     const session = sessionsRepo.create({ source: 'dump', taskLabel: item.text });
     dumpItemsRepo.update(item.id, { promotedTaskId: session.id });
@@ -146,6 +183,7 @@ export default function CoPilotScreen() {
 
   const startOpen = () => {
     if (isStartingSessionRef.current) return;
+    if (gateBlocksStart()) return;
     isStartingSessionRef.current = true;
     const session = sessionsRepo.create({ source: 'open' });
     beginSession(session);
@@ -162,6 +200,7 @@ export default function CoPilotScreen() {
   useEffect(() => {
     if (!dumpItemId || flowPhase !== 'setup' || resumablePointer) return;
     const item = dumpItemsRepo.get(dumpItemId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: the promote hand-off IS an effect-driven transition (a route param arriving is the trigger); startFromDumpItem funnels through the same guarded single path as a manual tap
     if (item) startFromDumpItem(item);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: fire once per dumpItemId param; startFromDumpItem/flowPhase/resumablePointer are read at effect-run time, not re-triggers (mirrors ActivePhase's timeMode-only effect above)
   }, [dumpItemId]);
