@@ -14,7 +14,8 @@ updated: 2026-07-05T00:00:00Z
 
 ### 1. Under the weekly limit, nothing changed
 expected: With fewer than 3 Co-pilot sessions started this week, starting a session works exactly as before — no gate, no counter, no "sessions remaining" anywhere in the UI.
-result: [pending]
+result: skipped
+reason: Founder was already at/over the weekly limit from earlier live testing this week — under-limit behavior not observable until Monday refresh; covered by automated tests (freemiumGate.test.tsx "below the limit" case). Gate correctly appeared instead → folds into test 2.
 
 ### 2. At the limit, the gate is an offer — and creates nothing
 expected: After 3 sessions this week, the next start attempt opens the paywall instead (calm copy: sessions refresh Monday + what keeps working; no "you've run out", no urgency styling). "Not now" returns to the setup screen and all buttons still work — pressing start again simply reopens the paywall.
@@ -34,4 +35,9 @@ skipped: 0
 
 ## Gaps
 
-[none yet]
+### PINNED-07-01: Gate placement — discuss + A/B in beta (product decision, founder-raised 2026-07-05)
+- Founder observation during UAT: the gate fires at start-press, AFTER the user has set up the session — "the co-work seems available but we hit a paywall". Feels potentially unfriendly, though it is the committed-user route (higher payment intent).
+- Current design rationale (D-01 family): no pre-announcing limits = no depletion UI anywhere; the cost is exactly this late surprise.
+- Candidate B-arm for beta A/B: a single calm disclosure line on the Co-pilot setup screen when already at the limit (e.g. "Free sessions refresh Monday — you can still set one up with Plus"), before any setup effort is invested. Must stay a statement of fact, never a counter/meter.
+- Instrumentation already in place: gate_shown / paywall_viewed / paywall_dismissed funnel. A/B needs only an arm flag added to those events' props (closed-enum token, privacy-safe).
+- Status: pinned for post-beta-data discussion; NOT a launch blocker.
