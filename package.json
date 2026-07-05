@@ -17,6 +17,7 @@
     "expo-image": "~56.0.11",
     "expo-linking": "~56.0.14",
     "expo-localization": "~56.0.6",
+    "expo-notifications": "~56.0.19",
     "expo-router": "~56.2.12",
     "expo-speech-recognition": "^56.0.1",
     "expo-splash-screen": "~56.0.11",
@@ -59,9 +60,10 @@
     "lint:hex": "node scripts/check-hex-literals.mjs",
     "lint:mascot-assets": "node scripts/check-mascot-asset-size.mjs",
     "test": "jest --watchAll=false",
-    "verify": "npm run lint && npm run lint:hex && npm run lint:mascot-assets && npm test",
+    "verify": "npm run lint && npm run lint:hex && npm run lint:mascot-assets && npm run typecheck && npm test",
     "android:fresh": "expo prebuild --clean --platform android && expo run:android",
-    "ios:fresh": "expo prebuild --clean --platform ios && expo run:ios"
+    "ios:fresh": "expo prebuild --clean --platform ios && expo run:ios",
+    "typecheck": "tsc --noEmit"
   },
   "private": true
 }

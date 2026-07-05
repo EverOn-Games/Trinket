@@ -26,7 +26,10 @@ export interface Intention {
   cueText: string;
   actionText: string;
   createdAt: number; // epoch ms
-  notifyAt?: number; // epoch ms
+  notifyAt?: number; // epoch ms — the single optional self-worded reminder (START-03);
+  // one notification per intention, never recurring, never a re-engagement hook
+  notificationId?: string; // OS scheduling handle for cancel-on-remove/delete —
+  // a plumbing id, not a stat; nothing here is streak/aggregate-shaped
 }
 
 export type SessionSource = 'dump' | 'quick' | 'open';

@@ -24,6 +24,13 @@ jest.mock('lottie-react-native');
 // closes the permission/availability/error fallback logic at the Jest layer.
 jest.mock('expo-speech-recognition');
 
+// Register the expo-notifications fake (see __mocks__/expo-notifications.ts).
+// Local-notification scheduling wraps a native module unavailable under Jest;
+// the mock answers permission GRANTED and schedules with a fixed id by default
+// (the denied path is exercised via per-test overrides). Real delivery timing
+// is a device concern, not a Jest one.
+jest.mock('expo-notifications');
+
 // Register react-native-worklets' own official Jest mock (Reanimated 4 split its
 // worklets runtime out into this separate peer). Without this, importing
 // 'react-native-reanimated' under Jest throws "[Worklets] Native part of
