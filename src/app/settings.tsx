@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import type { MascotProminence } from '@/components/Mascot/types';
 import { cancelIntentionNotification } from '@/features/starter/intentionNotifications';
-import { getTier } from '@/features/subscription/entitlements';
+import { useTier } from '@/features/subscription/entitlements';
 import { useTheme } from '../../theme';
 import { intentionsRepo } from '../../data/repositories/intentions';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
@@ -41,7 +41,10 @@ export default function SettingsScreen() {
   const mascotProminence = useSettingsStore((s) => s.mascotProminence);
   const setMascotProminence = useSettingsStore((s) => s.setMascotProminence);
 
-  const tier = getTier();
+  // Reactive: Settings stays mounted under the pushed paywall, so this row
+  // must re-render when a purchase grants (a plain getTier() read here left
+  // "Free" on screen until a remount — device UAT 2026-07-05).
+  const tier = useTier();
 
   const handleNotificationsToggle = async (next: boolean) => {
     setNotificationsOptIn(next);

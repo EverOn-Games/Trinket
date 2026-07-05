@@ -4,7 +4,7 @@
  * scheduled intention reminders, prominence chips write the store, and the
  * subscription row states the free tier calmly.
  */
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import * as Notifications from 'expo-notifications';
 
 import i18n from '../../../i18n';
@@ -102,5 +102,21 @@ describe('Settings (SETT-01)', () => {
     await renderRouter(routeContext, { initialUrl: '/settings' });
 
     expect(screen.getByText(en.settings.subscription.plusTier)).toBeTruthy();
+  });
+
+  it('the tier row updates live when a purchase grants while Settings is mounted', async () => {
+    // Device UAT 2026-07-05: Settings sits mounted under the pushed paywall;
+    // a granted purchase updated subscriptionCache but the row kept showing
+    // "Free" until a remount. The display must subscribe, not snapshot.
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+    expect(screen.getByText(en.settings.subscription.freeTier)).toBeTruthy();
+
+    // v14's async act, matching the codebase's awaited-fireEvent convention.
+    await act(async () => {
+      useSettingsStore.setState({ subscriptionCache: { tier: 'plus' } });
+    });
+
+    expect(screen.getByText(en.settings.subscription.plusTier)).toBeTruthy();
+    expect(screen.queryByText(en.settings.subscription.freeTier)).toBeNull();
   });
 });

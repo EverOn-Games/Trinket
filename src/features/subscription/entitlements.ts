@@ -41,8 +41,7 @@ export function sessionsStartedThisWeek(now: number): number {
  * Positively-cached paid entitlement → plus; everything else (absent,
  * malformed, offline-unknown) → free, quietly (MONEY-03).
  */
-export function getTier(): Tier {
-  const cache = useSettingsStore.getState().subscriptionCache;
+function tierFromCache(cache: unknown): Tier {
   if (
     typeof cache === 'object' &&
     cache !== null &&
@@ -51,6 +50,21 @@ export function getTier(): Tier {
     return 'plus';
   }
   return 'free';
+}
+
+/** Imperative read — for event-time checks (session-start gate). */
+export function getTier(): Tier {
+  return tierFromCache(useSettingsStore.getState().subscriptionCache);
+}
+
+/**
+ * Reactive read — for render-time display. Subscribes to the settings store
+ * so a tier change re-renders the host (device UAT 2026-07-05: Settings sat
+ * mounted under the pushed paywall showing "Free" after a granted purchase,
+ * because getTier() at render time subscribes to nothing).
+ */
+export function useTier(): Tier {
+  return useSettingsStore((s) => tierFromCache(s.subscriptionCache));
 }
 
 export function canStartSession(now: number): boolean {
