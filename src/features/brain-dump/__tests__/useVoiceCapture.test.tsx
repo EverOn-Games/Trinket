@@ -133,7 +133,7 @@ describe('useVoiceCapture', () => {
     expect(result.current.recording).toBe(false);
   });
 
-  it('stops recording and falls back gracefully on an error event, without throwing', async () => {
+  it('hides the mic on a persistent capability error (language-not-supported), without throwing', async () => {
     const { result } = await renderHook(() => useVoiceCapture('', jest.fn(), 'en'));
 
     await act(async () => {
@@ -142,11 +142,39 @@ describe('useVoiceCapture', () => {
     expect(result.current.recording).toBe(true);
 
     await act(async () => {
-      __emitSpeechEvent.error({ error: 'network', message: 'boom' });
+      __emitSpeechEvent.error({ error: 'language-not-supported', message: 'boom' });
     });
 
     expect(result.current.recording).toBe(false);
     expect(result.current.available).toBe(false);
+  });
+
+  it("keeps the mic available after the benign 'aborted' error a normal stop() emits (device regression, 2026-07-05)", async () => {
+    const { result } = await renderHook(() => useVoiceCapture('', jest.fn(), 'en'));
+
+    await act(async () => {
+      await result.current.start();
+    });
+
+    // On Android, stopping the recognizer fires 'aborted' (and silence fires
+    // 'no-speech'); neither means voice is broken — a second tap must work.
+    await act(async () => {
+      result.current.stop();
+      __emitSpeechEvent.error({ error: 'aborted', message: 'client stopped' });
+    });
+    expect(result.current.recording).toBe(false);
+    expect(result.current.available).toBe(true);
+
+    await act(async () => {
+      __emitSpeechEvent.error({ error: 'no-speech', message: 'silence' });
+      __emitSpeechEvent.error({ error: 'network', message: 'transient' });
+    });
+    expect(result.current.available).toBe(true);
+
+    await act(async () => {
+      await result.current.start();
+    });
+    expect(result.current.recording).toBe(true);
   });
 
   it('exposes distinct micLabelKey values for idle vs. recording', async () => {

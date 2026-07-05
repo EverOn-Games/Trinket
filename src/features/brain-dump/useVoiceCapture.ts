@@ -50,6 +50,17 @@ function localeTag(locale: Locale): string {
   return locale === 'pl' ? 'pl-PL' : 'en-US';
 }
 
+// Web-Speech-API-shaped error codes (which this library mirrors) that mean
+// voice genuinely cannot work until something outside the app changes —
+// permission or language support. Everything else ('aborted' from our own
+// stop(), 'no-speech' silence timeouts, 'network', 'recognizer-busy', ...)
+// is transient: the recording ends but the mic stays offered.
+const PERSISTENT_UNAVAILABLE_ERRORS = new Set([
+  'not-allowed',
+  'service-not-allowed',
+  'language-not-supported',
+]);
+
 // T-04-06-CRASH: the on-device locale probe lives in probeLocaleInstalled(),
 // called from start() — getSupportedLocales() is ASYNC in the real library
 // (the original sync destructure here always threw at runtime, silently
@@ -111,12 +122,17 @@ export function useVoiceCapture(
     onChangeRef.current(next);
   });
 
-  useSpeechRecognitionEvent('error', () => {
-    // T-04-06-CRASH / Pitfall 1: never throw — end recording and fold into
-    // the same fallback signal the capture view already renders for
-    // unavailable/denied.
+  useSpeechRecognitionEvent('error', (event) => {
+    // T-04-06-CRASH / Pitfall 1: never throw — end recording. But only
+    // PERSISTENT capability failures may hide the mic: Android emits benign
+    // 'error' events ('aborted'/'no-speech') as part of a normal stop(), and
+    // treating those as unavailable poisoned the mic until remount
+    // (04-HUMAN-UAT device finding, 2026-07-05). Transient errors end the
+    // recording and leave the mic offered for the next tap.
     setRecording(false);
-    setRuntimeUnavailable(true);
+    if (PERSISTENT_UNAVAILABLE_ERRORS.has(event.error)) {
+      setRuntimeUnavailable(true);
+    }
   });
 
   // CR-01: the JS event listeners registered above are torn down on unmount

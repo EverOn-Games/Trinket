@@ -16,7 +16,7 @@ updated: 2026-07-03T04:30:00Z
 
 ### 1. Real Polish (pl-PL) on-device speech recognition
 expected: On a real device with pl-PL installed, tap the mic on the Brain dump capture screen and speak several Polish items. The transcript appears live in the field; on-device recognition works (ideally verifiable in airplane mode) or degrades gracefully. This is the D-02 spike — if Polish on-device is unavailable, that's the decision point flagged in CONTEXT D-02 (accept EN-on-device-only? network recognizer? EN-only beta?).
-result: [pending]
+result: pass — founder: "works amazingly well" (2026-07-05). D-02 spike resolved: Polish recognition works on device. Transcript appears per finished utterance (after a pause), not word-by-word — by design (D-03 final segments), but see gap UAT-04-06 (listening indicator). Airplane-mode (strict on-device proof) not explicitly exercised — optional follow-up.
 
 ### 2. Utterance segmentation → one line per spoken pause
 expected: Speak 3 distinct items with clear pauses; assert 3 separate lines appear in the field (each final utterance segment = one new line, D-03). Repeat on a second Android make if available (Samsung etc.) — manufacturer SpeechRecognizer variants may segment differently. If they diverge, the segment logic is isolated in `appendFinalSegmentToDraft.ts` for a one-function fix.
@@ -33,10 +33,20 @@ result: [pending]
 ## Summary
 
 total: 4
-passed: 0
-issues: 0
-pending: 4
+passed: 1
+issues: 1
+pending: 3
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+### UAT-04-05: Mic poisoned after normal stop — FIXED same session (2026-07-05)
+- Observed on device: tapping the mic again (stopping) showed "voice not available now"; the mic only came back after leaving and re-entering the screen (draft text correctly persisted, appending then worked).
+- Root cause: the 'error' listener treated EVERY error event as permanent unavailability; Android emits benign 'aborted'/'no-speech' errors as part of a normal stop, poisoning `runtimeUnavailable` until remount.
+- Fix: only persistent capability errors ('not-allowed', 'service-not-allowed', 'language-not-supported') hide the mic; transient errors end the recording and keep the mic offered. Regression test added (suite: 29/222 green).
+- Files: src/features/brain-dump/useVoiceCapture.ts, useVoiceCapture.test.tsx.
+- Device re-test: pending (pull + Metro reload, then stop/start the mic repeatedly in one visit).
+
+### UAT-04-06: No "listening/transcribing" indication while speech is pending (minor, UX enhancement)
+- Founder: transcript appears only after a pause; between speaking and the line landing there's no signal the app is working. Candidate: quiet interim-text ghost preview (interimResults are already requested) or a subtle listening pulse on the active mic label. Defer to design pass.
