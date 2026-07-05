@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-07-05T02:01:41.927Z"
+stopped_at: Completed 04-05-PLAN.md
+last_updated: "2026-07-05T02:06:12.169Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 22
-  completed_plans: 20
+  completed_plans: 21
   percent: 33
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 4 (Brain Dump) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-07-05
 
-Progress: [█████████░] 91%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -74,6 +74,7 @@ Progress: [█████████░] 91%
 | Phase 04 P02 | 12min | 2 tasks | 4 files |
 | Phase 04 P03 | 6min | 2 tasks | 2 files |
 | Phase 04 P04 | 6min | 2 tasks | 2 files |
+| Phase 04 P05 | 9min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,7 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-03: showList recomputed live every render so D-12 empty-routing self-corrects for a future delete feature
 - [Phase 04]: Combined promote button + quiet marker into the same DumpItemRow rewrite as chip/edit/delete (shared rowMode state machine); test file was the distinct Task 2 deliverable.
 - [Phase 04]: Category-chip and section-header labels reuse identical brainDump.category.* i18n keys; item-row tests disambiguate via getByRole('button') rather than getByText.
+- [Phase 04-05]: The dumpItemId useEffect depends only on [dumpItemId] (not flowPhase/resumablePointer) — Fires once per param and never re-triggers after flowPhase becomes active -- guards read at effect-run time via closure, mirroring ActivePhase's existing timeMode-only effect precedent.
 
 ### Pending Todos
 
@@ -163,6 +165,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T02:01:33.246Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-07-05T02:06:12.143Z
+Stopped at: Completed 04-05-PLAN.md
 Resume file: None
