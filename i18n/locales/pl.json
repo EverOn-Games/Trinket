@@ -179,7 +179,32 @@
   },
   "settings": {
     "title": "Ustawienia",
-    "description": "Tu znajdzie się język, powiadomienia i subskrypcja."
+    "description": "Język, komfort i Twój plan.",
+    "language": {
+      "label": "Język",
+      "en": "English",
+      "pl": "Polski"
+    },
+    "notifications": {
+      "label": "Przypomnienia",
+      "subOn": "Tylko te, które sami ustawicie — Twoimi słowami.",
+      "subOff": "Wyłączone — nic nie będzie się dopominać. Startery działają dalej bez nich.",
+      "toggleOn": "Wł.",
+      "toggleOff": "Wył."
+    },
+    "mascotRow": {
+      "label": "Obecność maskotki",
+      "prominent": "Wyraźna",
+      "subtle": "Dyskretna",
+      "hidden": "Ukryta"
+    },
+    "subscription": {
+      "label": "Twój plan",
+      "freeTier": "Darmowy",
+      "plusTier": "Trinket Plus",
+      "freeSub": "Brain dump bez limitu · 3 sesje Co-pilota w tygodniu · sesje odnawiają się w poniedziałek",
+      "plusSub": "Wszystko bez limitu. Dziękujemy, że jesteś."
+    }
   },
   "sessionsRemaining_one": "{{count}} sesja pozostała w tym tygodniu",
   "sessionsRemaining_few": "{{count}} sesje pozostałe w tym tygodniu",

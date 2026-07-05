@@ -1,0 +1,106 @@
+/**
+ * Settings screen tests (SETT-01): locale switch persists through the
+ * RootLayout write-through listener, reminder opt-out quietly cancels
+ * scheduled intention reminders, prominence chips write the store, and the
+ * subscription row states the free tier calmly.
+ */
+import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import * as Notifications from 'expo-notifications';
+
+import i18n from '../../../i18n';
+import { contentStorage } from '../../../data/mmkv';
+import { intentionsRepo } from '../../../data/repositories/intentions';
+import { useSettingsStore } from '../../../data/stores/useSettingsStore';
+import en from '../../../i18n/locales/en.json';
+
+import RootLayout from '../_layout';
+import SettingsScreen from '../settings';
+
+const routeContext = {
+  _layout: RootLayout,
+  settings: SettingsScreen,
+};
+
+describe('Settings (SETT-01)', () => {
+  beforeEach(async () => {
+    contentStorage.clearAll();
+    jest.clearAllMocks();
+    useSettingsStore.setState({
+      onboardingComplete: true,
+      notificationsOptIn: false,
+      mascotProminence: 'prominent',
+      subscriptionCache: null,
+      locale: 'en',
+      localeResolved: true,
+    });
+    await i18n.changeLanguage('en');
+  });
+
+  it('locale chip switches the runtime language and persists to the store (WR-02 listener)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+
+    await fireEvent.press(screen.getByText(en.settings.language.pl));
+
+    expect(i18n.language).toBe('pl');
+    expect(useSettingsStore.getState().locale).toBe('pl');
+  });
+
+  it('turning reminders off quietly cancels scheduled intention reminders — the intentions survive', async () => {
+    const withReminder = intentionsRepo.create({
+      cueText: 'when I get home',
+      actionText: 'fill the water bottle',
+    });
+    intentionsRepo.update(withReminder.id, {
+      notifyAt: Date.now() + 3600000,
+      notificationId: 'scheduled-1',
+    });
+    useSettingsStore.setState({ notificationsOptIn: true });
+
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+    await fireEvent.press(screen.getByText(en.settings.notifications.toggleOff));
+
+    expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith('scheduled-1');
+    const after = intentionsRepo.list()[0];
+    expect(after.notifyAt).toBeUndefined();
+    expect(after.notificationId).toBeUndefined();
+    expect(after.actionText).toBe('fill the water bottle'); // untouched
+    expect(useSettingsStore.getState().notificationsOptIn).toBe(false);
+  });
+
+  it('turning reminders on only re-allows offers — no OS permission ask here (contextual posture)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+
+    await fireEvent.press(screen.getByText(en.settings.notifications.toggleOn));
+
+    expect(useSettingsStore.getState().notificationsOptIn).toBe(true);
+    expect(Notifications.requestPermissionsAsync).not.toHaveBeenCalled();
+  });
+
+  it('mascot prominence chips write the store (Home reads it reactively)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+
+    await fireEvent.press(screen.getByText(en.settings.mascotRow.subtle));
+    expect(useSettingsStore.getState().mascotProminence).toBe('subtle');
+
+    await fireEvent.press(screen.getByText(en.settings.mascotRow.hidden));
+    expect(useSettingsStore.getState().mascotProminence).toBe('hidden');
+  });
+
+  it('subscription row states the free tier as a calm inclusion list, never a depletion warning', async () => {
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+
+    expect(screen.getByText(en.settings.subscription.freeTier)).toBeTruthy();
+    const sub = en.settings.subscription.freeSub;
+    expect(screen.getByText(sub)).toBeTruthy();
+    // Copy law: refresh framing, not depletion framing.
+    expect(sub).toMatch(/refresh Monday/);
+    expect(sub).not.toMatch(/run out|left|remaining|only/i);
+  });
+
+  it('a cached plus entitlement shows the plus row', async () => {
+    useSettingsStore.setState({ subscriptionCache: { tier: 'plus' } });
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+
+    expect(screen.getByText(en.settings.subscription.plusTier)).toBeTruthy();
+  });
+});

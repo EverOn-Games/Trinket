@@ -177,7 +177,32 @@
   },
   "settings": {
     "title": "Settings",
-    "description": "Language, notifications, and your subscription will live here."
+    "description": "Language, comfort, and your plan.",
+    "language": {
+      "label": "Language",
+      "en": "English",
+      "pl": "Polski"
+    },
+    "notifications": {
+      "label": "Reminders",
+      "subOn": "Only the ones you set yourself, worded your way.",
+      "subOff": "Off — nothing will nudge you. Starters keep working without them.",
+      "toggleOn": "On",
+      "toggleOff": "Off"
+    },
+    "mascotRow": {
+      "label": "Mascot presence",
+      "prominent": "Prominent",
+      "subtle": "Subtle",
+      "hidden": "Hidden"
+    },
+    "subscription": {
+      "label": "Your plan",
+      "freeTier": "Free",
+      "plusTier": "Trinket Plus",
+      "freeSub": "Unlimited Brain dump · 3 Co-pilot sessions a week · sessions refresh Monday",
+      "plusSub": "Unlimited everything. Thank you for being here."
+    }
   },
   "sessionsRemaining_one": "{{count}} session left this week",
   "sessionsRemaining_other": "{{count}} sessions left this week",
