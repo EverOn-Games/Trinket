@@ -6,14 +6,19 @@
  *
  * lastAliveAt is a liveness heartbeat, NOT an aggregate (D-09) — see the schema
  * denylist guard (data/repositories/__tests__/schema.denylist.test.ts).
+ *
+ * MEMORY-FIRST (device UAT 2026-07-05): the pointer is cached in memory after
+ * first read; writes update the cache AND write through to MMKV. See
+ * data/repoCache.ts for the full rationale.
  */
 import { contentStorage } from '../mmkv';
 import { notifyRepoChanged } from '../repoBus';
+import { registerRepoCacheReset } from '../repoCache';
 import type { ActiveSessionPointer } from '../types';
 
 const KEY = 'activeSession:pointer';
 
-function readPointer(): ActiveSessionPointer | undefined {
+function readStoredPointer(): ActiveSessionPointer | undefined {
   const raw = contentStorage.getString(KEY);
   if (!raw) return undefined;
   try {
@@ -26,9 +31,25 @@ function readPointer(): ActiveSessionPointer | undefined {
   }
 }
 
+// undefined = "hydrated, no pointer"; the sentinel distinguishes not-yet-hydrated.
+const NOT_HYDRATED = Symbol('not-hydrated');
+let cached: ActiveSessionPointer | undefined | typeof NOT_HYDRATED = NOT_HYDRATED;
+
+function ensurePointer(): ActiveSessionPointer | undefined {
+  if (cached === NOT_HYDRATED) {
+    cached = readStoredPointer();
+  }
+  return cached;
+}
+
+registerRepoCacheReset(() => {
+  cached = NOT_HYDRATED;
+});
+
 export const activeSessionRepo = {
   start(sessionId: string, startedAt: number, taskLabel?: string): void {
     const pointer: ActiveSessionPointer = { sessionId, startedAt, lastAliveAt: startedAt, taskLabel };
+    cached = pointer;
     contentStorage.set(KEY, JSON.stringify(pointer));
     notifyRepoChanged('activeSession');
   },
@@ -38,16 +59,18 @@ export const activeSessionRepo = {
   // tick would be pure waste — subscribers care about the pointer appearing
   // or disappearing, not its liveness timestamp.
   heartbeat(lastAliveAt: number): void {
-    const existing = readPointer();
+    const existing = ensurePointer();
     if (!existing) return;
-    contentStorage.set(KEY, JSON.stringify({ ...existing, lastAliveAt }));
+    cached = { ...existing, lastAliveAt };
+    contentStorage.set(KEY, JSON.stringify(cached));
   },
 
   read(): ActiveSessionPointer | undefined {
-    return readPointer();
+    return ensurePointer();
   },
 
   clear(): void {
+    cached = undefined;
     contentStorage.remove(KEY);
     notifyRepoChanged('activeSession');
   },

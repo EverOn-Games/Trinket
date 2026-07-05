@@ -1,3 +1,16 @@
+// Repositories are memory-first (data/repoCache.ts): reads serve from an
+// in-memory cache hydrated from MMKV. Tests reset MMKV via
+// contentStorage.clearAll() in their own beforeEach hooks — this global hook
+// drops every repo cache first so no test can serve a previous test's
+// hydrated data. Registered here (not per test file) because the repos are
+// module-scoped singletons shared across a file's tests.
+beforeEach(() => {
+  // Deferred require: repoCache has zero dependencies, but keeping the import
+  // inside the hook avoids ordering constraints with the jest.mock calls below.
+  const { resetAllRepoCaches } = require('./data/repoCache') as typeof import('./data/repoCache');
+  resetAllRepoCaches();
+});
+
 // Register the in-memory react-native-mmkv fake (see __mocks__/react-native-mmkv.ts).
 // MMKV v4's Nitro Modules binding cannot initialize under Jest's Node environment, so
 // every repository/test that touches storage must go through this mock instead.

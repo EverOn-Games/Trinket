@@ -626,12 +626,6 @@ function ListPhase({
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
-  // TEMP DIAGNOSTIC (device UAT 2026-07-05, REMOVE after): distinguishes the
-  // failing layer for the stale-list bug. On a delete/save watch this line:
-  //   number frozen            → re-render never fires (React layer)
-  //   v ticks, n unchanged     → re-render fine, MMKV read is stale (data layer)
-  //   n changes, row still on  → data fine, native view not redrawing (Fabric)
-  const diagVersion = useRepoVersion('dumpItem');
 
   const titleStyle = StyleSheet.flatten([
     styles.title,
@@ -661,16 +655,15 @@ function ListPhase({
   return (
     <SectionList
       sections={sections}
+      // Belt-and-suspenders for VirtualizedList's cell-update semantics: a
+      // new items array always forces cell re-evaluation, independent of the
+      // memory-first repo fix (device UAT 2026-07-05).
+      extraData={items}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ gap: theme.spacing.sm }}
       ListHeaderComponent={
         <View style={{ gap: theme.spacing.lg, marginBottom: theme.spacing.lg }}>
           <Text style={titleStyle}>{t('brainDump.title')}</Text>
-          {/* TEMP DIAGNOSTIC — remove with diagVersion above */}
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.scale.caption }}>
-            {`diag v${diagVersion} · n${items.length}`}
-          </Text>
           <Pressable
             accessibilityRole="button"
             onPress={onCapture}
