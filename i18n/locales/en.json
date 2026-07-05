@@ -62,7 +62,6 @@
   },
   "brainDump": {
     "title": "Brain dump",
-    "description": "A quick place to empty your head — nothing here becomes a task until you say so.",
     "capture": {
       "prompt": {
         "idle": "What's on your mind?",
