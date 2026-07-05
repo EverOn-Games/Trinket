@@ -77,6 +77,11 @@ jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock
 // on-device purchases remain a device-only verification.
 jest.mock('react-native-purchases');
 
+// Register the expo-keep-awake fake (see __mocks__/expo-keep-awake.ts). The
+// native idle-timeout flag can't be set under Jest; the Co-pilot active
+// screen's presence-hold goes through this mock.
+jest.mock('expo-keep-awake');
+
 // Register the recording posthog-react-native fake (see
 // __mocks__/posthog-react-native.ts). The native analytics client cannot
 // initialize under Jest's Node environment; the transport wiring (posthog.ts)

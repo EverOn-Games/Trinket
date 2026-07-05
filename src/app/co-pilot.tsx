@@ -13,6 +13,7 @@
  * the Plan 03-01 `activeSessionRepo` pointer synchronously on mount.
  */
 import { useEffect, useRef, useState } from 'react';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +32,10 @@ import { canStartSession, sessionsStartedThisWeek } from '@/features/subscriptio
 import { track } from '../analytics/analytics';
 import type { ActiveSessionPointer, DumpItem, Session } from '../../data/types';
 import { STALE_THRESHOLD_MS } from './_layout';
+
+// Scopes the ActivePhase keep-awake hold so deactivation can never release a
+// hold some other feature might take out (expo-keep-awake is tag-scoped).
+const KEEP_AWAKE_TAG = 'co-pilot-session';
 
 type LiveSession = {
   sessionId: string;
@@ -466,6 +471,21 @@ function ActivePhase({
   const { elapsedMs, isDozing, wake } = useElapsedSession(session.startedAt, (lastAliveAt) =>
     activeSessionRepo.heartbeat(lastAliveAt)
   );
+
+  // Presence keeps the screen awake — OS idle-dimming mid-session would
+  // vanish the body double while the user's hands are on their actual task.
+  // The dozing mechanic doubles as the battery valve: when the mascot dozes
+  // (30 min untouched) the hold releases and the phone may rest with it; a
+  // touch wakes both. Manual lock always works (this only suppresses the
+  // idle timeout), and session correctness never depends on the screen
+  // (timestamp reconciliation) — so every keep-awake failure is swallowed.
+  useEffect(() => {
+    if (isDozing) return;
+    void activateKeepAwakeAsync(KEEP_AWAKE_TAG).catch(() => undefined);
+    return () => {
+      void deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => undefined);
+    };
+  }, [isDozing]);
 
   const [timeMode, setTimeMode] = useState<'elapsed' | 'remaining'>('elapsed');
   const [countdownRetired, setCountdownRetired] = useState(false);
