@@ -21,6 +21,7 @@
  * `plus` entitlement in the RevenueCat dashboard) plus a device build remain
  * required to VERIFY real purchases — this file is the code half only.
  */
+import { Platform } from 'react-native';
 import Purchases, {
   type CustomerInfo,
   type PurchasesPackage,
@@ -232,6 +233,31 @@ export async function purchase(planId: PlanId): Promise<PurchaseResult> {
     if (isUserCancelled(error)) return 'cancelled';
     devWarn('purchase failed', error);
     return 'unavailable';
+  }
+}
+
+/**
+ * Where the user manages/cancels their subscription. Billing always lives
+ * with the store — even a future account system (MONEY-04) wouldn't move it —
+ * so this resolves RevenueCat's per-platform managementURL when available and
+ * otherwise falls back to the platform's own subscriptions page. Never
+ * throws, never returns null: the Settings row must always lead somewhere
+ * honest.
+ */
+const STORE_SUBSCRIPTIONS_URL = Platform.select({
+  ios: 'https://apps.apple.com/account/subscriptions',
+  default: 'https://play.google.com/store/account/subscriptions',
+});
+
+export async function getManagementUrl(): Promise<string> {
+  if (!REVENUECAT_KEY) return STORE_SUBSCRIPTIONS_URL;
+  try {
+    await configurePurchases();
+    const customerInfo = await Purchases.getCustomerInfo();
+    return customerInfo.managementURL ?? STORE_SUBSCRIPTIONS_URL;
+  } catch (error) {
+    devWarn('management URL fetch failed — falling back to the store page', error);
+    return STORE_SUBSCRIPTIONS_URL;
   }
 }
 

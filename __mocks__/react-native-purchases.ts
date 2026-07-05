@@ -23,12 +23,15 @@ function makePackage(packageType: string, priceString: string): unknown {
   };
 }
 
-export function makeCustomerInfo(activeEntitlements: string[] = []): unknown {
+export function makeCustomerInfo(
+  activeEntitlements: string[] = [],
+  managementURL: string | null = null
+): unknown {
   const active: Record<string, unknown> = {};
   for (const id of activeEntitlements) {
     active[id] = { identifier: id, isActive: true };
   }
-  return { entitlements: { active, all: active } };
+  return { entitlements: { active, all: active }, managementURL };
 }
 
 export const DEFAULT_PACKAGES = [

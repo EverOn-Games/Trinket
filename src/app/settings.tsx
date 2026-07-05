@@ -16,13 +16,14 @@
  * of what's included ("sessions refresh Monday"), never a depletion warning.
  */
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { Screen } from '@/components/Screen';
 import type { MascotProminence } from '@/components/Mascot/types';
 import { cancelIntentionNotification } from '@/features/starter/intentionNotifications';
 import { useTier } from '@/features/subscription/entitlements';
+import { getManagementUrl } from '@/features/subscription/purchases';
 import { useTheme } from '../../theme';
 import { intentionsRepo } from '../../data/repositories/intentions';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
@@ -45,6 +46,14 @@ export default function SettingsScreen() {
   // must re-render when a purchase grants (a plain getTier() read here left
   // "Free" on screen until a remount — device UAT 2026-07-05).
   const tier = useTier();
+
+  // Billing lives with the store (Google/Apple) — this hands the user to the
+  // right management page (RevenueCat's managementURL, or the store's own
+  // subscriptions page as fallback). A failed open is quietly ignored.
+  const handleManageSubscription = async () => {
+    const url = await getManagementUrl();
+    await Linking.openURL(url).catch(() => undefined);
+  };
 
   const handleNotificationsToggle = async (next: boolean) => {
     setNotificationsOptIn(next);
@@ -203,6 +212,17 @@ export default function SettingsScreen() {
             >
               <Text style={{ color: theme.colors.accent, fontSize: theme.typography.scale.body }}>
                 {t('settings.subscription.seePlans')}
+              </Text>
+            </Pressable>
+          )}
+          {tier === 'plus' && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={handleManageSubscription}
+              style={styles.tapTarget}
+            >
+              <Text style={{ color: theme.colors.accent, fontSize: theme.typography.scale.body }}>
+                {t('settings.subscription.manage')}
               </Text>
             </Pressable>
           )}

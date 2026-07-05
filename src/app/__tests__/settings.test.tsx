@@ -104,6 +104,27 @@ describe('Settings (SETT-01)', () => {
     expect(screen.getByText(en.settings.subscription.plusTier)).toBeTruthy();
   });
 
+  it('plus tier shows a manage-subscription link that opens the store management page', async () => {
+    useSettingsStore.setState({ subscriptionCache: { tier: 'plus' } });
+    const openSpy = jest
+      .spyOn(require('react-native').Linking, 'openURL')
+      .mockResolvedValue(true);
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+
+    await fireEvent.press(screen.getByText(en.settings.subscription.manage));
+
+    // Billing lives with the store — the row must always lead somewhere real
+    // (RevenueCat managementURL or the store subscriptions page fallback).
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    expect(String(openSpy.mock.calls[0][0])).toMatch(/^https:\/\//);
+    openSpy.mockRestore();
+  });
+
+  it('free tier shows no manage-subscription link', async () => {
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+    expect(screen.queryByText(en.settings.subscription.manage)).toBeNull();
+  });
+
   it('the tier row updates live when a purchase grants while Settings is mounted', async () => {
     // Device UAT 2026-07-05: Settings sits mounted under the pushed paywall;
     // a granted purchase updated subscriptionCache but the row kept showing

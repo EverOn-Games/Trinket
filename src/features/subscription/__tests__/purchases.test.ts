@@ -145,6 +145,29 @@ describe('purchases seam — RevenueCat wired (key present)', () => {
   });
 });
 
+describe('purchases seam — management URL', () => {
+  it('falls back to the store subscriptions page with no key', async () => {
+    const { purchases } = setup();
+    await expect(purchases.getManagementUrl()).resolves.toMatch(/account\/subscriptions/);
+  });
+
+  it('returns RevenueCat managementURL when the customer has one', async () => {
+    const { purchases, Purchases, makeCustomerInfo } = setup(KEY);
+    Purchases.getCustomerInfo.mockResolvedValue(
+      makeCustomerInfo(['plus'], 'https://rc.example/manage')
+    );
+    await expect(purchases.getManagementUrl()).resolves.toBe('https://rc.example/manage');
+  });
+
+  it('falls back to the store page when the fetch fails (offline)', async () => {
+    const { purchases, Purchases } = setup(KEY);
+    Purchases.getCustomerInfo.mockRejectedValue(new Error('offline'));
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    await expect(purchases.getManagementUrl()).resolves.toMatch(/account\/subscriptions/);
+    warnSpy.mockRestore();
+  });
+});
+
 describe('purchases seam — entitlement sync (key present)', () => {
   let warnSpy: jest.SpyInstance;
 
