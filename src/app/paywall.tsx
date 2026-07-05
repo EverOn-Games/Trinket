@@ -37,6 +37,12 @@ export default function PaywallScreen() {
   const plans = getPlanOptions(locale);
   const purchasingAvailable = isPurchasingAvailable();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('annual');
+  // Quiet outcome feedback (device UAT 2026-07-05: a Restore tap that finds
+  // nothing must still visibly land — silence reads as a dead button). A calm
+  // stated fact, never an alarm; 'cancelled' stays noticeless since the user
+  // did the cancelling. `busy` doubles as the double-tap guard.
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<'restoreNone' | 'purchaseIssue' | null>(null);
 
   // paywall_viewed once per mount (structural trigger token only).
   const viewedRef = useRef(false);
@@ -56,15 +62,38 @@ export default function PaywallScreen() {
     // Reference mode resolves 'unavailable' — the caption below already says
     // so; nothing else happens, nothing charges (MONEY-03 honesty posture).
     // With RevenueCat live, a granted purchase quietly closes the offer (the
-    // gate is already lifted via subscriptionCache); 'cancelled'/'unavailable'
-    // stay on-screen with no error theater.
-    const result = await purchase(selectedPlan);
-    if (result === 'purchased') router.back();
+    // gate is already lifted via subscriptionCache); 'cancelled' stays
+    // on-screen with no error theater; a live-mode 'unavailable' states the
+    // fact calmly below the buttons.
+    if (busy) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const result = await purchase(selectedPlan);
+      if (result === 'purchased') {
+        router.back();
+        return;
+      }
+      if (result === 'unavailable' && purchasingAvailable) setNotice('purchaseIssue');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleRestore = async () => {
-    const result = await restore();
-    if (result === 'purchased') router.back();
+    if (busy) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const result = await restore();
+      if (result === 'purchased') {
+        router.back();
+        return;
+      }
+      if (result === 'unavailable' && purchasingAvailable) setNotice('restoreNone');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const titleStyle = StyleSheet.flatten([
@@ -153,20 +182,31 @@ export default function PaywallScreen() {
           })}
         </View>
 
-        <Pressable accessibilityRole="button" onPress={handleChoose} style={chooseStyle}>
+        <Pressable
+          accessibilityRole="button"
+          disabled={busy}
+          onPress={handleChoose}
+          style={chooseStyle}
+        >
           <Text style={chooseLabelStyle}>
             {t('paywall.choose', { plan: t(`paywall.plan.${selectedPlan}`) })}
           </Text>
         </Pressable>
 
         {!purchasingAvailable && <Text style={quietStyle}>{t('paywall.unavailable')}</Text>}
+        {notice !== null && <Text style={quietStyle}>{t(`paywall.notice.${notice}`)}</Text>}
 
         <Pressable accessibilityRole="button" onPress={handleNotNow} style={styles.tapTarget}>
           <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.scale.body }}>
             {t('paywall.notNow')}
           </Text>
         </Pressable>
-        <Pressable accessibilityRole="button" onPress={handleRestore} style={styles.tapTarget}>
+        <Pressable
+          accessibilityRole="button"
+          disabled={busy}
+          onPress={handleRestore}
+          style={styles.tapTarget}
+        >
           <Text style={quietStyle}>{t('paywall.restore')}</Text>
         </Pressable>
       </ScrollView>

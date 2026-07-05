@@ -252,6 +252,10 @@
     "choose": "Choose {{plan}}",
     "notNow": "Not now",
     "restore": "Restore purchases",
-    "unavailable": "Purchases aren't switched on in this build yet — nothing here will charge you."
+    "unavailable": "Purchases aren't switched on in this build yet — nothing here will charge you.",
+    "notice": {
+      "restoreNone": "We couldn't find a subscription to restore on this account.",
+      "purchaseIssue": "The store couldn't finish that just now — nothing was charged."
+    }
   }
 }

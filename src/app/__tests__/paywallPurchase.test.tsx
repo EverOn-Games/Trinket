@@ -66,7 +66,7 @@ describe('Paywall reaction to purchase outcomes', () => {
     expect(backSpy).toHaveBeenCalled();
   });
 
-  it('a cancelled purchase stays on-screen with no error theater', async () => {
+  it('a cancelled purchase stays on-screen with no error theater and no notice', async () => {
     purchaseMock.mockResolvedValueOnce('cancelled');
     await renderRouter(routeContext, { initialUrl: '/paywall' });
 
@@ -75,8 +75,23 @@ describe('Paywall reaction to purchase outcomes', () => {
     );
 
     expect(backSpy).not.toHaveBeenCalled();
-    // The offer is simply still there — Not now remains available, unchanged.
+    // The offer is simply still there — Not now remains available, unchanged,
+    // and the user's own cancel gets no commentary of any kind.
     expect(screen.getByText(en.paywall.notNow)).toBeTruthy();
+    expect(screen.queryByText(en.paywall.notice.purchaseIssue)).toBeNull();
+    expect(screen.queryByText(en.paywall.notice.restoreNone)).toBeNull();
+  });
+
+  it('a live-mode failed purchase states the fact calmly under the buttons', async () => {
+    // Default purchaseMock resolves 'unavailable'.
+    await renderRouter(routeContext, { initialUrl: '/paywall' });
+
+    await fireEvent.press(
+      screen.getByText(en.paywall.choose.replace('{{plan}}', en.paywall.plan.annual))
+    );
+
+    expect(backSpy).not.toHaveBeenCalled();
+    expect(screen.getByText(en.paywall.notice.purchaseIssue)).toBeTruthy();
   });
 
   it('a successful restore quietly closes the offer', async () => {
@@ -88,12 +103,15 @@ describe('Paywall reaction to purchase outcomes', () => {
     expect(backSpy).toHaveBeenCalled();
   });
 
-  it('a restore with nothing to restore stays on-screen quietly', async () => {
+  it('a restore with nothing to restore says so calmly and stays on-screen', async () => {
     await renderRouter(routeContext, { initialUrl: '/paywall' });
 
     await fireEvent.press(screen.getByText(en.paywall.restore));
 
     expect(backSpy).not.toHaveBeenCalled();
     expect(screen.getByText(en.paywall.notNow)).toBeTruthy();
+    // Device UAT 2026-07-05: a Restore tap must visibly land — a quiet stated
+    // fact, not silence (and not an alarm).
+    expect(screen.getByText(en.paywall.notice.restoreNone)).toBeTruthy();
   });
 });

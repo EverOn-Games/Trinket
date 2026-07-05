@@ -256,6 +256,10 @@
     "choose": "Wybierz: {{plan}}",
     "notNow": "Nie teraz",
     "restore": "Przywróć zakupy",
-    "unavailable": "Zakupy nie są jeszcze włączone w tej wersji — nic tutaj nie pobierze opłaty."
+    "unavailable": "Zakupy nie są jeszcze włączone w tej wersji — nic tutaj nie pobierze opłaty.",
+    "notice": {
+      "restoreNone": "Nie znaleźliśmy subskrypcji do przywrócenia na tym koncie.",
+      "purchaseIssue": "Sklep nie mógł teraz dokończyć zakupu — nic nie zostało pobrane."
+    }
   }
 }
