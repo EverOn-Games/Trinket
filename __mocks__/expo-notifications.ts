@@ -17,6 +17,10 @@ export const setNotificationChannelAsync = jest.fn(async () => null);
 
 export const setNotificationHandler = jest.fn();
 
-export const AndroidImportance = { DEFAULT: 3 };
+// Matches the REAL library's STRING enum (NotificationChannelManager.types:
+// DEFAULT = 'default') — the numeric 3 the first draft used is actually a
+// different level entirely. Mock-drifts-from-real is this codebase's known
+// bug class (the getSupportedLocales lesson); keep this aligned.
+export const AndroidImportance = { DEFAULT: 'default' };
 
 export const SchedulableTriggerInputTypes = { DATE: 'date' };

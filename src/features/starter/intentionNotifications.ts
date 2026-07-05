@@ -33,11 +33,15 @@ export function computeFireDate(
 ): number {
   const base = new Date(now);
   base.setHours(hour, minute, 0, 0);
-  let fireAt = base.getTime();
-  if (day === 'tomorrow' || fireAt <= now) {
-    fireAt += 24 * 60 * 60 * 1000;
+  if (day === 'tomorrow' || base.getTime() <= now) {
+    // Calendar-advance the DATE, then re-pin the wall-clock time — a fixed
+    // +24h in milliseconds would shift the reminder by an hour across a DST
+    // transition (BLITZ-REVIEW; same calendar-math discipline as
+    // entitlements.ts startOfCurrentWeek).
+    base.setDate(base.getDate() + 1);
+    base.setHours(hour, minute, 0, 0);
   }
-  return fireAt;
+  return base.getTime();
 }
 
 /**

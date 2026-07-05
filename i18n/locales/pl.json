@@ -40,7 +40,8 @@
       "lengthChip_many": "{{count}} minut",
       "lengthChip": {
         "noTimer": "Bez minutnika"
-      }
+      },
+      "lengthChip_other": "{{count}} minut"
     },
     "active": {
       "kicker": "Cicha sesja",
@@ -175,7 +176,8 @@
     "duration_one": "{{count}} minuta",
     "duration_few": "{{count}} minuty",
     "duration_many": "{{count}} minut",
-    "durationLessThanMinute": "Mniej niż minuta"
+    "durationLessThanMinute": "Mniej niż minuta",
+    "duration_other": "{{count}} minut"
   },
   "settings": {
     "title": "Ustawienia",
@@ -207,9 +209,6 @@
       "seePlans": "Zobacz plany"
     }
   },
-  "sessionsRemaining_one": "{{count}} sesja pozostała w tym tygodniu",
-  "sessionsRemaining_few": "{{count}} sesje pozostałe w tym tygodniu",
-  "sessionsRemaining_many": "{{count}} sesji pozostałych w tym tygodniu",
   "mascot": {
     "accessibility": {
       "greeting": "Twój towarzysz się wita",

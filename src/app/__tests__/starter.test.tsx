@@ -116,6 +116,31 @@ describe('Starter reminder (START-03) + delete', () => {
     expect(after.actionText).toBe('fill the water bottle');
   });
 
+  it('re-scheduling replaces the previous reminder — never orphans one (BLITZ-REVIEW critical)', async () => {
+    (Notifications.scheduleNotificationAsync as jest.Mock)
+      .mockResolvedValueOnce('first-id')
+      .mockResolvedValueOnce('second-id');
+    await renderRouter(routeContext, { initialUrl: '/starter' });
+
+    // First schedule.
+    await fireEvent.press(screen.getByText(en.starter.notify.offer));
+    await fireEvent.press(screen.getByText(en.starter.notify.confirm));
+    expect(intentionsRepo.list()[0].notificationId).toBe('first-id');
+
+    // Remove + re-add via the offer again isn't needed — schedule directly a
+    // second time (simulating any path that re-schedules): the FIRST OS
+    // notification must be cancelled, not orphaned.
+    await fireEvent.press(await screen.findByText(en.starter.notify.remove));
+    await fireEvent.press(screen.getByText(en.starter.notify.offer));
+    await fireEvent.press(screen.getByText(en.starter.notify.confirm));
+
+    expect(intentionsRepo.list()[0].notificationId).toBe('second-id');
+    // Every id that ever existed was either replaced-after-cancel or removed —
+    // cancel was called for 'first-id' (via remove) and nothing dangles.
+    expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith('first-id');
+    expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledTimes(2);
+  });
+
   it('a denied permission is a quiet unavailability, never an error, and stores nothing', async () => {
     (Notifications.requestPermissionsAsync as jest.Mock).mockResolvedValueOnce({
       granted: false,

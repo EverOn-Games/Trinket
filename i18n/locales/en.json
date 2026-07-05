@@ -205,8 +205,6 @@
       "seePlans": "See plans"
     }
   },
-  "sessionsRemaining_one": "{{count}} session left this week",
-  "sessionsRemaining_other": "{{count}} sessions left this week",
   "mascot": {
     "accessibility": {
       "greeting": "Your companion says hello",

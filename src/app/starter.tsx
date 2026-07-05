@@ -10,7 +10,7 @@
  * permission is asked contextually at the moment a reminder is requested —
  * never on mount, never during onboarding (ONBD-01).
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -125,8 +125,14 @@ function IntentionBuilder({ onSaved }: { onSaved: () => void }) {
   const cueReady = cueText.trim().length > 0;
   const actionReady = actionText.trim().length > 0;
 
+  // BLITZ-REVIEW: double-submit latch (codebase convention). A plain latch is
+  // safe here because onSaved() unmounts this builder — there is no
+  // stays-mounted-under-a-push path back to a dead button.
+  const isSavingRef = useRef(false);
+
   const handleSave = () => {
-    if (!actionReady) return;
+    if (!actionReady || isSavingRef.current) return;
+    isSavingRef.current = true;
     intentionsRepo.create({ cueText: cueText.trim(), actionText: actionText.trim() });
     track('starter_created', {});
     onSaved();
@@ -285,6 +291,11 @@ function IntentionCard({ intention, onChanged }: { intention: Intention; onChang
   const [reminderDay, setReminderDay] = useState<ReminderDay>('today');
   const [slotHour, setSlotHour] = useState<number>(18);
   const [notifyUnavailable, setNotifyUnavailable] = useState(false);
+  // BLITZ-REVIEW critical: an in-flight guard (NOT a permanent latch — reset
+  // in finally) so a rapid double-tap on "Remind me then" can't schedule two
+  // OS notifications while only one id gets persisted, orphaning an
+  // uncancellable ghost reminder.
+  const isSchedulingRef = useRef(false);
 
   const handleDelete = async () => {
     if (intention.notificationId) {
@@ -295,25 +306,41 @@ function IntentionCard({ intention, onChanged }: { intention: Intention; onChang
   };
 
   const handleScheduleReminder = async () => {
-    const granted = await ensureNotificationPermission();
-    if (!granted) {
-      // Quiet unavailability, never an error state — the starter itself is
-      // saved and untouched regardless (START-03 / shame-free).
+    if (isSchedulingRef.current) return;
+    isSchedulingRef.current = true;
+    try {
+      const granted = await ensureNotificationPermission();
+      if (!granted) {
+        // Quiet unavailability, never an error state — the starter itself is
+        // saved and untouched regardless (START-03 / shame-free).
+        setNotifyUnavailable(true);
+        setRowMode('idle');
+        return;
+      }
+      setNotificationsOptIn(true);
+      // Replace, never orphan: if a reminder somehow already exists for this
+      // intention, withdraw it before scheduling the new one.
+      if (intention.notificationId) {
+        await cancelIntentionNotification(intention.notificationId);
+      }
+      const fireAt = computeFireDate(reminderDay, slotHour, 0, Date.now());
+      const notificationId = await scheduleIntentionNotification(
+        intention.cueText,
+        intention.actionText,
+        fireAt
+      );
+      intentionsRepo.update(intention.id, { notifyAt: fireAt, notificationId });
+      track('reminder_scheduled', { dayChosen: reminderDay });
+      setRowMode('idle');
+      onChanged();
+    } catch {
+      // A native scheduling failure folds into the same quiet unavailable
+      // state as a denial — the picker never sticks open, nothing is stored.
       setNotifyUnavailable(true);
       setRowMode('idle');
-      return;
+    } finally {
+      isSchedulingRef.current = false;
     }
-    setNotificationsOptIn(true);
-    const fireAt = computeFireDate(reminderDay, slotHour, 0, Date.now());
-    const notificationId = await scheduleIntentionNotification(
-      intention.cueText,
-      intention.actionText,
-      fireAt
-    );
-    intentionsRepo.update(intention.id, { notifyAt: fireAt, notificationId });
-    track('reminder_scheduled', { dayChosen: reminderDay });
-    setRowMode('idle');
-    onChanged();
   };
 
   const handleRemoveReminder = async () => {

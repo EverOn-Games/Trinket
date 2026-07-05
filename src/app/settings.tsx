@@ -15,7 +15,6 @@
  * Subscription: informational only — the free-tier line is a calm statement
  * of what's included ("sessions refresh Monday"), never a depletion warning.
  */
-import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -42,23 +41,26 @@ export default function SettingsScreen() {
   const mascotProminence = useSettingsStore((s) => s.mascotProminence);
   const setMascotProminence = useSettingsStore((s) => s.setMascotProminence);
 
-  // Tier is a cheap derived read; the version bump only exists because
-  // repo/cache writes aren't reactive (brain-dump precedent).
-  const [, setVersion] = useState(0);
   const tier = getTier();
 
   const handleNotificationsToggle = async (next: boolean) => {
     setNotificationsOptIn(next);
     if (!next) {
       // Quietly withdraw every scheduled reminder — the intentions themselves
-      // are untouched, nothing is lost, nothing comments on it.
+      // are untouched, nothing is lost, nothing comments on it. Per-intention
+      // try/catch (BLITZ-REVIEW): one failure never aborts the sweep or
+      // surfaces an error; cancel itself is already best-effort inside
+      // cancelIntentionNotification.
       for (const intention of intentionsRepo.list()) {
         if (intention.notificationId) {
-          await cancelIntentionNotification(intention.notificationId);
-          intentionsRepo.update(intention.id, { notifyAt: undefined, notificationId: undefined });
+          try {
+            await cancelIntentionNotification(intention.notificationId);
+            intentionsRepo.update(intention.id, { notifyAt: undefined, notificationId: undefined });
+          } catch {
+            // Leave this intention's fields for the next sweep; stay quiet.
+          }
         }
       }
-      setVersion((v) => v + 1);
     }
   };
 

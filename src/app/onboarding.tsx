@@ -13,7 +13,7 @@
  * Skipping and finishing are equally valid exits: both set the same one-way
  * onboardingComplete flag. Nothing is tracked about WHERE the user exited.
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,16 @@ export default function OnboardingScreen() {
   const [firstTaskText, setFirstTaskText] = useState('');
   const [firstTaskCreated, setFirstTaskCreated] = useState(false);
 
+  // BLITZ-REVIEW: single-fire latches — a double-tap on Skip/Done must not
+  // double-track or double-navigate, and a double-tap on the step-2 button
+  // must not create the first task twice. Plain latches are safe: this
+  // screen is replace()'d away and never revisited.
+  const isFinishingRef = useRef(false);
+  const hasHandledFirstTaskRef = useRef(false);
+
   const finish = (skipped: boolean) => {
+    if (isFinishingRef.current) return;
+    isFinishingRef.current = true;
     setOnboardingComplete();
     // Structural funnel datum only (ANLY-02): which exit + whether a first
     // task exists — never the task itself.
@@ -49,6 +58,8 @@ export default function OnboardingScreen() {
   // it just sits in Brain dump, promotable later). Empty is equally fine —
   // "Nothing right now" is a first-class answer, not a fallback.
   const handleFirstTask = () => {
+    if (hasHandledFirstTaskRef.current) return;
+    hasHandledFirstTaskRef.current = true;
     const trimmed = firstTaskText.trim();
     if (trimmed.length > 0) {
       dumpItemsRepo.create({ text: trimmed, category: classify(trimmed, locale) });

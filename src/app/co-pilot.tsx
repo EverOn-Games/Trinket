@@ -40,7 +40,11 @@ type LiveSession = {
 // D-03: preset length-intent suggestions, 25 pre-highlighted by default.
 // Never round-tripped through sessionsRepo — display-only, local state.
 const LENGTH_CHIP_VALUES = [15, 25, 45, 90];
-const CROSSFADE_MS = 325; // mirrors Mascot.tsx's opacity-fade idiom, within the 300-350ms band
+const CROSSFADE_MS = 325;
+// Gate-push re-arm window — same debounce-not-latch pattern (and duration) as
+// brain-dump's promote button (CR-02 precedent): blocks a same-gesture double
+// push, re-arms for a deliberate retry.
+const GATE_PUSH_DEBOUNCE_MS = 800; // mirrors Mascot.tsx's opacity-fade idiom, within the 300-350ms band
 
 function crossfadeDurationMs(): number {
   return CROSSFADE_MS;
@@ -150,7 +154,7 @@ export default function CoPilotScreen() {
       router.push({ pathname: '/paywall', params: { trigger: 'gate' } });
       gateResetTimeoutRef.current = setTimeout(() => {
         gatePushRef.current = false;
-      }, 800);
+      }, GATE_PUSH_DEBOUNCE_MS);
     }
     return true;
   };
