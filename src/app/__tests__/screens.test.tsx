@@ -335,6 +335,50 @@ describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
   });
 });
 
+describe('Co-pilot promote hand-off (DUMP-04, D-14, D-15)', () => {
+  beforeEach(() => {
+    contentStorage.clearAll();
+  });
+
+  it('starts a session from a dumpItemId route param via the existing startFromDumpItem/beginSession path', async () => {
+    const item = dumpItemsRepo.create({ text: 'call the bank', category: 'errands' });
+    const before = sessionsRepo.list().length;
+
+    await renderRouter(routeContext, { initialUrl: `/co-pilot?dumpItemId=${item.id}` });
+
+    // The existing End button appearing proves beginSession/flowPhase ran —
+    // the same reused Phase 3 path a manual dump-item tap goes through.
+    expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+
+    const sessions = sessionsRepo.list();
+    expect(sessions.length).toBe(before + 1);
+    const created = sessions[sessions.length - 1];
+    expect(created.source).toBe('dump');
+    expect(created.taskLabel).toBe('call the bank');
+
+    // D-15: promote marks, does not consume — the item stays in the list,
+    // quietly linked to the new session.
+    expect(dumpItemsRepo.get(item.id)?.promotedTaskId).toBe(created.id);
+    expect(dumpItemsRepo.list().map((i) => i.id)).toContain(item.id);
+  });
+
+  it('does not start a second session when a live/resumable session already exists (resume priority)', async () => {
+    const liveSession = sessionsRepo.create({ source: 'open' });
+    activeSessionRepo.start(liveSession.id, liveSession.startedAt);
+
+    const item = dumpItemsRepo.create({ text: 'water the plants', category: 'home' });
+    const before = sessionsRepo.list().length;
+
+    await renderRouter(routeContext, { initialUrl: `/co-pilot?dumpItemId=${item.id}` });
+
+    // Resumes the pre-existing live session instead of starting a new one
+    // from the dumpItemId param.
+    expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+    expect(sessionsRepo.list().length).toBe(before);
+    expect(dumpItemsRepo.get(item.id)?.promotedTaskId).toBeUndefined();
+  });
+});
+
 describe('History quiet-log rows (PILOT-07, D-15)', () => {
   beforeEach(() => {
     contentStorage.clearAll();
