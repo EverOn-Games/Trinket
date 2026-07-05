@@ -59,6 +59,21 @@ describe('walking-skeleton slice', () => {
     contentStorage.clearAll();
   });
 
+  it('registers a quiet foreground notification handler at boot (device UAT 2026-07-05: reminders were invisible while the app was open)', async () => {
+    const { setNotificationHandler } = jest.requireMock('expo-notifications');
+    // Registered at _layout module scope — importing the layout (top of this
+    // file) is the boot event. Verify the handler's behavior is the quiet
+    // banner: visible, silent, badge-free.
+    expect(setNotificationHandler).toHaveBeenCalled();
+    const handler = (setNotificationHandler as jest.Mock).mock.calls.at(-1)?.[0];
+    await expect(handler.handleNotification()).resolves.toEqual({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    });
+  });
+
   it('shows localized empty-state copy on History when no sessions exist', async () => {
     // @testing-library/react-native v14's render() is async — renderRouter's
     // return value must be awaited before the `screen` singleton is populated

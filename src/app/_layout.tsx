@@ -26,6 +26,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as Notifications from 'expo-notifications';
 
 import i18n, { resolveInitialLocale } from '../../i18n';
 import { ThemeProvider, useTheme } from '../../theme';
@@ -34,6 +35,20 @@ import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { reconcileActiveSession } from '../features/co-pilot/reconcileActiveSession';
 import { track } from '../analytics/analytics';
+
+// Foreground presentation for the Starter's quiet reminders (device UAT
+// 2026-07-05: a reminder that fired while the app was open displayed NOTHING
+// — expo-notifications drops foreground notifications unless a handler is
+// registered). Quiet by design: a banner, no sound, no badge — the reminder
+// is the user's own words appearing, never an interruption soundscape.
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 // ANLY-02: one app_opened per cold launch (module-level flag, same in-memory
 // cadence pattern as Home's greeting flag — never persisted). With no

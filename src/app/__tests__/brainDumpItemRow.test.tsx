@@ -53,6 +53,9 @@ describe('Brain dump item row (DUMP-03, DUMP-04, D-11, D-13, D-14, D-15)', () =>
     );
 
     expect(dumpItemsRepo.get(item.id)).toBeUndefined();
+    // Device UAT 2026-07-05: the repo delete worked but the ROW stayed on
+    // screen until remount — the UI must reflect the delete immediately.
+    expect(screen.queryByText('to be deleted')).toBeNull();
   });
 
   it('updates the text via inline edit while leaving the category unchanged (D-13)', async () => {

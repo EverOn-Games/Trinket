@@ -48,6 +48,13 @@ skipped: 0
 - Constraint: keep NO danger color (shame-free design decision) — fix is affordance, not alarm: render both options as bordered pill chips (same grammar as the time-slot chips), confirm slightly more prominent, cancel quiet.
 - Where: src/app/starter.tsx rowMode==='delete' block (~line 431).
 
+### UAT-05-03: Reminder fired invisibly — no foreground notification handler — FIXED same session (2026-07-05, major)
+- Observed: the 18:00 reminder never appeared (checked 15 min past). Founder was actively using the app at fire time.
+- Root cause: no `Notifications.setNotificationHandler` registered anywhere — expo-notifications silently drops foreground presentation without one. The notification fired at 18:00 into the void (one-shot, so it's gone).
+- Fix: quiet handler at _layout module scope — banner + list, no sound, no badge (shame-free: the reminder is the user's own words appearing, not an interruption). Boot-time test asserts the handler's exact quiet shape.
+- Device re-test: pending — schedule for the next slot and let it fire once with the app OPEN and once in background.
+- Watchlist (not implemented): if background reminders on Android 12+ prove noticeably late (inexact alarms), consider SCHEDULE_EXACT_ALARM — a native/app.json change requiring prebuild + a design discussion (exactness vs. battery/permission friction).
+
 ### UAT-05-02: No one-tap reschedule for an existing reminder (minor, UX)
 - Observed: once a reminder is set, the card only offers "Remove reminder"; changing the time requires remove → re-open picker → re-add.
 - Candidate fix: when a reminder exists, offer "Change time" that reopens the slot picker; scheduling already replace-don't-orphans internally, so this is UI-only.

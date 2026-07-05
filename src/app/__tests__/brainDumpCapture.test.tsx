@@ -52,6 +52,23 @@ describe('Brain dump capture -> save -> grouped list (DUMP-01)', () => {
     expect(screen.getByText('finish the report')).toBeTruthy();
   });
 
+  it('adding more items from an existing list shows the new item immediately (device UAT 2026-07-05 regression)', async () => {
+    dumpItemsRepo.create({ text: 'already here', category: 'home' });
+    await renderRouter(routeContext, { initialUrl: '/brain-dump' });
+
+    // Landed on the list (items exist) → tap the capture affordance,
+    // add a new item, save — the list must show BOTH without any remount.
+    await fireEvent.press(screen.getByText(en.brainDump.list.captureAffordance));
+    await fireEvent.changeText(
+      screen.getByPlaceholderText(en.brainDump.capture.placeholder),
+      'brand new thing'
+    );
+    await fireEvent.press(screen.getByText(en.brainDump.capture.save));
+
+    expect(await screen.findByText('brand new thing')).toBeTruthy();
+    expect(screen.getByText('already here')).toBeTruthy();
+  });
+
   it('is a silent no-op when Save is pressed with only whitespace content (D-05/D-07)', async () => {
     await renderRouter(routeContext, { initialUrl: '/brain-dump' });
 
