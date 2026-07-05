@@ -19,7 +19,7 @@ reason: Founder was already at/over the weekly limit from earlier live testing t
 
 ### 2. At the limit, the gate is an offer — and creates nothing
 expected: After 3 sessions this week, the next start attempt opens the paywall instead (calm copy: sessions refresh Monday + what keeps working; no "you've run out", no urgency styling). "Not now" returns to the setup screen and all buttons still work — pressing start again simply reopens the paywall.
-result: [pending]
+result: pass (copy calm; Not now returns to live setup; no session created). Founder question re: returning to setup at limit folded into PINNED-07-01.
 
 ### 3. Paywall content honest in reference mode
 expected: Paywall shows 3 plans (weekly/monthly/annual) with your locale's pricing, annual note, a quiet caption that purchases aren't switched on yet, a Restore link, and "Not now". Choosing a plan does nothing silently harmful — no fake purchase, no charge.
@@ -41,3 +41,4 @@ skipped: 0
 - Candidate B-arm for beta A/B: a single calm disclosure line on the Co-pilot setup screen when already at the limit (e.g. "Free sessions refresh Monday — you can still set one up with Plus"), before any setup effort is invested. Must stay a statement of fact, never a counter/meter.
 - Instrumentation already in place: gate_shown / paywall_viewed / paywall_dismissed funnel. A/B needs only an arm flag added to those events' props (closed-enum token, privacy-safe).
 - Status: pinned for post-beta-data discussion; NOT a launch blocker.
+- Second founder observation (same UAT): "Not now" returns to the setup screen — correct per no-lockout principle, but at the limit that screen is a polite cul-de-sac ("why am I here if I can't start?"). Strengthens the B-arm: a calm disclosure line on setup would make the return destination self-explanatory.
