@@ -63,7 +63,39 @@
   },
   "brainDump": {
     "title": "Zrzut myśli",
-    "description": "Miejsce, żeby szybko wyrzucić z głowy myśli — nic tu nie staje się zadaniem, dopóki tego nie zdecydujesz."
+    "description": "Miejsce, żeby szybko wyrzucić z głowy myśli — nic tu nie staje się zadaniem, dopóki tego nie zdecydujesz.",
+    "capture": {
+      "prompt": {
+        "idle": "Co masz w głowie?",
+        "idleSub": "Stuknij mikrofon albo zacznij pisać."
+      },
+      "placeholder": "Sprawy, telefony, to coś o wpłacie, spotkanie w piątek… wszystko, co masz w głowie.",
+      "save": "Zapisz wpisy"
+    },
+    "list": {
+      "captureAffordance": "Dodaj do zrzutu myśli",
+      "captureAffordanceSub": "Powiedz albo napisz."
+    },
+    "category": {
+      "errands": "Do załatwienia",
+      "work": "Praca",
+      "home": "Dom",
+      "people": "Ludzie",
+      "someday": "Kiedyś"
+    },
+    "item": {
+      "promote": "Zacznij sesję",
+      "edit": "Edytuj",
+      "editDone": "Gotowe",
+      "editCancel": "Odrzuć zmiany",
+      "delete": "Usuń",
+      "deleteConfirm": {
+        "heading": "Usunąć to?",
+        "confirm": "Usuń",
+        "cancel": "Zostaw"
+      },
+      "promotedMarker": "· w Co-pilot"
+    }
   },
   "starter": {
     "title": "Starter",

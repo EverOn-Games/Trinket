@@ -62,7 +62,39 @@
   },
   "brainDump": {
     "title": "Brain dump",
-    "description": "A quick place to empty your head — nothing here becomes a task until you say so."
+    "description": "A quick place to empty your head — nothing here becomes a task until you say so.",
+    "capture": {
+      "prompt": {
+        "idle": "What's on your mind?",
+        "idleSub": "Tap the mic, or start typing."
+      },
+      "placeholder": "Errands, calls, that thing about deposits, Friday's meeting… whatever's in your head.",
+      "save": "Save these"
+    },
+    "list": {
+      "captureAffordance": "Add to your brain dump",
+      "captureAffordanceSub": "Speak or type."
+    },
+    "category": {
+      "errands": "Errands",
+      "work": "Work",
+      "home": "Home",
+      "people": "People",
+      "someday": "Someday"
+    },
+    "item": {
+      "promote": "Start a session",
+      "edit": "Edit",
+      "editDone": "Done",
+      "editCancel": "Discard changes",
+      "delete": "Delete",
+      "deleteConfirm": {
+        "heading": "Delete this?",
+        "confirm": "Delete",
+        "cancel": "Keep it"
+      },
+      "promotedMarker": "· in Co-pilot"
+    }
   },
   "starter": {
     "title": "Starter",
