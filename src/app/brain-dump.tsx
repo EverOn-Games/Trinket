@@ -92,31 +92,15 @@ function formatRecordingDuration(ms: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-// TEMP DEBUG (remove after stale-list hunt): bundle identity marker.
-// eslint-disable-next-line no-console
-console.log('[TDBG] brain-dump module loaded — bundle 2026-07-05-D');
-
 export default function BrainDumpScreen() {
   const { i18n } = useTranslation();
-
-  // TEMP DEBUG: per-mount instance id — reveals duplicate mounted screens.
-  const [debugInstanceId] = useState(() => Math.floor(Math.random() * 100000));
 
   // D-12: read directly in render, no local mirror of repo data — matches
   // co-pilot.tsx's SetupPhase `dumpItemsRepo.list()` precedent. repoBus keeps
   // a mounted list live when items are created elsewhere (e.g. onboarding's
   // first task, a promote from co-pilot) — stale-screen class, device UAT.
-  const debugVersion = useRepoVersion('dumpItem');
+  useRepoVersion('dumpItem');
   const items = dumpItemsRepo.list();
-
-  // TEMP DEBUG: one line per screen render — which instance, which phase,
-  // what data. eslint-disable-next-line no-console
-  // eslint-disable-next-line no-console
-  console.log(
-    `[TDBG] screen render inst=${debugInstanceId} v=${debugVersion} n=${items.length} ids=[${items
-      .map((i) => i.id.slice(0, 4))
-      .join(',')}]`
-  );
 
   const [viewPhase, setViewPhase] = useState<'capture' | 'list'>(() =>
     items.length > 0 ? 'list' : 'capture'
@@ -165,9 +149,6 @@ export default function BrainDumpScreen() {
     for (const line of lines) {
       dumpItemsRepo.create({ text: line, category: classify(line, locale) });
     }
-    // TEMP DEBUG: is the freshly-written data visible to the very next read?
-    // eslint-disable-next-line no-console
-    console.log(`[TDBG] save done lines=${lines.length} repoNow=${dumpItemsRepo.list().length}`);
 
     clearBrainDumpDraft();
     setDraftText('');
@@ -404,10 +385,6 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
   const [rowMode, setRowMode] = useState<RowMode>('idle');
   const [editText, setEditText] = useState(item.text);
 
-  // TEMP DEBUG: does this row re-render after the parent's data changes?
-  // eslint-disable-next-line no-console
-  console.log(`[TDBG] row render id=${item.id.slice(0, 4)} mode=${rowMode}`);
-
   // T-04-04-DELDUP: guards a rapid double-tap on the confirm delete tap from
   // racing a second dumpItemsRepo.remove call; T-04-04-DUP guards the
   // promote tap against a double-navigation into /co-pilot. Neither ref is
@@ -451,12 +428,7 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
   const confirmDelete = () => {
     if (isDeletingRef.current) return;
     isDeletingRef.current = true;
-    // TEMP DEBUG
-    // eslint-disable-next-line no-console
-    console.log(`[TDBG] confirmDelete tapped id=${item.id.slice(0, 4)}`);
     dumpItemsRepo.remove(item.id);
-    // eslint-disable-next-line no-console
-    console.log(`[TDBG] confirmDelete done repoNow=${dumpItemsRepo.list().length}`);
     onChange();
   };
 
@@ -679,12 +651,6 @@ function ListPhase({
   ]);
 
   const sections = groupByCategory(items);
-
-  // TEMP DEBUG: what the SectionList is being ASKED to render this pass.
-  // eslint-disable-next-line no-console
-  console.log(
-    `[TDBG] listphase render rows=${sections.reduce((acc, s) => acc + s.data.length, 0)} sections=${sections.length}`
-  );
 
   return (
     <SectionList
