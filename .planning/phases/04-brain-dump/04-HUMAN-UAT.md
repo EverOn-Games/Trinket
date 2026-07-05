@@ -53,7 +53,9 @@ blocked: 0
 - Root cause: the read-repo-directly-in-render idiom over MMKV is not reactive; screens kept mounted by the router never re-rendered on writes from other screens.
 - Fix: `data/repoBus.ts` — per-namespace version counters + `useSyncExternalStore`; every repo mutation (dumpItems/sessions/intentions/activeSession start+clear) notifies; subscriber screens (brain-dump, history, co-pilot setup, starter, home) re-render and re-read. Heartbeats deliberately silent. Starter's local version-bump hack replaced by the bus.
 - Tests: data/__tests__/repoBus.test.ts (6 cases) + live-History regression in screens.test.tsx. Suite: 30/231 green.
-- Device re-test: pending (save a dump → check list immediately; end a session → check quiet log immediately).
+- Device re-test round 1 (2026-07-05, post-repoBus, full rebuild + restart): STILL stale. Since UI-level Jest tests prove the React chain and repo writes are correct (data always right after remount, row-local state renders fine), the remaining variable was MMKV v4's read freshness on device: reads return stale values for a window after a same-session write. The Jest MMKV mock (plain Map) structurally cannot reproduce this.
+- Fix round 2: MEMORY-FIRST repositories (dumpItems/sessions/intentions/activeSession) — reads serve from an in-memory map hydrated once from MMKV; writes update the map and write through to MMKV (persistence-only). data/repoCache.ts + jest.setup.ts global cache reset keep tests hermetic. SectionList extraData added as cell-update insurance.
+- Device re-test: pending (delete an item → card collapses instantly; save → item in list instantly; end session → quiet log instantly).
 
 ### UAT-04-08: Mic-denied UX — reappearing mic tease + no explanation — FIXED same session (2026-07-05)
 - Fix: mount-time getPermissionsAsync STATUS read (no dialog — contextual-ask rule is about requesting) pre-hides the mic only when hard-denied (denied + cannot ask again); dedicated `voicePermissionDenied` caption (EN+PL), offer-grammar ("dostęp można włączyć w ustawieniach telefonu" — informs, never instructs).
