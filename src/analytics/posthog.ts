@@ -40,7 +40,15 @@ export function initPostHogTransport(): void {
       enableSessionReplay: false, // never record screen content
     });
     setAnalyticsTransport((event, properties) => {
-      client.capture(event, properties);
+      // A throwing capture() must never propagate through track() into the
+      // UI call site — analytics is fire-and-forget by contract (FND-03:
+      // core flows work with the network fully off; the client buffers, and
+      // even a synchronous client bug can't take a screen down with it).
+      try {
+        client.capture(event, properties);
+      } catch {
+        // Drop the event; the app never notices.
+      }
     });
   } catch {
     // Stay a no-op; a failed analytics init must never break startup.

@@ -65,11 +65,12 @@
     "lint:hex": "node scripts/check-hex-literals.mjs",
     "lint:mascot-assets": "node scripts/check-mascot-asset-size.mjs",
     "test": "jest --watchAll=false",
-    "verify": "npm run lint && npm run lint:hex && npm run lint:copy && npm run lint:mascot-assets && npm run typecheck && npm test",
+    "verify": "npm run lint && npm run lint:hex && npm run lint:copy && npm run lint:network && npm run lint:mascot-assets && npm run typecheck && npm test",
     "android:fresh": "expo prebuild --clean --platform android && expo run:android",
     "ios:fresh": "expo prebuild --clean --platform ios && expo run:ios",
     "typecheck": "tsc --noEmit",
-    "lint:copy": "node scripts/check-copy-tone.mjs"
+    "lint:copy": "node scripts/check-copy-tone.mjs",
+    "lint:network": "node scripts/check-network-isolation.mjs"
   },
   "private": true
 }

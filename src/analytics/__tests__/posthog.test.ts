@@ -71,6 +71,17 @@ describe('initPostHogTransport — key present', () => {
     });
   });
 
+  it('a throwing capture() never propagates into the track() call site', () => {
+    const { posthogInstances, initPostHogTransport, track } = setup(KEY);
+    initPostHogTransport();
+    posthogInstances[0].capture.mockImplementation(() => {
+      throw new Error('client bug');
+    });
+
+    // Analytics is fire-and-forget: a UI call site must never crash on it.
+    expect(() => track('app_opened', { coldLaunch: true })).not.toThrow();
+  });
+
   it('still strips smuggled content on the way to the client', () => {
     const { posthogInstances, initPostHogTransport, track } = setup(KEY);
     initPostHogTransport();

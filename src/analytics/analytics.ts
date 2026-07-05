@@ -49,18 +49,5 @@ export function track<E extends AnalyticsEventName>(event: E, props: AnalyticsEv
   transport(event, safeProps);
 }
 
-/*
- * PostHog EU drop-in (when EXPO_PUBLIC_POSTHOG_API_KEY exists):
- *
- *   npx expo install posthog-react-native expo-file-system expo-application expo-device
- *
- *   import PostHog from 'posthog-react-native';
- *   const posthog = new PostHog(process.env.EXPO_PUBLIC_POSTHOG_API_KEY!, {
- *     host: 'https://eu.i.posthog.com',   // EU residency — cannot change later
- *     captureAppLifecycleEvents: false,   // no autocapture (ANLY-01, hard)
- *     // Never enable session replay — it records screen content.
- *   });
- *   setAnalyticsTransport((event, properties) => posthog.capture(event, properties));
- *
- * Wire it in src/app/_layout.tsx behind the env check, nowhere else.
- */
+// The PostHog EU transport lives in ./posthog.ts (env-gated on
+// EXPO_PUBLIC_POSTHOG_API_KEY, attached once at startup in _layout.tsx).
