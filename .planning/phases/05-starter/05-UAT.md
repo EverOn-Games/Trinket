@@ -1,5 +1,5 @@
 ---
-status: testing
+status: complete
 phase: 05-starter
 source: [05-SUMMARY.md]
 started: 2026-07-05T00:00:00Z
@@ -8,11 +8,7 @@ updated: 2026-07-05T00:00:00Z
 
 ## Current Test
 
-number: 2
-name: Schedule a reminder — contextual permission + own-words content
-expected: |
-  Bell on card → day + time-slot chips; OS permission dialog appears only now; fired notification uses your own cue/action words.
-awaiting: user response
+[complete]
 
 ## Tests
 
@@ -22,23 +18,23 @@ result: pass
 
 ### 2. Schedule a reminder — contextual permission + own-words content
 expected: "A quiet reminder?" on an intention card → day (today/tomorrow) + time-slot chips (9/12/18/21). The OS notification-permission dialog appears only NOW (never earlier, never during onboarding). When the reminder fires, the notification title is YOUR cue text and the body is YOUR action text — no app-authored exhortation.
-result: pass (scheduling + contextual permission); fired-notification content check deferred ~1h until the slot fires
+result: pass — full confirmation 2026-07-05 after the foreground-handler fix: notification fired (inexact timing accepted, Option A) with the user's own cue/action words.
 note: UI control is the text offer "A quiet reminder?", not a bell icon — checkpoint wording corrected.
 
 ### 3. Reschedule replaces, never duplicates
 expected: Schedule a reminder, then reschedule the same intention to a different slot. Only the NEW reminder fires — the old one never arrives.
-result: [pending]
+result: pass (2026-07-05, post-handler-fix round; via remove-then-re-add flow — see UAT-05-02)
 
 ### 4. Delete cancels the reminder
 expected: Delete an intention that has a pending reminder. The card disappears and the reminder never fires.
-result: [pending]
+result: pass (2026-07-05)
 
 ## Summary
 
 total: 4
-passed: 0
-issues: 0
-pending: 4
+passed: 4
+issues: 3 (2 fixed same-session: UAT-05-03 handler, Option A copy; 2 UX gaps open: UAT-05-01/02)
+pending: 0
 skipped: 0
 
 ## Gaps

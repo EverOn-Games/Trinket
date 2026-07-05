@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 phase: 08-settings-analytics
 source: [08-SUMMARY.md]
 started: 2026-07-05T00:00:00Z
@@ -8,7 +8,7 @@ updated: 2026-07-05T00:00:00Z
 
 ## Current Test
 
-[queued — runs after 07-UAT]
+[complete]
 
 ## Tests
 
@@ -18,7 +18,7 @@ result: pass
 
 ### 2. Reminders toggle off cancels everything
 expected: With at least one scheduled intention reminder, switching Reminders OFF in Settings cancels it — the notification never fires. Toggling back on does NOT resurrect old reminders (you re-schedule per intention).
-result: [pending]
+result: pass (2026-07-05)
 
 ### 3. Mascot prominence chips
 expected: Changing prominence in Settings visibly changes how present the mascot is, and the choice persists across restart.
@@ -31,9 +31,9 @@ result: pass
 ## Summary
 
 total: 4
-passed: 0
+passed: 4
 issues: 0
-pending: 4
+pending: 0
 skipped: 0
 
 ## Gaps
