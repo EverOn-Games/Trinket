@@ -51,6 +51,18 @@ const PLUS_ENTITLEMENT_ID = process.env.EXPO_PUBLIC_REVENUECAT_ENTITLEMENT ?? 'p
 /** Fixed display order the paywall expects (weekly → monthly → annual). */
 const PLAN_ORDER: readonly PlanId[] = ['weekly', 'monthly', 'annual'];
 
+// Dev-only diagnostics, never user-facing (markers.ts precedent: a broken
+// integration must fail loud in logs, not silently in production). The
+// device UAT that motivated this: a sandbox purchase landed in RevenueCat
+// but the app showed nothing, because the granted entitlement id didn't
+// match — and nothing said so anywhere.
+function devWarn(message: string, error?: unknown): void {
+  if (__DEV__) {
+    if (error === undefined) console.warn(`purchases: ${message}`);
+    else console.warn(`purchases: ${message}`, error);
+  }
+}
+
 // Live offering state, populated by configurePurchases()/refreshOfferings()
 // when a key is present. cachedPlans drives display pricing; cachedPackages is
 // what purchase() actually buys. Both stay null in reference mode.
@@ -122,24 +134,58 @@ async function refreshOfferings(): Promise<void> {
   }
 }
 
+function hasPlusEntitlement(customerInfo: CustomerInfo): boolean {
+  return Boolean(customerInfo.entitlements.active[PLUS_ENTITLEMENT_ID]);
+}
+
 /**
- * Idempotent RevenueCat configuration + live-pricing warm-up. Safe to call at
- * every startup; a no-op with no key. Never throws — any failure just leaves
- * the module in reference mode.
+ * Authoritative two-way sync: RevenueCat's current customer info decides the
+ * cache. Active plus → { tier: 'plus' } (a grant missed at purchase time
+ * self-heals on the next launch/listener fire); no plus → null (an expired or
+ * refunded subscription downgrades back to free, quietly). Only ever called
+ * with a successfully-FETCHED customerInfo — offline/error paths never reach
+ * here, so a cached plus persists offline (MONEY-03).
+ */
+function syncEntitlementFromCustomerInfo(customerInfo: CustomerInfo): void {
+  const { subscriptionCache, setSubscriptionCache } = useSettingsStore.getState();
+  const cachedPlus = subscriptionCache?.tier === 'plus';
+  if (hasPlusEntitlement(customerInfo)) {
+    if (!cachedPlus) setSubscriptionCache({ tier: 'plus' });
+  } else if (cachedPlus) {
+    devWarn(`entitlement '${PLUS_ENTITLEMENT_ID}' no longer active — cache downgraded to free`);
+    setSubscriptionCache(null);
+  }
+}
+
+/**
+ * Idempotent RevenueCat configuration + live-pricing warm-up + entitlement
+ * sync. Safe to call at every startup; a no-op with no key. Never throws —
+ * any failure just leaves the module in reference mode / the cache untouched.
  */
 export async function configurePurchases(): Promise<void> {
   if (!REVENUECAT_KEY || configured) return;
   try {
     Purchases.configure({ apiKey: REVENUECAT_KEY });
+    Purchases.addCustomerInfoUpdateListener(syncEntitlementFromCustomerInfo);
     configured = true;
-    await refreshOfferings();
-  } catch {
-    // Stay in reference mode; startup must never break on a purchases error.
+  } catch (error) {
+    devWarn('configure failed — staying in reference mode', error);
+    return;
   }
-}
-
-function hasPlusEntitlement(customerInfo: CustomerInfo): boolean {
-  return Boolean(customerInfo.entitlements.active[PLUS_ENTITLEMENT_ID]);
+  // Each side-load tolerates failure independently: a pricing fetch failing
+  // must not block the entitlement self-heal, or vice versa.
+  try {
+    await refreshOfferings();
+  } catch (error) {
+    devWarn('offerings fetch failed — reference pricing stays', error);
+  }
+  try {
+    syncEntitlementFromCustomerInfo(await Purchases.getCustomerInfo());
+  } catch (error) {
+    // Offline/unknown → cache untouched: a cached plus keeps working offline,
+    // an absent cache stays quietly free (MONEY-03).
+    devWarn('customer info fetch failed — entitlement cache left as-is', error);
+  }
 }
 
 function applyEntitlement(customerInfo: CustomerInfo): boolean {
@@ -147,6 +193,15 @@ function applyEntitlement(customerInfo: CustomerInfo): boolean {
     useSettingsStore.getState().setSubscriptionCache({ tier: 'plus' });
     return true;
   }
+  // The transaction went through but the expected entitlement isn't active —
+  // this is a RevenueCat dashboard wiring problem, and the ids in this log
+  // are exactly what's needed to fix it.
+  devWarn(
+    `transaction completed but entitlement '${PLUS_ENTITLEMENT_ID}' is not active. ` +
+      `Active entitlements: [${Object.keys(customerInfo.entitlements.active).join(', ')}]. ` +
+      `Attach the product to the '${PLUS_ENTITLEMENT_ID}' entitlement in the RevenueCat ` +
+      `dashboard, or set EXPO_PUBLIC_REVENUECAT_ENTITLEMENT to the id you configured.`
+  );
   return false;
 }
 
@@ -174,7 +229,9 @@ export async function purchase(planId: PlanId): Promise<PurchaseResult> {
   } catch (error) {
     // User backing out is a calm 'cancelled'; anything else stays quietly
     // 'unavailable' with the tier untouched (free) — no alarming copy.
-    return isUserCancelled(error) ? 'cancelled' : 'unavailable';
+    if (isUserCancelled(error)) return 'cancelled';
+    devWarn('purchase failed', error);
+    return 'unavailable';
   }
 }
 
@@ -185,6 +242,8 @@ export async function restore(): Promise<PurchaseResult> {
     const customerInfo = await Purchases.restorePurchases();
     return applyEntitlement(customerInfo) ? 'purchased' : 'unavailable';
   } catch (error) {
-    return isUserCancelled(error) ? 'cancelled' : 'unavailable';
+    if (isUserCancelled(error)) return 'cancelled';
+    devWarn('restore failed', error);
+    return 'unavailable';
   }
 }

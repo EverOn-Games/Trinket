@@ -180,6 +180,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260702-jky | Fold Claude Design mockups (10 screens) into `design/DESIGN-SYSTEM.md` reference + persist mockups + refine dark theme token values to real brand palette (dark-only MVP) | 2026-07-02 | a64a457 | [260702-jky-fold-design-system-tokens](./quick/260702-jky-fold-design-system-tokens/) |
 | 260705-qg3 | Wire RevenueCat (MONEY-01) + PostHog EU (ANLY-02) as env-gated drop-in integrations: real code paths that activate on `EXPO_PUBLIC_REVENUECAT_KEY` / `EXPO_PUBLIC_POSTHOG_API_KEY`, REFERENCE/no-op fallback with no key. Native SDKs installed (prebuild required); Jest mocks + wired-path tests; 250 tests green. Activation (keys/store/dashboard) + MONEY-04 still open. | 2026-07-05 | [wire-revenuecat-and-posthog-eu-env-gated](./quick/260705-qg3-wire-revenuecat-and-posthog-eu-env-gated/) |
+| 260705-rbh | RevenueCat entitlement sync + purchase-grant dev diagnostics, from first device sandbox purchase (transaction landed in RC, app silent — entitlement id/attachment mismatch suspected). `purchases.ts`: `__DEV__` warns log expected-vs-actual entitlement ids on ungrated purchase/restore; startup `getCustomerInfo` sync + `addCustomerInfoUpdateListener` keep subscriptionCache honest both ways (missed grant self-heals, expiry downgrades); offline fetch failure leaves cache untouched. JS-only (no prebuild). 259 tests green. | 2026-07-05 | [revenuecat-entitlement-sync](./quick/260705-rbh-revenuecat-entitlement-sync-purchase-gra/) |
 
 ## Deferred Items
 

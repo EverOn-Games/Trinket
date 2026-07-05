@@ -47,6 +47,10 @@ const Purchases = {
   })),
   restorePurchases: jest.fn(async () => makeCustomerInfo([])),
   getCustomerInfo: jest.fn(async () => makeCustomerInfo([])),
+  // Tests grab the registered listener via .mock.calls[0][0] and fire it
+  // directly to simulate RevenueCat pushing a customer-info update
+  // (renewal, expiry, cross-device purchase).
+  addCustomerInfoUpdateListener: jest.fn(),
 };
 
 export default Purchases;

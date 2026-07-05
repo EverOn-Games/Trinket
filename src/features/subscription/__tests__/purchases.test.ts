@@ -144,3 +144,75 @@ describe('purchases seam — RevenueCat wired (key present)', () => {
     expect(useSettingsStore.getState().subscriptionCache).toBeNull();
   });
 });
+
+describe('purchases seam — entitlement sync (key present)', () => {
+  let warnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    // Sync diagnostics are dev-only console.warn noise by design (markers.ts
+    // precedent); silence + capture them here.
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it('self-heals a missed grant: startup sync finds an active plus and caches it', async () => {
+    const { purchases, Purchases, makeCustomerInfo, useSettingsStore } = setup(KEY);
+    Purchases.getCustomerInfo.mockResolvedValueOnce(makeCustomerInfo(['plus']));
+
+    await purchases.configurePurchases();
+
+    expect(useSettingsStore.getState().subscriptionCache).toEqual({ tier: 'plus' });
+  });
+
+  it('downgrades an expired subscription: cached plus + no active entitlement → free', async () => {
+    const { purchases, useSettingsStore } = setup(KEY);
+    useSettingsStore.setState({ subscriptionCache: { tier: 'plus' } });
+    // Default getCustomerInfo resolves with no active entitlements.
+
+    await purchases.configurePurchases();
+
+    expect(useSettingsStore.getState().subscriptionCache).toBeNull();
+  });
+
+  it('leaves the cache untouched when the customer-info fetch fails (offline posture)', async () => {
+    const { purchases, Purchases, useSettingsStore } = setup(KEY);
+    useSettingsStore.setState({ subscriptionCache: { tier: 'plus' } });
+    Purchases.getCustomerInfo.mockRejectedValueOnce(new Error('offline'));
+
+    await purchases.configurePurchases();
+
+    expect(useSettingsStore.getState().subscriptionCache).toEqual({ tier: 'plus' });
+  });
+
+  it('registers a customer-info listener that keeps the cache honest both ways', async () => {
+    const { purchases, Purchases, makeCustomerInfo, useSettingsStore } = setup(KEY);
+    await purchases.configurePurchases();
+
+    expect(Purchases.addCustomerInfoUpdateListener).toHaveBeenCalledTimes(1);
+    const listener = Purchases.addCustomerInfoUpdateListener.mock.calls[0][0] as (
+      info: unknown
+    ) => void;
+
+    listener(makeCustomerInfo(['plus']));
+    expect(useSettingsStore.getState().subscriptionCache).toEqual({ tier: 'plus' });
+
+    listener(makeCustomerInfo([]));
+    expect(useSettingsStore.getState().subscriptionCache).toBeNull();
+  });
+
+  it('a purchase completing without the expected entitlement logs the actual ids (dev diagnostic)', async () => {
+    const { purchases, Purchases, makeCustomerInfo } = setup(KEY);
+    Purchases.purchasePackage.mockResolvedValueOnce({
+      customerInfo: makeCustomerInfo(['premium_wrongly_named']),
+    });
+
+    await expect(purchases.purchase('annual')).resolves.toBe('unavailable');
+
+    const warned = warnSpy.mock.calls.map((c) => String(c[0])).join('\n');
+    expect(warned).toContain("entitlement 'plus' is not active");
+    expect(warned).toContain('premium_wrongly_named');
+  });
+});
