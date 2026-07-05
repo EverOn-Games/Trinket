@@ -106,7 +106,65 @@
   },
   "starter": {
     "title": "Starter",
-    "description": "A gentle way to line up your next move."
+    "description": "A gentle way to line up your next move.",
+    "builder": {
+      "cueHeading": "When…",
+      "cueSubcopy": "Tie it to a moment that's already in your day.",
+      "cuePlaceholder": "when I sit down with my coffee",
+      "cueNext": "Then…",
+      "actionHeading": "Then I'll…",
+      "actionSubcopy": "The smallest possible first step — one physical motion, not the whole task.",
+      "actionPlaceholder": "open the document and write one sentence",
+      "actionExample": "“open the doc” beats “write the report”",
+      "back": "Back to when",
+      "save": "Keep this starter",
+      "newStarter": "New starter"
+    },
+    "cues": {
+      "orPick": "Or borrow a moment",
+      "time": {
+        "label": "Time",
+        "morningCoffee": "when I sit down with my morning coffee",
+        "afterLunch": "after lunch",
+        "eveningWindDown": "when the evening winds down"
+      },
+      "place": {
+        "label": "Place",
+        "sitAtDesk": "when I sit at my desk",
+        "enterKitchen": "when I walk into the kitchen",
+        "getHome": "when I get home"
+      },
+      "event": {
+        "label": "Event",
+        "closeThisApp": "when I close this app",
+        "finishAShow": "when an episode ends",
+        "hangUpACall": "after I hang up a call"
+      }
+    },
+    "cards": {
+      "emptyLead": "Nothing lined up yet — that's fine.",
+      "whenLabel": "When",
+      "thenLabel": "then I'll",
+      "delete": "Let it go",
+      "deleteConfirmHeading": "Let this one go?",
+      "deleteConfirm": "Let it go",
+      "deleteKeep": "Keep it"
+    },
+    "notify": {
+      "offer": "A quiet reminder?",
+      "subcopy": "One nudge, in your own words. Nothing after that.",
+      "dayToday": "Today",
+      "dayTomorrow": "Tomorrow",
+      "confirm": "Remind me then",
+      "notNow": "Not now",
+      "scheduledAt": "Reminder set for {{when}}",
+      "remove": "Remove reminder",
+      "unavailable": "Reminders aren't available right now — your starter is saved all the same.",
+      "slotMorning": "Morning · 9:00",
+      "slotMidday": "Midday · 12:00",
+      "slotEvening": "Evening · 18:00",
+      "slotNight": "Night · 21:00"
+    }
   },
   "history": {
     "title": "History",

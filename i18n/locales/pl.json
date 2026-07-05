@@ -107,7 +107,65 @@
   },
   "starter": {
     "title": "Starter",
-    "description": "Łagodny sposób, żeby przygotować kolejny krok."
+    "description": "Łagodny sposób, żeby przygotować kolejny krok.",
+    "builder": {
+      "cueHeading": "Kiedy…",
+      "cueSubcopy": "Zaczep to o moment, który i tak jest w Twoim dniu.",
+      "cuePlaceholder": "kiedy usiądę z kawą",
+      "cueNext": "To…",
+      "actionHeading": "To wtedy…",
+      "actionSubcopy": "Najmniejszy możliwy pierwszy krok — jeden fizyczny ruch, nie całe zadanie.",
+      "actionPlaceholder": "otworzę dokument i napiszę jedno zdanie",
+      "actionExample": "„otworzę dokument” działa lepiej niż „napiszę raport”",
+      "back": "Wróć do „kiedy”",
+      "save": "Zachowaj ten starter",
+      "newStarter": "Nowy starter"
+    },
+    "cues": {
+      "orPick": "Albo pożycz moment",
+      "time": {
+        "label": "Czas",
+        "morningCoffee": "kiedy usiądę z poranną kawą",
+        "afterLunch": "po obiedzie",
+        "eveningWindDown": "kiedy wieczór zwalnia"
+      },
+      "place": {
+        "label": "Miejsce",
+        "sitAtDesk": "kiedy usiądę przy biurku",
+        "enterKitchen": "kiedy wejdę do kuchni",
+        "getHome": "kiedy wrócę do domu"
+      },
+      "event": {
+        "label": "Wydarzenie",
+        "closeThisApp": "kiedy zamknę tę aplikację",
+        "finishAShow": "kiedy skończy się odcinek",
+        "hangUpACall": "po zakończonej rozmowie"
+      }
+    },
+    "cards": {
+      "emptyLead": "Jeszcze nic nie czeka — i to jest w porządku.",
+      "whenLabel": "Kiedy",
+      "thenLabel": "to wtedy",
+      "delete": "Odpuść",
+      "deleteConfirmHeading": "Odpuścić ten starter?",
+      "deleteConfirm": "Odpuść",
+      "deleteKeep": "Zostaw"
+    },
+    "notify": {
+      "offer": "Ciche przypomnienie?",
+      "subcopy": "Jedno przypomnienie, Twoimi słowami. Nic więcej.",
+      "dayToday": "Dziś",
+      "dayTomorrow": "Jutro",
+      "confirm": "Przypomnij mi wtedy",
+      "notNow": "Nie teraz",
+      "scheduledAt": "Przypomnienie: {{when}}",
+      "remove": "Usuń przypomnienie",
+      "unavailable": "Przypomnienia są teraz niedostępne — Twój starter i tak jest zapisany.",
+      "slotMorning": "Rano · 9:00",
+      "slotMidday": "Południe · 12:00",
+      "slotEvening": "Wieczór · 18:00",
+      "slotNight": "Noc · 21:00"
+    }
   },
   "history": {
     "title": "Historia",
