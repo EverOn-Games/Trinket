@@ -153,7 +153,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 04-03-PLAN.md — Text capture view + grouped SectionList; Save→parse→classify→persist (DUMP-01, DUMP-05)
+- [x] 04-03-PLAN.md — Text capture view + grouped SectionList; Save→parse→classify→persist (DUMP-01, DUMP-05)
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -252,7 +252,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
 | 3. Co-pilot End-to-End | 5/5 | Complete   | 2026-07-03 |
-| 4. Brain Dump | 2/6 | In Progress|  |
+| 4. Brain Dump | 3/6 | In Progress|  |
 | 5. Starter | 0/TBD | Not started | - |
 | 6. Onboarding | 0/TBD | Not started | - |
 | 7. Subscription Infrastructure + Freemium Gate | 0/TBD | Not started | - |

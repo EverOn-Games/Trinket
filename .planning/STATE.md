@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-07-05T01:49:38.008Z"
+last_updated: "2026-07-05T01:55:10.480Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 22
-  completed_plans: 18
+  completed_plans: 19
   percent: 33
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 4 (Brain Dump) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-07-05
 
-Progress: [████████░░] 82%
+Progress: [█████████░] 86%
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ Progress: [████████░░] 82%
 | Phase 03 P05 | 6min | 2 tasks | 2 files |
 | Phase 04 P01 | 8min | 2 tasks | 5 files |
 | Phase 04 P02 | 12min | 2 tasks | 4 files |
+| Phase 04 P03 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,8 @@ Recent decisions affecting current work:
 - [Phase 04-01]: Corrected classify.ts's tie-break logic beyond 04-PATTERNS.md's literal skeleton — Strict '>' alone only protects the zero-score 'someday' default from being displaced; added an equal-score-and-nonzero branch resetting to 'someday' so genuine ties between two nonzero-scoring categories resolve correctly per D-09/Pitfall 4
 - [Phase 04]: Draft key literal 'draft:brainDump' (D-06) verified clean against all 8 schema-denylist stems
 - [Phase 04]: PL category label 'Do zalatwienia' (errands) shipped as draft copy pending native-speaker review (UI-SPEC Flag 6)
+- [Phase 04]: 04-03: isSavingRef guard resets on re-entering capture (Save is repeatable), unlike co-pilot's one-shot guard
+- [Phase 04]: 04-03: showList recomputed live every render so D-12 empty-routing self-corrects for a future delete feature
 
 ### Pending Todos
 
@@ -157,6 +160,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T01:49:37.983Z
+Last session: 2026-07-05T01:54:45.563Z
 Stopped at: Completed 04-02-PLAN.md
 Resume file: None
