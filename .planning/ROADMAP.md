@@ -143,7 +143,26 @@ Plans:
   4. Items carry no due dates, reminders, or badges by default; any item can become a Co-pilot task in one tap
   5. Brain dump capture screen is reachable in at most 2 taps from anywhere in the app
 
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — Pure classifier + newline parser (TDD) (DUMP-01, DUMP-03)
+- [ ] 04-02-PLAN.md — Draft-persistence MMKV wrapper + text/list/item i18n copy (DUMP-01)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 04-03-PLAN.md — Text capture view + grouped SectionList; Save→parse→classify→persist (DUMP-01, DUMP-05)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 04-04-PLAN.md — Item row: inline category chips, edit, delete, promote button + quiet marker (DUMP-03, DUMP-04)
+- [ ] 04-05-PLAN.md — Co-pilot dumpItemId promote hand-off (reuse beginSession) + route test (DUMP-04)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 04-06-PLAN.md — Voice slice: expo-speech-recognition install/config/mock + isolated hook + capture wiring + graceful fallback (DUMP-02)
 **UI hint**: yes
 
 ### Phase 5: Starter
@@ -233,7 +252,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
 | 3. Co-pilot End-to-End | 5/5 | Complete   | 2026-07-03 |
-| 4. Brain Dump | 0/TBD | Not started | - |
+| 4. Brain Dump | 0/6 | Planned | - |
 | 5. Starter | 0/TBD | Not started | - |
 | 6. Onboarding | 0/TBD | Not started | - |
 | 7. Subscription Infrastructure + Freemium Gate | 0/TBD | Not started | - |
