@@ -43,4 +43,12 @@ skipped: 0
 
 ## Gaps
 
-[none yet]
+### UAT-05-01: Delete confirmation lacks button affordance (minor, UX)
+- Observed: in the delete-confirm row, "Let it go" renders in default text color and "Keep it" in grey — two plain text rows that don't read as a confirmation step / tappable choices.
+- Constraint: keep NO danger color (shame-free design decision) — fix is affordance, not alarm: render both options as bordered pill chips (same grammar as the time-slot chips), confirm slightly more prominent, cancel quiet.
+- Where: src/app/starter.tsx rowMode==='delete' block (~line 431).
+
+### UAT-05-02: No one-tap reschedule for an existing reminder (minor, UX)
+- Observed: once a reminder is set, the card only offers "Remove reminder"; changing the time requires remove → re-open picker → re-add.
+- Candidate fix: when a reminder exists, offer "Change time" that reopens the slot picker; scheduling already replace-don't-orphans internally, so this is UI-only.
+- Where: src/app/starter.tsx notify row.
