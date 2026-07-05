@@ -579,16 +579,49 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
       ) : rowMode === 'delete' ? (
         <View style={{ gap: theme.spacing.sm }}>
           <Text style={deleteHeadingStyle}>{t('brainDump.item.deleteConfirm.heading')}</Text>
+          {/* UAT-05-01 (applies here too): confirm/cancel as pill chips so
+              they read as tappable choices — affordance without alarm, no
+              danger color (shame-free). */}
           <View style={footerRowStyle}>
-            <Pressable accessibilityRole="button" onPress={confirmDelete} style={styles.tapTarget}>
-              <Text style={linkLabelStyle}>{t('brainDump.item.deleteConfirm.confirm')}</Text>
+            <Pressable
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={confirmDelete}
+              style={StyleSheet.flatten([
+                styles.tapTarget,
+                styles.chip,
+                { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
+              ])}
+            >
+              <Text
+                style={{
+                  color: theme.colors.background,
+                  fontSize: theme.typography.scale.caption,
+                  fontWeight: '600' as const,
+                }}
+              >
+                {t('brainDump.item.deleteConfirm.confirm')}
+              </Text>
             </Pressable>
             <Pressable
               accessibilityRole="button"
+              hitSlop={8}
               onPress={() => setRowMode('idle')}
-              style={styles.tapTarget}
+              style={StyleSheet.flatten([
+                styles.tapTarget,
+                styles.chip,
+                { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.pill },
+              ])}
             >
-              <Text style={linkLabelStyle}>{t('brainDump.item.deleteConfirm.cancel')}</Text>
+              <Text
+                style={{
+                  color: theme.colors.textPrimary,
+                  fontSize: theme.typography.scale.caption,
+                  fontWeight: '600' as const,
+                }}
+              >
+                {t('brainDump.item.deleteConfirm.cancel')}
+              </Text>
             </Pressable>
           </View>
         </View>

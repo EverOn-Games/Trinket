@@ -159,6 +159,7 @@
       "confirm": "Remind me then",
       "notNow": "Not now",
       "scheduledAt": "Reminder around {{when}}",
+      "changeTime": "Change the time",
       "remove": "Remove reminder",
       "unavailable": "Reminders aren't available right now — your starter is saved all the same.",
       "slotMorning": "Morning · 9:00",

@@ -403,9 +403,21 @@ function IntentionCard({ intention }: { intention: Intention }) {
                   when: new Date(intention.notifyAt).toLocaleString(),
                 })}
               </Text>
-              <Pressable accessibilityRole="button" onPress={handleRemoveReminder} style={styles.tapTarget}>
-                <Text style={quietActionStyle}>{t('starter.notify.remove')}</Text>
-              </Pressable>
+              {/* UAT-05-02: one-tap reschedule — reopens the picker; the
+                  scheduling path already cancels the prior notification id
+                  (replace-don't-orphan), so this is UI-only. */}
+              <View style={chipRowStyle}>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => setRowMode('notify')}
+                  style={styles.tapTarget}
+                >
+                  <Text style={quietActionStyle}>{t('starter.notify.changeTime')}</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" onPress={handleRemoveReminder} style={styles.tapTarget}>
+                  <Text style={quietActionStyle}>{t('starter.notify.remove')}</Text>
+                </Pressable>
+              </View>
             </>
           ) : notifyUnavailable ? (
             <Text style={quietActionStyle}>{t('starter.notify.unavailable')}</Text>
@@ -431,16 +443,25 @@ function IntentionCard({ intention }: { intention: Intention }) {
       {rowMode === 'delete' && (
         <View style={{ gap: theme.spacing.sm }}>
           <Text style={actionStyle}>{t('starter.cards.deleteConfirmHeading')}</Text>
+          {/* UAT-05-01: both options are pill CHIPS (same grammar as the
+              time-slot picker) so they read as tappable choices — affordance
+              without alarm; still no danger color (shame-free). */}
           <View style={chipRowStyle}>
-            <Pressable accessibilityRole="button" onPress={handleDelete} style={styles.tapTarget}>
-              <Text style={actionStyle}>{t('starter.cards.deleteConfirm')}</Text>
+            <Pressable
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={handleDelete}
+              style={chipStyle(true)}
+            >
+              <Text style={chipLabelStyle(true)}>{t('starter.cards.deleteConfirm')}</Text>
             </Pressable>
             <Pressable
               accessibilityRole="button"
+              hitSlop={8}
               onPress={() => setRowMode('idle')}
-              style={styles.tapTarget}
+              style={chipStyle(false)}
             >
-              <Text style={quietActionStyle}>{t('starter.cards.deleteKeep')}</Text>
+              <Text style={chipLabelStyle(false)}>{t('starter.cards.deleteKeep')}</Text>
             </Pressable>
           </View>
         </View>

@@ -141,6 +141,28 @@ describe('Starter reminder (START-03) + delete', () => {
     expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledTimes(2);
   });
 
+  it('"Change the time" reopens the picker and replaces the reminder in one flow (UAT-05-02)', async () => {
+    (Notifications.scheduleNotificationAsync as jest.Mock)
+      .mockResolvedValueOnce('first-id')
+      .mockResolvedValueOnce('second-id');
+    await renderRouter(routeContext, { initialUrl: '/starter' });
+
+    await fireEvent.press(screen.getByText(en.starter.notify.offer));
+    await fireEvent.press(screen.getByText(en.starter.notify.confirm));
+    expect(intentionsRepo.list()[0].notificationId).toBe('first-id');
+
+    // One tap to change: no remove-then-re-add dance required.
+    await fireEvent.press(await screen.findByText(en.starter.notify.changeTime));
+    await fireEvent.press(screen.getByText(en.starter.notify.slotEvening));
+    await fireEvent.press(screen.getByText(en.starter.notify.confirm));
+
+    // The old OS notification was cancelled (replace-don't-orphan), the new
+    // handle is stored, exactly two schedules total.
+    expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith('first-id');
+    expect(intentionsRepo.list()[0].notificationId).toBe('second-id');
+    expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledTimes(2);
+  });
+
   it('a denied permission is a quiet unavailability, never an error, and stores nothing', async () => {
     (Notifications.requestPermissionsAsync as jest.Mock).mockResolvedValueOnce({
       granted: false,

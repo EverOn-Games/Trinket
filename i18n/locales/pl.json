@@ -161,6 +161,7 @@
       "confirm": "Przypomnij mi wtedy",
       "notNow": "Nie teraz",
       "scheduledAt": "Przypomnienie około {{when}}",
+      "changeTime": "Zmień porę",
       "remove": "Usuń przypomnienie",
       "unavailable": "Przypomnienia są teraz niedostępne — Twój starter i tak jest zapisany.",
       "slotMorning": "Rano · 9:00",
