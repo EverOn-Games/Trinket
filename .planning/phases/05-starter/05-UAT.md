@@ -8,17 +8,17 @@ updated: 2026-07-05T00:00:00Z
 
 ## Current Test
 
-number: 1
-name: Create an intention (two-step builder)
+number: 2
+name: Schedule a reminder — contextual permission + own-words content
 expected: |
-  From Home, open Starter. Step 1: cue chips (time/place/event groups) are shown; tapping one prefills an editable text field (you can also type your own). Step 2: name a tiny first action. Save → a card appears reading "When [your cue], then [your action]". Double-tapping Save creates only ONE card.
+  Bell on card → day + time-slot chips; OS permission dialog appears only now; fired notification uses your own cue/action words.
 awaiting: user response
 
 ## Tests
 
 ### 1. Create an intention (two-step builder)
 expected: Cue chips prefill an editable field; step 2 takes a tiny action; Save produces exactly one "When X, then Y" card (double-tap safe).
-result: [pending]
+result: pass
 
 ### 2. Schedule a reminder — contextual permission + own-words content
 expected: Tap the bell on an intention card → day (today/tomorrow) + time-slot chips (9/12/18/21). The OS notification-permission dialog appears only NOW (never earlier, never during onboarding). When the reminder fires, the notification title is YOUR cue text and the body is YOUR action text — no app-authored exhortation.
