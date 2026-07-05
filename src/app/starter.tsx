@@ -24,6 +24,7 @@ import {
   type ReminderDay,
 } from '@/features/starter/intentionNotifications';
 import { useTheme } from '../../theme';
+import { track } from '../analytics/analytics';
 import { intentionsRepo } from '../../data/repositories/intentions';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
 import type { Intention } from '../../data/types';
@@ -127,6 +128,7 @@ function IntentionBuilder({ onSaved }: { onSaved: () => void }) {
   const handleSave = () => {
     if (!actionReady) return;
     intentionsRepo.create({ cueText: cueText.trim(), actionText: actionText.trim() });
+    track('starter_created', {});
     onSaved();
   };
 
@@ -309,6 +311,7 @@ function IntentionCard({ intention, onChanged }: { intention: Intention; onChang
       fireAt
     );
     intentionsRepo.update(intention.id, { notifyAt: fireAt, notificationId });
+    track('reminder_scheduled', { dayChosen: reminderDay });
     setRowMode('idle');
     onChanged();
   };

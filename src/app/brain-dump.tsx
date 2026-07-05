@@ -64,6 +64,7 @@ import { Screen } from '@/components/Screen';
 import { Mascot } from '@/components/Mascot/Mascot';
 import { parseDumpText } from '@/features/brain-dump/parseDumpText';
 import { classify } from '@/features/brain-dump/classify';
+import { track } from '../analytics/analytics';
 import { useVoiceCapture } from '@/features/brain-dump/useVoiceCapture';
 import { useTheme } from '../../theme';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
@@ -148,6 +149,8 @@ export default function BrainDumpScreen() {
     clearBrainDumpDraft();
     setDraftText('');
     setViewPhase('list');
+    // ANLY-01: count only — never the items themselves.
+    track('brain_dump_saved', { itemCount: lines.length });
   };
 
   // D-12: zero items always routes to capture, whether that's the very
@@ -427,6 +430,7 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
   const handlePromote = () => {
     if (isPromotingRef.current) return;
     isPromotingRef.current = true;
+    track('item_promoted', {});
     router.push({ pathname: '/co-pilot', params: { dumpItemId: item.id } });
     promoteResetTimeoutRef.current = setTimeout(() => {
       isPromotingRef.current = false;

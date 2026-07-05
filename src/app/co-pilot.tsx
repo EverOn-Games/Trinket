@@ -26,6 +26,7 @@ import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
 import { useElapsedSession } from '@/features/co-pilot/useElapsedSession';
+import { track } from '../analytics/analytics';
 import type { ActiveSessionPointer, DumpItem, Session } from '../../data/types';
 import { STALE_THRESHOLD_MS } from './_layout';
 
@@ -123,6 +124,8 @@ export default function CoPilotScreen() {
     activeSessionRepo.start(session.id, session.startedAt, session.taskLabel);
     setActiveSession({ sessionId: session.id, startedAt: session.startedAt, taskLabel: session.taskLabel });
     setFlowPhase('active');
+    // ANLY-02 activation funnel front edge — source token only, never the task.
+    track('session_started', { source: session.source });
   };
 
   const startFromOneLiner = (text: string) => {
@@ -574,6 +577,15 @@ function EndingPhase({ sessionId }: { sessionId: string }) {
   const finishEnding = () => {
     if (isFinishingRef.current) return;
     isFinishingRef.current = true;
+    // ANLY-02: the activation event. Duration derived from the persisted
+    // timestamps; moodGiven is a boolean — the mood value itself stays local.
+    const record = sessionsRepo.get(sessionId);
+    if (record?.endedAt !== undefined) {
+      track('session_completed', {
+        durationMs: Math.max(0, record.endedAt - record.startedAt),
+        moodGiven: record.mood !== undefined,
+      });
+    }
     router.replace('/'); // never .push — back from Home must not return here
   };
 

@@ -24,6 +24,7 @@ import { classify } from '@/features/brain-dump/classify';
 import { useTheme } from '../../theme';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
+import { track } from '../analytics/analytics';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
@@ -34,9 +35,13 @@ export default function OnboardingScreen() {
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [firstTaskText, setFirstTaskText] = useState('');
+  const [firstTaskCreated, setFirstTaskCreated] = useState(false);
 
-  const finish = () => {
+  const finish = (skipped: boolean) => {
     setOnboardingComplete();
+    // Structural funnel datum only (ANLY-02): which exit + whether a first
+    // task exists — never the task itself.
+    track('onboarding_completed', { skipped, firstTaskCreated });
     router.replace('/');
   };
 
@@ -47,6 +52,7 @@ export default function OnboardingScreen() {
     const trimmed = firstTaskText.trim();
     if (trimmed.length > 0) {
       dumpItemsRepo.create({ text: trimmed, category: classify(trimmed, locale) });
+      setFirstTaskCreated(true);
     }
     setStep(3);
   };
@@ -89,7 +95,7 @@ export default function OnboardingScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: theme.spacing.lg }}>
         {/* ONBD-01: skippable from any screen — always visible, always quiet. */}
-        <Pressable accessibilityRole="button" onPress={finish} style={styles.skip}>
+        <Pressable accessibilityRole="button" onPress={() => finish(true)} style={styles.skip}>
           <Text style={quietStyle}>{t('onboarding.skip')}</Text>
         </Pressable>
 
@@ -139,7 +145,7 @@ export default function OnboardingScreen() {
             />
             <Text style={titleStyle}>{t('onboarding.step3.heading')}</Text>
             <Text style={bodyStyle}>{t('onboarding.step3.body')}</Text>
-            <Pressable accessibilityRole="button" onPress={finish} style={primaryStyle}>
+            <Pressable accessibilityRole="button" onPress={() => finish(false)} style={primaryStyle}>
               <Text style={primaryLabelStyle}>{t('onboarding.step3.done')}</Text>
             </Pressable>
           </View>

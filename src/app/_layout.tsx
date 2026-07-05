@@ -33,6 +33,21 @@ import { useSettingsStore } from '../../data/stores/useSettingsStore';
 import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { reconcileActiveSession } from '../features/co-pilot/reconcileActiveSession';
+import { track } from '../analytics/analytics';
+
+// ANLY-02: one app_opened per cold launch (module-level flag, same in-memory
+// cadence pattern as Home's greeting flag — never persisted). With no
+// transport wired (no PostHog key yet) track() is a guaranteed no-op, so
+// this instrumentation ships inert and lights up only when the key lands.
+let hasTrackedColdLaunch = false;
+function useTrackAppOpened(): void {
+  useEffect(() => {
+    if (!hasTrackedColdLaunch) {
+      hasTrackedColdLaunch = true;
+      track('app_opened', { coldLaunch: true });
+    }
+  }, []);
+}
 
 function usePersistResolvedLocale(): void {
   useEffect(() => {
@@ -128,6 +143,7 @@ export default function RootLayout() {
   usePersistResolvedLocale();
   usePersistLocaleOnChange();
   useReconcileActiveSession();
+  useTrackAppOpened();
 
   return (
     <SafeAreaProvider>
