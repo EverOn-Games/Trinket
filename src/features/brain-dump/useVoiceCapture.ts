@@ -29,7 +29,7 @@
  * Polish recognition and manufacturer segment timing are NOT verified here
  * (04-VALIDATION.md Manual-Only, D-02 device spike).
  */
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
@@ -77,13 +77,16 @@ export function useVoiceCapture(
   // Ref-forwarded so the event listeners registered below (which close over
   // these on mount) always read the latest draft/onChange/locale without
   // needing to re-register on every host re-render (mirrors
-  // useElapsedSession.ts's onHeartbeatRef idiom).
+  // useElapsedSession.ts's onHeartbeatRef idiom). Written post-render in
+  // their own effect, never during render itself (react-hooks/refs).
   const draftRef = useRef(draftText);
-  draftRef.current = draftText;
   const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
   const localeRef = useRef(locale);
-  localeRef.current = locale;
+  useEffect(() => {
+    draftRef.current = draftText;
+    onChangeRef.current = onChange;
+    localeRef.current = locale;
+  });
 
   useSpeechRecognitionEvent('result', (event) => {
     if (!event.isFinal) return; // D-03: only final segments become a new line

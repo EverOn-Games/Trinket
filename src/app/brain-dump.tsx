@@ -23,6 +23,20 @@
  * empty list — there is only one capture implementation, reused for both
  * the empty-state and the explicit "add more" entry point.
  *
+ * Voice-augment (D-01/D-02/D-03, DUMP-02, 04-06): `useVoiceCapture` drives a
+ * mic button that toggles native STT via `onChangeText` — the exact same
+ * setter the TextInput itself uses, so final segments land as new lines in
+ * the one text field with no separate transcript surface (UI-SPEC Flag 2).
+ * When STT is unavailable, permission is denied, or a runtime error fires,
+ * `useVoiceCapture` folds all three into a single `available === false`
+ * signal (UI-SPEC Flag 9) and this file swaps the mic for one shared
+ * `voiceUnavailable` caption — the text field is never affected either way.
+ * The mascot maps `idle` (before/after recording) <-> `presence` (while
+ * recording), `subtle` prominence (UI-SPEC Flag 1); it does not appear on
+ * the list view. Real on-device Polish recognition + continuous-mode
+ * segment timing are the D-02 device spike (04-VALIDATION.md Manual-Only),
+ * not verified by this file's Jest coverage.
+ *
  * DUMP-05 (≤2 taps from anywhere): unaffected by this rewrite — Home's own
  * `<Link href="/brain-dump">` (src/app/index.tsx) is untouched.
  *
@@ -41,14 +55,16 @@
  * bumps a parent-level counter to force a re-render (mirrors index.tsx's
  * dismissedActiveSession re-render idiom).
  */
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { Screen } from '@/components/Screen';
+import { Mascot } from '@/components/Mascot/Mascot';
 import { parseDumpText } from '@/features/brain-dump/parseDumpText';
 import { classify } from '@/features/brain-dump/classify';
+import { useVoiceCapture } from '@/features/brain-dump/useVoiceCapture';
 import { useTheme } from '../../theme';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
 import { readBrainDumpDraft, writeBrainDumpDraft, clearBrainDumpDraft } from '../../data/draft';
@@ -62,6 +78,16 @@ function groupByCategory(items: DumpItem[]): { title: DumpItemCategory; data: Du
     title: category,
     data: items.filter((item) => item.category === category),
   })).filter((section) => section.data.length > 0);
+}
+
+// Mirrors co-pilot.tsx's own formatDuration idiom (mm:ss, tabular-nums in
+// the style layer) — a private, unexported helper here since the recording
+// pill's duration never exceeds an hour in practice.
+function formatRecordingDuration(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 export default function BrainDumpScreen() {
@@ -148,8 +174,47 @@ function CapturePhase({
   onChangeText: (next: string) => void;
   onSave: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const inputRef = useRef<TextInput>(null);
+
+  const locale: Locale = i18n.language === 'pl' ? 'pl' : 'en';
+  // D-01/D-03: onChangeText is the exact same setter the TextInput itself
+  // uses — final segments land in the one text field, no separate
+  // transcript surface (UI-SPEC Flag 2).
+  const voice = useVoiceCapture(draftText, onChangeText, locale);
+
+  // Recording-duration display (m:ss, tabular-nums). `Date.now()` is impure
+  // (react-hooks/purity forbids calling it during render, even guarded), so
+  // `recordingStartedAt` is only ever set from event handlers (handleMicPress
+  // below) — never derived in the render body. The one real subscription —
+  // the 1s interval ticking `nowTick` — lives in its own effect, calling
+  // setState only inside the setInterval callback (mirrors
+  // useElapsedSession.ts's tick-while-active idiom), never directly in the
+  // effect body itself.
+  const [recordingStartedAt, setRecordingStartedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    if (!voice.recording) return undefined;
+    const intervalId = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(intervalId);
+  }, [voice.recording]);
+  const recordingDuration = formatRecordingDuration(
+    recordingStartedAt !== null ? Math.max(0, nowTick - recordingStartedAt) : 0
+  );
+
+  const handleMicPress = () => {
+    if (voice.recording) {
+      voice.stop();
+      setRecordingStartedAt(null);
+      return;
+    }
+    const startedAt = Date.now();
+    setRecordingStartedAt(startedAt);
+    setNowTick(startedAt);
+    void voice.start();
+  };
+  const focusTextField = () => inputRef.current?.focus();
 
   const kickerStyle = StyleSheet.flatten([
     styles.kicker,
@@ -173,6 +238,38 @@ function CapturePhase({
       fontSize: theme.typography.scale.body,
     },
   ]);
+  const recordingPillStyle = StyleSheet.flatten([
+    styles.recordingPill,
+    { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.pill, gap: theme.spacing.xs },
+  ]);
+  const recordingPillLabelStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.caption,
+    fontWeight: '600' as const,
+    fontVariant: ['tabular-nums'] as const,
+  };
+  // UI-SPEC Flag 5: a soft mascotGlow ring in addition to the accent fill
+  // while actively recording — "the mascot is listening too", not a new
+  // semantic color.
+  const micButtonStyle = StyleSheet.flatten([
+    styles.tapTarget,
+    styles.micButton,
+    {
+      backgroundColor: theme.colors.accent,
+      borderRadius: theme.radii.pill,
+      borderWidth: voice.recording ? 3 : 0,
+      borderColor: theme.colors.mascotGlow,
+    },
+  ]);
+  const micGlyphStyle = { fontSize: theme.typography.scale.title };
+  const textFallbackStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.body,
+  };
+  const voiceUnavailableStyle = {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.scale.caption,
+  };
   const saveButtonStyle = StyleSheet.flatten([
     styles.tapTarget,
     styles.saveButton,
@@ -190,12 +287,25 @@ function CapturePhase({
     <View style={containerStyle}>
       <Text style={kickerStyle}>{t('brainDump.title')}</Text>
 
+      {/* UI-SPEC Flag 1: subtle prominence, idle<->presence only (recording
+          maps to presence, everything else to idle) — no 6th MascotState. */}
+      <Mascot
+        state={voice.recording ? 'presence' : 'idle'}
+        prominence="subtle"
+        accessibilityLabel={t(`mascot.accessibility.${voice.recording ? 'presence' : 'idle'}`)}
+      />
+
       <View style={{ gap: theme.spacing.sm }}>
-        <Text style={headingStyle}>{t('brainDump.capture.prompt.idle')}</Text>
-        <Text style={subcopyStyle}>{t('brainDump.capture.prompt.idleSub')}</Text>
+        <Text style={headingStyle}>
+          {t(voice.recording ? 'brainDump.capture.prompt.listening' : 'brainDump.capture.prompt.idle')}
+        </Text>
+        <Text style={subcopyStyle}>
+          {t(voice.recording ? 'brainDump.capture.prompt.listeningSub' : 'brainDump.capture.prompt.idleSub')}
+        </Text>
       </View>
 
       <TextInput
+        ref={inputRef}
         testID="brain-dump-input"
         value={draftText}
         onChangeText={onChangeText}
@@ -205,6 +315,35 @@ function CapturePhase({
         textAlignVertical="top"
         style={inputStyle}
       />
+
+      {voice.recording && (
+        <View style={recordingPillStyle} testID="brain-dump-recording-pill">
+          <Text style={recordingPillLabelStyle}>
+            {t('brainDump.capture.recordingLabel', { duration: recordingDuration })}
+          </Text>
+        </View>
+      )}
+
+      {voice.available ? (
+        <View style={{ gap: theme.spacing.sm, alignItems: 'center' }}>
+          <Pressable
+            testID="brain-dump-mic"
+            accessibilityRole="button"
+            accessibilityLabel={t(voice.micLabelKey)}
+            onPress={handleMicPress}
+            style={micButtonStyle}
+          >
+            <Text style={micGlyphStyle}>🎤</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={focusTextField}>
+            <Text style={textFallbackStyle}>{t('brainDump.capture.textFallback')}</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Text testID="brain-dump-voice-unavailable" style={voiceUnavailableStyle}>
+          {t('brainDump.capture.voiceUnavailable')}
+        </Text>
+      )}
 
       <Pressable
         testID="brain-dump-save"
@@ -533,6 +672,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 32,
     alignSelf: 'flex-start',
+  },
+  micButton: {
+    width: 64,
+    height: 64,
+    alignSelf: 'center',
+  },
+  recordingPill: {
+    alignSelf: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
   },
   captureContainer: {
     flex: 1,
