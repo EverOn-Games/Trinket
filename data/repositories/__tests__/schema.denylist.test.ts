@@ -81,6 +81,7 @@ describe('schema denylist guard', () => {
       setLocale: _setLocale,
       setNotificationsOptIn: _setNotificationsOptIn,
       setMascotProminence: _setMascotProminence,
+      setOnboardingComplete: _setOnboardingComplete,
       ...settingsData
     } = useSettingsStore.getState();
 

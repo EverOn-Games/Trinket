@@ -35,9 +35,15 @@ export interface SettingsStoreState {
   // The Settings screen to change this doesn't land until Phase 8; this field gives
   // the Mascot module a real value to read via host-provided prop from day one.
   mascotProminence: MascotProminence;
+  // First-run gate (ONBD-01): true once onboarding has been completed OR
+  // skipped — both are equally valid exits (skippable from any screen, no
+  // pressure to finish). A one-way welcome flag, not a streak/engagement
+  // field; it never resets on absence.
+  onboardingComplete: boolean;
   setLocale: (locale: Locale) => void;
   setNotificationsOptIn: (notificationsOptIn: boolean) => void;
   setMascotProminence: (mascotProminence: MascotProminence) => void;
+  setOnboardingComplete: () => void;
 }
 
 export const useSettingsStore = create<SettingsStoreState>()(
@@ -50,11 +56,13 @@ export const useSettingsStore = create<SettingsStoreState>()(
       notificationsOptIn: false,
       subscriptionCache: null,
       mascotProminence: 'prominent',
+      onboardingComplete: false,
       // Setting a locale always marks resolution complete — this is the only
       // place localeResolved flips to true (WR-01).
       setLocale: (locale) => set({ locale, localeResolved: true }),
       setNotificationsOptIn: (notificationsOptIn) => set({ notificationsOptIn }),
       setMascotProminence: (mascotProminence) => set({ mascotProminence }),
+      setOnboardingComplete: () => set({ onboardingComplete: true }),
     }),
     {
       name: 'settings',
