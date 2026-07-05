@@ -77,6 +77,7 @@
         "active": "Listening — tap to stop"
       },
       "voiceUnavailable": "Voice isn't available right now — typing works great too.",
+      "voicePermissionDenied": "Voice is off — Trinket doesn't have microphone access. If you'd like to dump by voice, it can be turned on in your phone's settings. Typing works great too.",
       "textFallback": "or type instead"
     },
     "list": {

@@ -26,6 +26,7 @@ import {
 import { useTheme } from '../../theme';
 import { track } from '../analytics/analytics';
 import { intentionsRepo } from '../../data/repositories/intentions';
+import { useRepoVersion } from '../../data/repoBus';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
 import type { Intention } from '../../data/types';
 
@@ -43,20 +44,20 @@ export default function StarterScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  // Repo read in the render body (brain-dump/history precedent); `version`
-  // bumps re-render after each mutation since MMKV writes are not reactive.
-  const [version, setVersion] = useState(0);
-  const bump = () => setVersion((v) => v + 1);
+  // Repo read in the render body (brain-dump/history precedent); the repoBus
+  // subscription re-renders this screen on ANY intention mutation — including
+  // ones from other screens (the stale-screen class found in device UAT).
+  // Also used in the card key so a mutation remounts cards (resets rowMode).
+  const version = useRepoVersion('intention');
   const intentions = [...intentionsRepo.list()].reverse();
 
   // First visit with nothing saved lands straight in the builder (the empty
   // state IS the builder — mirrors brain-dump's empty→capture routing, D-12
-  // precedent). `version` is deliberately unused here beyond re-render fuel.
+  // precedent).
   const [building, setBuilding] = useState(() => intentionsRepo.list().length === 0);
 
   const handleSaved = () => {
     setBuilding(false);
-    bump();
   };
 
   const titleStyle = StyleSheet.flatten([
@@ -102,7 +103,7 @@ export default function StarterScreen() {
               </Text>
             ) : (
               intentions.map((intention) => (
-                <IntentionCard key={`${intention.id}:${version}`} intention={intention} onChanged={bump} />
+                <IntentionCard key={`${intention.id}:${version}`} intention={intention} />
               ))
             )}
           </>
@@ -282,7 +283,9 @@ function IntentionBuilder({ onSaved }: { onSaved: () => void }) {
 // A saved intention card: the user's own "when X, then Y" plus the optional
 // single reminder. rowMode keeps delete-confirm / reminder-picker mutually
 // exclusive (brain-dump DumpItemRow precedent).
-function IntentionCard({ intention, onChanged }: { intention: Intention; onChanged: () => void }) {
+// Repo mutations below notify the repoBus, which re-renders/remounts the
+// parent's card list — no manual onChanged callback needed anymore.
+function IntentionCard({ intention }: { intention: Intention }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const setNotificationsOptIn = useSettingsStore((s) => s.setNotificationsOptIn);
@@ -302,7 +305,6 @@ function IntentionCard({ intention, onChanged }: { intention: Intention; onChang
       await cancelIntentionNotification(intention.notificationId);
     }
     intentionsRepo.remove(intention.id);
-    onChanged();
   };
 
   const handleScheduleReminder = async () => {
@@ -332,7 +334,6 @@ function IntentionCard({ intention, onChanged }: { intention: Intention; onChang
       intentionsRepo.update(intention.id, { notifyAt: fireAt, notificationId });
       track('reminder_scheduled', { dayChosen: reminderDay });
       setRowMode('idle');
-      onChanged();
     } catch {
       // A native scheduling failure folds into the same quiet unavailable
       // state as a denial — the picker never sticks open, nothing is stored.
@@ -348,7 +349,6 @@ function IntentionCard({ intention, onChanged }: { intention: Intention; onChang
       await cancelIntentionNotification(intention.notificationId);
     }
     intentionsRepo.update(intention.id, { notifyAt: undefined, notificationId: undefined });
-    onChanged();
   };
 
   const cardStyle = StyleSheet.flatten([

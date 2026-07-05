@@ -79,6 +79,7 @@
         "active": "Słucham — stuknij, aby zatrzymać"
       },
       "voiceUnavailable": "Głos teraz niedostępny — pisanie też świetnie działa.",
+      "voicePermissionDenied": "Głos jest wyłączony — Trinket nie ma dostępu do mikrofonu. Jeśli chcesz wrzucać głosem, dostęp można włączyć w ustawieniach telefonu. Pisanie też świetnie działa.",
       "textFallback": "albo napisz zamiast tego"
     },
     "list": {

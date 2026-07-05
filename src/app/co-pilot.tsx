@@ -25,6 +25,7 @@ import { useTheme } from '../../theme';
 import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
+import { useRepoVersion } from '../../data/repoBus';
 import { useElapsedSession } from '@/features/co-pilot/useElapsedSession';
 import { canStartSession, sessionsStartedThisWeek } from '@/features/subscription/entitlements';
 import { track } from '../analytics/analytics';
@@ -267,6 +268,9 @@ function SetupPhase({
   // the field has focus", not "only while focused" (Claude's discretion).
   const [hasFocusedOneLiner, setHasFocusedOneLiner] = useState(false);
 
+  // repoBus keeps a mounted setup screen's dump-item offers live when items
+  // change elsewhere (stale-screen class, device UAT 2026-07-05).
+  useRepoVersion('dumpItem');
   const dumpItems = dumpItemsRepo.list();
 
   const titleStyle = StyleSheet.flatten([

@@ -10,7 +10,7 @@
  * mirroring useElapsedSession.test.ts's established idiom for this
  * @testing-library/react-native version.
  */
-import { act, renderHook } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { ExpoSpeechRecognitionModule } from 'expo-speech-recognition';
 
 // The __emit/__reset test helpers exist only on the Jest fake (not in the
@@ -131,6 +131,34 @@ describe('useVoiceCapture', () => {
     expect(ExpoSpeechRecognitionModule.requestPermissionsAsync).toHaveBeenCalledTimes(1);
     expect(ExpoSpeechRecognitionModule.start).not.toHaveBeenCalled();
     expect(result.current.recording).toBe(false);
+    // Device UAT 2026-07-05: a denial is reported as permissionDenied (its
+    // own caption in the capture view), not the generic unavailable state.
+    expect(result.current.permissionDenied).toBe(true);
+    expect(result.current.available).toBe(false);
+  });
+
+  it('pre-hides the mic on mount when permission is hard-denied (denied + cannot ask again)', async () => {
+    (ExpoSpeechRecognitionModule.getPermissionsAsync as jest.Mock).mockResolvedValue({
+      granted: false,
+      canAskAgain: false,
+    });
+    const { result } = await renderHook(() => useVoiceCapture('', jest.fn(), 'en'));
+
+    await waitFor(() => expect(result.current.permissionDenied).toBe(true));
+    expect(result.current.available).toBe(false);
+  });
+
+  it('still offers the mic on mount when permission was never granted but CAN be asked (contextual ask on tap)', async () => {
+    (ExpoSpeechRecognitionModule.getPermissionsAsync as jest.Mock).mockResolvedValue({
+      granted: false,
+      canAskAgain: true,
+    });
+    const { result } = await renderHook(() => useVoiceCapture('', jest.fn(), 'en'));
+
+    // Give the mount probe a tick to resolve; the mic must remain offered.
+    await act(async () => {});
+    expect(result.current.permissionDenied).toBe(false);
+    expect(result.current.available).toBe(true);
   });
 
   it('hides the mic on a persistent capability error (language-not-supported), without throwing', async () => {

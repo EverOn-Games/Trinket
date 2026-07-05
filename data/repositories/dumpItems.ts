@@ -4,6 +4,7 @@
  * data/repositories/sessions.ts for the annotated reference implementation).
  */
 import { contentStorage } from '../mmkv';
+import { notifyRepoChanged } from '../repoBus';
 import { newId } from '../../lib/id';
 import type { DumpItem } from '../types';
 
@@ -41,6 +42,7 @@ export const dumpItemsRepo = {
     const item: DumpItem = { ...input, id: newId(), createdAt: Date.now() };
     contentStorage.set(recordKey(item.id), JSON.stringify(item));
     writeIndex([...readIndex(), item.id]);
+    notifyRepoChanged('dumpItem');
     return item;
   },
 
@@ -59,11 +61,13 @@ export const dumpItemsRepo = {
     if (!existing) return undefined;
     const updated: DumpItem = { ...existing, ...patch };
     contentStorage.set(recordKey(id), JSON.stringify(updated));
+    notifyRepoChanged('dumpItem');
     return updated;
   },
 
   remove(id: string): void {
     contentStorage.remove(recordKey(id));
     writeIndex(readIndex().filter((existingId) => existingId !== id));
+    notifyRepoChanged('dumpItem');
   },
 };

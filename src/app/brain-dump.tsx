@@ -68,6 +68,7 @@ import { track } from '../analytics/analytics';
 import { useVoiceCapture } from '@/features/brain-dump/useVoiceCapture';
 import { useTheme } from '../../theme';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
+import { useRepoVersion } from '../../data/repoBus';
 import { readBrainDumpDraft, writeBrainDumpDraft, clearBrainDumpDraft } from '../../data/draft';
 import type { DumpItem, DumpItemCategory, Locale } from '../../data/types';
 
@@ -95,7 +96,10 @@ export default function BrainDumpScreen() {
   const { i18n } = useTranslation();
 
   // D-12: read directly in render, no local mirror of repo data — matches
-  // co-pilot.tsx's SetupPhase `dumpItemsRepo.list()` precedent.
+  // co-pilot.tsx's SetupPhase `dumpItemsRepo.list()` precedent. repoBus keeps
+  // a mounted list live when items are created elsewhere (e.g. onboarding's
+  // first task, a promote from co-pilot) — stale-screen class, device UAT.
+  useRepoVersion('dumpItem');
   const items = dumpItemsRepo.list();
 
   const [viewPhase, setViewPhase] = useState<'capture' | 'list'>(() =>
@@ -346,8 +350,15 @@ function CapturePhase({
           </Pressable>
         </View>
       ) : (
+        // Permission denial gets its own caption (founder request, device UAT
+        // 2026-07-05): says why voice is off and where it can be re-enabled —
+        // offer-grammar, never an instruction or an error state.
         <Text testID="brain-dump-voice-unavailable" style={voiceUnavailableStyle}>
-          {t('brainDump.capture.voiceUnavailable')}
+          {t(
+            voice.permissionDenied
+              ? 'brainDump.capture.voicePermissionDenied'
+              : 'brainDump.capture.voiceUnavailable'
+          )}
         </Text>
       )}
 

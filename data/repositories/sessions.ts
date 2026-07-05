@@ -7,6 +7,7 @@
  * data/types.ts.
  */
 import { contentStorage } from '../mmkv';
+import { notifyRepoChanged } from '../repoBus';
 import { newId } from '../../lib/id';
 import type { Session } from '../types';
 
@@ -46,6 +47,7 @@ export const sessionsRepo = {
     const session: Session = { ...input, id: newId(), startedAt: Date.now() };
     contentStorage.set(recordKey(session.id), JSON.stringify(session));
     writeIndex([...readIndex(), session.id]);
+    notifyRepoChanged('session');
     return session;
   },
 
@@ -64,11 +66,13 @@ export const sessionsRepo = {
     if (!existing) return undefined;
     const updated: Session = { ...existing, ...patch };
     contentStorage.set(recordKey(id), JSON.stringify(updated));
+    notifyRepoChanged('session');
     return updated;
   },
 
   remove(id: string): void {
     contentStorage.remove(recordKey(id));
     writeIndex(readIndex().filter((existingId) => existingId !== id));
+    notifyRepoChanged('session');
   },
 };

@@ -40,6 +40,11 @@ import { appendFinalSegmentToDraft } from './appendFinalSegmentToDraft';
 
 export type UseVoiceCaptureResult = {
   available: boolean;
+  /** True when voice is off specifically because mic permission is denied —
+   * the capture view shows a caption that says so (offer-grammar: informs
+   * where it can be enabled, never instructs). Founder-requested in device
+   * UAT 2026-07-05, refining Flag 9's single generic fallback. */
+  permissionDenied: boolean;
   recording: boolean;
   micLabelKey: string;
   start: () => Promise<void>;
@@ -84,10 +89,33 @@ export function useVoiceCapture(
   locale: Locale
 ): UseVoiceCaptureResult {
   const [recording, setRecording] = useState(false);
-  // T-04-06-PERM / Flag 9: a permission denial and a runtime 'error' event
-  // both collapse into this single flag, combined below with the capability
-  // probe into one `available` signal — never three distinct fallback UIs.
+  // T-04-06-PERM / Flag 9 (revised in device UAT 2026-07-05): capability
+  // failures collapse into `runtimeUnavailable`; a mic-permission denial gets
+  // its own flag so the capture view can say WHY voice is off instead of the
+  // generic caption. Both fold into the single `available` boolean.
   const [runtimeUnavailable, setRuntimeUnavailable] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
+
+  // Mount-time permission STATUS read (getPermissionsAsync never shows a
+  // dialog — the contextual-ask rule is about requesting, not reading).
+  // Only a hard "denied and can't ask again" pre-hides the mic: a never-asked
+  // user must still see the mic and get the contextual ask on first tap.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const status = await ExpoSpeechRecognitionModule.getPermissionsAsync();
+        if (!cancelled && status.granted === false && status.canAskAgain === false) {
+          setPermissionDenied(true);
+        }
+      } catch {
+        // Status read failing is not evidence of denial — leave the mic offered.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Ref-forwarded so the event listeners registered below (which close over
   // these on mount) always read the latest draft/onChange/locale without
@@ -150,7 +178,8 @@ export function useVoiceCapture(
 
   // Render-time availability is the cheap sync capability check only; the
   // async locale probe happens inside start() where awaiting is possible.
-  const available = ExpoSpeechRecognitionModule.isRecognitionAvailable() && !runtimeUnavailable;
+  const available =
+    ExpoSpeechRecognitionModule.isRecognitionAvailable() && !runtimeUnavailable && !permissionDenied;
 
   const start = async (): Promise<void> => {
     if (!available || startingRef.current || recording) return;
@@ -161,7 +190,7 @@ export function useVoiceCapture(
       // every) mic tap, never on mount/upfront.
       const { granted } = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
       if (!granted) {
-        setRuntimeUnavailable(true);
+        setPermissionDenied(true);
         return;
       }
 
@@ -193,6 +222,7 @@ export function useVoiceCapture(
 
   return {
     available,
+    permissionDenied,
     recording,
     micLabelKey: recording ? 'brainDump.capture.micLabel.active' : 'brainDump.capture.micLabel.idle',
     start,

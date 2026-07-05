@@ -8,6 +8,7 @@
  * denylist guard (data/repositories/__tests__/schema.denylist.test.ts).
  */
 import { contentStorage } from '../mmkv';
+import { notifyRepoChanged } from '../repoBus';
 import type { ActiveSessionPointer } from '../types';
 
 const KEY = 'activeSession:pointer';
@@ -29,8 +30,13 @@ export const activeSessionRepo = {
   start(sessionId: string, startedAt: number, taskLabel?: string): void {
     const pointer: ActiveSessionPointer = { sessionId, startedAt, lastAliveAt: startedAt, taskLabel };
     contentStorage.set(KEY, JSON.stringify(pointer));
+    notifyRepoChanged('activeSession');
   },
 
+  // Deliberately NOT notified on heartbeat: lastAliveAt ticks every few
+  // seconds during a live session, and re-rendering every subscriber on each
+  // tick would be pure waste — subscribers care about the pointer appearing
+  // or disappearing, not its liveness timestamp.
   heartbeat(lastAliveAt: number): void {
     const existing = readPointer();
     if (!existing) return;
@@ -43,5 +49,6 @@ export const activeSessionRepo = {
 
   clear(): void {
     contentStorage.remove(KEY);
+    notifyRepoChanged('activeSession');
   },
 };

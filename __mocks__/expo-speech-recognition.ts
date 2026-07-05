@@ -22,8 +22,8 @@ type ErrorListener = (event: ErrorEvent) => void;
 const listeners: { result: ResultListener[]; error: ErrorListener[] } = { result: [], error: [] };
 
 export const ExpoSpeechRecognitionModule = {
-  requestPermissionsAsync: jest.fn(async () => ({ granted: true })),
-  getPermissionsAsync: jest.fn(async () => ({ granted: true })),
+  requestPermissionsAsync: jest.fn(async () => ({ granted: true, canAskAgain: true })),
+  getPermissionsAsync: jest.fn(async () => ({ granted: true, canAskAgain: true })),
   isRecognitionAvailable: jest.fn(() => true),
   supportsOnDeviceRecognition: jest.fn(() => true),
   // Async + options-taking, matching the REAL library signature

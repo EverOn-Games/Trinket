@@ -24,18 +24,18 @@ result: pass — founder confirmed on device 2026-07-05 ("works awesome"), same 
 
 ### 3. Mic-denied / STT-unavailable graceful fallback feel
 expected: Deny the mic permission when first tapping the mic (permission is asked contextually, on first tap, never upfront). The mic should hide/disable and text capture remain fully usable with no error state or crash. Same when STT is unavailable on the device.
-result: [pending]
+result: pass with issues (2026-07-05) — no crash, text capture unaffected; but (a) on re-entering the screen the mic reappeared and vanished only on tap (stale-state tease), (b) founder requested an explicit "mic permission is off" caption instead of the generic one. Both addressed same session: mount-time permission STATUS probe pre-hides the mic when hard-denied, and a dedicated offer-grammar voicePermissionDenied caption (EN+PL) says why voice is off and where it can be re-enabled. Device re-test pending.
 
 ### 4. Hot-mic fix sanity check (CR-01 — verify on device)
 expected: Start voice recording, then tap "Save these" (or navigate away) MID-recording. The microphone must actually STOP — the OS mic indicator should turn off promptly and the mic must not keep listening in the background. (This validates the CR-01 unmount-`stop()` fix on real hardware; code + test confirm the call is made, device confirms the native session actually ends.)
-result: [pending]
+result: pass — founder: mic turned off instantly on Save (2026-07-05). Side-finding: saved items didn't appear in the mounted list until app restart → UAT-04-07 (systemic, fixed).
 
 ## Summary
 
 total: 4
-passed: 2
-issues: 1
-pending: 2
+passed: 4
+issues: 3
+pending: 0
 skipped: 0
 blocked: 0
 
@@ -47,6 +47,17 @@ blocked: 0
 - Fix: only persistent capability errors ('not-allowed', 'service-not-allowed', 'language-not-supported') hide the mic; transient errors end the recording and keep the mic offered. Regression test added (suite: 29/222 green).
 - Files: src/features/brain-dump/useVoiceCapture.ts, useVoiceCapture.test.tsx.
 - Device re-test: CONFIRMED on device 2026-07-05 — stop/start cycle appends normally in one visit, no unavailable message.
+
+### UAT-04-07: Stale-screen class — mounted screens never saw repo writes from elsewhere — FIXED same session (2026-07-05, systemic)
+- Founder (multiple sightings): saved dump items / ended sessions appeared only after app restart; "lots of those UI errors that get fixed on next open of the app."
+- Root cause: the read-repo-directly-in-render idiom over MMKV is not reactive; screens kept mounted by the router never re-rendered on writes from other screens.
+- Fix: `data/repoBus.ts` — per-namespace version counters + `useSyncExternalStore`; every repo mutation (dumpItems/sessions/intentions/activeSession start+clear) notifies; subscriber screens (brain-dump, history, co-pilot setup, starter, home) re-render and re-read. Heartbeats deliberately silent. Starter's local version-bump hack replaced by the bus.
+- Tests: data/__tests__/repoBus.test.ts (6 cases) + live-History regression in screens.test.tsx. Suite: 30/231 green.
+- Device re-test: pending (save a dump → check list immediately; end a session → check quiet log immediately).
+
+### UAT-04-08: Mic-denied UX — reappearing mic tease + no explanation — FIXED same session (2026-07-05)
+- Fix: mount-time getPermissionsAsync STATUS read (no dialog — contextual-ask rule is about requesting) pre-hides the mic only when hard-denied (denied + cannot ask again); dedicated `voicePermissionDenied` caption (EN+PL), offer-grammar ("dostęp można włączyć w ustawieniach telefonu" — informs, never instructs).
+- Device re-test: pending (with mic denied in OS settings: enter Brain dump → caption says why, no mic tease; re-grant → mic returns).
 
 ### UAT-04-06: No "listening/transcribing" indication while speech is pending (minor, UX enhancement)
 - Founder: transcript appears only after a pause; between speaking and the line landing there's no signal the app is working. Candidate: quiet interim-text ghost preview (interimResults are already requested) or a subtle listening pulse on the active mic label. Defer to design pass.

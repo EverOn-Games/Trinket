@@ -121,6 +121,19 @@ describe('walking-skeleton slice', () => {
     expect(screen.getAllByText(en.history.sessionFallbackLabel)).toHaveLength(1);
     expect(screen.queryByText(en.history.emptyState)).toBeNull();
   });
+
+  it('a mounted History updates live when a session is created elsewhere (repoBus — stale-screen regression, device UAT 2026-07-05)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/history' });
+    expect(screen.getByText(en.history.emptyState)).toBeTruthy();
+
+    // Repo write from "somewhere else" — no navigation, no remount.
+    await act(async () => {
+      sessionsRepo.create({ source: 'quick' });
+    });
+
+    expect(screen.getAllByText(en.history.sessionFallbackLabel)).toHaveLength(1);
+    expect(screen.queryByText(en.history.emptyState)).toBeNull();
+  });
 });
 
 describe('Co-pilot setup + active phases (PILOT-01, PILOT-03, T-03-05)', () => {

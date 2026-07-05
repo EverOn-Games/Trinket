@@ -4,6 +4,7 @@
  * data/repositories/sessions.ts for the annotated reference implementation).
  */
 import { contentStorage } from '../mmkv';
+import { notifyRepoChanged } from '../repoBus';
 import { newId } from '../../lib/id';
 import type { Intention } from '../types';
 
@@ -41,6 +42,7 @@ export const intentionsRepo = {
     const intention: Intention = { ...input, id: newId(), createdAt: Date.now() };
     contentStorage.set(recordKey(intention.id), JSON.stringify(intention));
     writeIndex([...readIndex(), intention.id]);
+    notifyRepoChanged('intention');
     return intention;
   },
 
@@ -59,11 +61,13 @@ export const intentionsRepo = {
     if (!existing) return undefined;
     const updated: Intention = { ...existing, ...patch };
     contentStorage.set(recordKey(id), JSON.stringify(updated));
+    notifyRepoChanged('intention');
     return updated;
   },
 
   remove(id: string): void {
     contentStorage.remove(recordKey(id));
     writeIndex(readIndex().filter((existingId) => existingId !== id));
+    notifyRepoChanged('intention');
   },
 };

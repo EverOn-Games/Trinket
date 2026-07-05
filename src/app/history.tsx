@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { useTheme } from '../../theme';
 import { sessionsRepo } from '../../data/repositories/sessions';
+import { useRepoVersion } from '../../data/repoBus';
 import type { Session } from '../../data/types';
 
 // Mirrors co-pilot.tsx's ending-moment mood↔glyph mapping (UI-SPEC Flag 5,
@@ -85,7 +86,9 @@ export default function HistoryScreen() {
 
   // Quiet log, newest first — plain chronological entries only, per PILOT-07
   // ("history is a quiet log"): no scores, no completion rate, no daily
-  // grouping.
+  // grouping. repoBus subscription keeps a mounted log live when a session
+  // ends elsewhere (stale-screen class, device UAT 2026-07-05).
+  useRepoVersion('session');
   const sessions = [...sessionsRepo.list()].reverse();
 
   const titleStyle = StyleSheet.flatten([

@@ -24,6 +24,7 @@ import { reconcileActiveSession } from '@/features/co-pilot/reconcileActiveSessi
 import { useTheme } from '../../theme';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
 import { activeSessionRepo } from '../../data/repositories/activeSession';
+import { useRepoVersion } from '../../data/repoBus';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { STALE_THRESHOLD_MS } from './_layout';
 
@@ -108,6 +109,9 @@ export default function HomeScreen() {
   // triggers a Home re-render on its own. Trusting pointer-existence alone
   // would risk showing a resume card for a session this same boot is about
   // to silently close — a direct violation of D-12's "no mention anywhere".
+  // repoBus subscription: re-render when the pointer starts/clears elsewhere
+  // (heartbeats deliberately don't notify — see activeSessionRepo).
+  useRepoVersion('activeSession');
   const pointer = dismissedActiveSession ? undefined : activeSessionRepo.read();
   const showResumeCard =
     pointer !== undefined &&
