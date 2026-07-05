@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 phase: 07-subscription-freemium
 source: [07-SUMMARY.md]
 started: 2026-07-05T00:00:00Z
@@ -23,15 +23,15 @@ result: pass (copy calm; Not now returns to live setup; no session created). Fou
 
 ### 3. Paywall content honest in reference mode
 expected: Paywall shows 3 plans (weekly/monthly/annual) with your locale's pricing, annual note, a quiet caption that purchases aren't switched on yet, a Restore link, and "Not now". Choosing a plan does nothing silently harmful — no fake purchase, no charge.
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 3
-passed: 0
+passed: 2
 issues: 0
-pending: 3
-skipped: 0
+pending: 0
+skipped: 1
 
 ## Gaps
 
