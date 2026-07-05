@@ -162,9 +162,14 @@ describe('<Mascot /> one-shot completion (MASC-01)', () => {
       </ThemeProvider>
     );
 
-    // mascot_greeting.json: op=72, fr=30 -> 2400ms duration.
+    // Duration derived from the real asset (op/fr) so tuning the placeholder
+    // art can never silently desync this test from the component's timer.
+    const greeting = require('../../../../assets/mascot/mascot_greeting.json') as {
+      op: number;
+      fr: number;
+    };
     await act(async () => {
-      jest.advanceTimersByTime(2400);
+      jest.advanceTimersByTime((greeting.op / greeting.fr) * 1000);
     });
 
     expect(onComplete).toHaveBeenCalledTimes(1);
@@ -179,9 +184,13 @@ describe('<Mascot /> one-shot completion (MASC-01)', () => {
       </ThemeProvider>
     );
 
-    // mascot_acknowledge.json: op=45, fr=30 -> 1500ms duration.
+    // Duration derived from the real asset (op/fr) — see the greeting test.
+    const acknowledge = require('../../../../assets/mascot/mascot_acknowledge.json') as {
+      op: number;
+      fr: number;
+    };
     await act(async () => {
-      jest.advanceTimersByTime(1500);
+      jest.advanceTimersByTime((acknowledge.op / acknowledge.fr) * 1000);
     });
 
     expect(onComplete).toHaveBeenCalledTimes(1);
