@@ -14,7 +14,7 @@ updated: 2026-07-05T00:00:00Z
 
 ### 1. Locale switch is instant and persistent
 expected: In Settings, switching PL ↔ EN changes all copy immediately (no restart needed) and the choice survives killing and reopening the app.
-result: [pending]
+result: pass
 
 ### 2. Reminders toggle off cancels everything
 expected: With at least one scheduled intention reminder, switching Reminders OFF in Settings cancels it — the notification never fires. Toggling back on does NOT resurrect old reminders (you re-schedule per intention).
