@@ -45,4 +45,17 @@ describe('draft (data/draft.ts)', () => {
     const violations = DENYLIST_STEMS.filter((stem) => lowerKey.includes(stem));
     expect(violations).toEqual([]);
   });
+
+  it('returns an empty string rather than throwing when the underlying MMKV read errors (WR-03)', () => {
+    const getStringSpy = jest.spyOn(contentStorage, 'getString').mockImplementation(() => {
+      throw new Error('corrupt MMKV instance');
+    });
+
+    try {
+      expect(() => readBrainDumpDraft()).not.toThrow();
+      expect(readBrainDumpDraft()).toBe('');
+    } finally {
+      getStringSpy.mockRestore();
+    }
+  });
 });

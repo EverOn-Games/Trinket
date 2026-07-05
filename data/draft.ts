@@ -16,7 +16,16 @@ import { contentStorage } from './mmkv';
 const BRAIN_DUMP_DRAFT_KEY = 'draft:brainDump';
 
 export function readBrainDumpDraft(): string {
-  return contentStorage.getString(BRAIN_DUMP_DRAFT_KEY) ?? '';
+  // WR-03: called synchronously in BrainDumpScreen's useState initializer —
+  // i.e. on the render critical path at capture-screen mount. Mirrors
+  // dumpItemsRepo's readIndex()/readRecord() try/catch tolerance: an
+  // uncaught throw here (e.g. a corrupted MMKV file/instance at a lower
+  // level) must degrade to an empty draft, not crash the whole screen.
+  try {
+    return contentStorage.getString(BRAIN_DUMP_DRAFT_KEY) ?? '';
+  } catch {
+    return '';
+  }
 }
 
 export function writeBrainDumpDraft(text: string): void {
