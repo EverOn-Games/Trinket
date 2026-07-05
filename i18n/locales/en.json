@@ -189,5 +189,26 @@
       "dozing": "Your companion has dozed off",
       "acknowledge": "Your companion acknowledges you"
     }
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "step1": {
+      "title": "Hi. I'm glad you're here.",
+      "body": "Trinket is a quiet companion for getting things started — built around how an ADHD brain actually works. No streaks, no guilt, nothing to lose.",
+      "disclaimer": "Trinket supports getting started. It isn't a replacement for clinical care.",
+      "begin": "Let's begin"
+    },
+    "step2": {
+      "heading": "Anything been waiting?",
+      "subcopy": "One thing you've been circling. It'll just sit here quietly — no due date, no reminder.",
+      "placeholder": "email Marta about the venue",
+      "next": "Set it down",
+      "nextEmpty": "Nothing right now"
+    },
+    "step3": {
+      "heading": "This is your raccoon.",
+      "body": "It keeps you company while you work. It never asks anything of you — it's just glad to be around.",
+      "done": "Come on in"
+    }
   }
 }

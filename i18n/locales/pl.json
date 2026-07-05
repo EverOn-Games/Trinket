@@ -192,5 +192,26 @@
       "dozing": "Twój towarzysz przysnął",
       "acknowledge": "Twój towarzysz cię zauważa"
     }
+  },
+  "onboarding": {
+    "skip": "Pomiń",
+    "step1": {
+      "title": "Cześć. Dobrze, że jesteś.",
+      "body": "Trinket to cichy towarzysz zaczynania — zbudowany wokół tego, jak naprawdę działa głowa z ADHD. Bez serii, bez poczucia winy, nic tu nie przepada.",
+      "disclaimer": "Trinket wspiera zaczynanie. Nie zastępuje opieki klinicznej.",
+      "begin": "Zaczynajmy"
+    },
+    "step2": {
+      "heading": "Coś czeka?",
+      "subcopy": "Jedna rzecz, wokół której krążysz. Po prostu tu sobie poleży — bez terminu, bez przypomnienia.",
+      "placeholder": "napisać do Marty w sprawie sali",
+      "next": "Odłóż to tutaj",
+      "nextEmpty": "Teraz nic"
+    },
+    "step3": {
+      "heading": "To Twój szop.",
+      "body": "Dotrzymuje Ci towarzystwa, kiedy pracujesz. Niczego od Ciebie nie chce — po prostu lubi być obok.",
+      "done": "Wejdź do środka"
+    }
   }
 }

@@ -13,7 +13,7 @@
  * "Not now" silently ends it at lastAliveAt with zero confirmation/comment.
  */
 import { useCallback, useRef, useState } from 'react';
-import { Link, useFocusEffect, useRouter } from 'expo-router';
+import { Link, Redirect, useFocusEffect, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -46,6 +46,9 @@ export default function HomeScreen() {
   // — Home must re-render when mascotProminence changes elsewhere (Phase 8
   // Settings screen).
   const mascotProminence = useSettingsStore((s) => s.mascotProminence);
+  // ONBD-01 first-run gate — declared here with the other hooks; the actual
+  // <Redirect /> return sits below, after every hook has run (rules of hooks).
+  const onboardingComplete = useSettingsStore((s) => s.onboardingComplete);
 
   const handleMascotGreetingComplete = () => {
     hasGreetedThisSession = true;
@@ -153,6 +156,14 @@ export default function HomeScreen() {
       isResumeCardActionRef.current = false;
     }, [])
   );
+
+  // ONBD-01: a brand-new install routes to onboarding first (3 skippable
+  // screens, no permission asks). All hooks above have already run, so this
+  // early return is rules-of-hooks-safe. Both finishing and skipping set the
+  // one-way flag — Home never bounces a returning user back here.
+  if (!onboardingComplete) {
+    return <Redirect href="/onboarding" />;
+  }
 
   // Every style below is flattened to a single object (never an array) —
   // expo-router's internal <Slot> shim throws when a route's root child (or
