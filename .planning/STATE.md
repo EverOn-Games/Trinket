@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04-05-PLAN.md
-last_updated: "2026-07-05T02:06:12.169Z"
+status: verifying
+stopped_at: Completed 04-06-PLAN.md
+last_updated: "2026-07-05T02:20:30.406Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 22
-  completed_plans: 21
-  percent: 33
+  completed_plans: 22
+  percent: 44
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 
 Phase: 4 (Brain Dump) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-05
 
-Progress: [██████████] 95%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -75,6 +75,7 @@ Progress: [██████████] 95%
 | Phase 04 P03 | 6min | 2 tasks | 2 files |
 | Phase 04 P04 | 6min | 2 tasks | 2 files |
 | Phase 04 P05 | 9min | 2 tasks | 2 files |
+| Phase 04 P06 | 12min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,8 @@ Recent decisions affecting current work:
 - [Phase 04]: Combined promote button + quiet marker into the same DumpItemRow rewrite as chip/edit/delete (shared rowMode state machine); test file was the distinct Task 2 deliverable.
 - [Phase 04]: Category-chip and section-header labels reuse identical brainDump.category.* i18n keys; item-row tests disambiguate via getByRole('button') rather than getByText.
 - [Phase 04-05]: The dumpItemId useEffect depends only on [dumpItemId] (not flowPhase/resumablePointer) — Fires once per param and never re-triggers after flowPhase becomes active -- guards read at effect-run time via closure, mirroring ActivePhase's existing timeMode-only effect precedent.
+- [Phase 04-06]: Voice augments the same text field via useVoiceCapture; permission denial + runtime STT errors fold into one combined available signal (UI-SPEC Flag 9).
+- [Phase 04-06]: Recording-duration timer restructured to satisfy react-hooks/purity + react-hooks/set-state-in-effect: Date.now() only read from event handlers/interval callbacks, never during render.
 
 ### Pending Todos
 
@@ -165,6 +168,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T02:06:12.143Z
-Stopped at: Completed 04-05-PLAN.md
+Last session: 2026-07-05T02:20:30.380Z
+Stopped at: Completed 04-06-PLAN.md
 Resume file: None

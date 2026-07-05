@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Scaffold & Foundations** - Native infrastructure, local persistence, theming, and localization are in place on real devices (completed 2026-07-02)
 - [x] **Phase 2: Mascot Module** - The raccoon mascot exists as a reusable, feature-agnostic presence module (completed 2026-07-02)
 - [x] **Phase 3: Co-pilot End-to-End** - A user can start and always warmly finish an async body-doubling session, surviving backgrounding and force-quit (completed 2026-07-03)
-- [ ] **Phase 4: Brain Dump** - A user can capture and categorize tasks by text or voice and promote any into a session
+- [x] **Phase 4: Brain Dump** - A user can capture and categorize tasks by text or voice and promote any into a session (completed 2026-07-05)
 - [ ] **Phase 5: Starter** - A user can pair a personal cue with a tiny first action to pre-commit to starting
 - [ ] **Phase 6: Onboarding** - A first-time user reaches their first task within 3 skippable screens
 - [ ] **Phase 7: Subscription Infrastructure + Freemium Gate** - A user can subscribe or continue on a genuinely usable free tier, correctly online or offline
@@ -162,7 +162,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 04-06-PLAN.md — Voice slice: expo-speech-recognition install/config/mock + isolated hook + capture wiring + graceful fallback (DUMP-02)
+- [x] 04-06-PLAN.md — Voice slice: expo-speech-recognition install/config/mock + isolated hook + capture wiring + graceful fallback (DUMP-02)
 **UI hint**: yes
 
 ### Phase 5: Starter
@@ -252,7 +252,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
 | 3. Co-pilot End-to-End | 5/5 | Complete   | 2026-07-03 |
-| 4. Brain Dump | 5/6 | In Progress|  |
+| 4. Brain Dump | 6/6 | Complete   | 2026-07-05 |
 | 5. Starter | 0/TBD | Not started | - |
 | 6. Onboarding | 0/TBD | Not started | - |
 | 7. Subscription Infrastructure + Freemium Gate | 0/TBD | Not started | - |

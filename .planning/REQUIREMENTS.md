@@ -35,7 +35,7 @@ Requirements for the MVP (beta-ready build). Each maps to roadmap phases.
 ### Brain Dump
 
 - [x] **DUMP-01**: User can dump one to thirty items in a single free-text stream, separated by newlines
-- [ ] **DUMP-02**: User can capture items by voice via on-device platform speech-to-text, with graceful fallback to text when STT is unavailable
+- [x] **DUMP-02**: User can capture items by voice via on-device platform speech-to-text, with graceful fallback to text when STT is unavailable
 - [x] **DUMP-03**: Captured items receive suggested category tags (errands, work, home, people, someday) via on-device rule-based classification, changeable with one tap
 - [x] **DUMP-04**: Items are inert by default — no due dates, no reminders, no badges; an item can be promoted to a Co-pilot session task with one tap
 - [x] **DUMP-05**: Brain dump is reachable in at most 2 taps from anywhere in the app
@@ -127,7 +127,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PILOT-06 | Phase 3 - Co-pilot End-to-End | Complete |
 | PILOT-07 | Phase 3 - Co-pilot End-to-End | Complete |
 | DUMP-01 | Phase 4 - Brain Dump | Complete |
-| DUMP-02 | Phase 4 - Brain Dump | Pending |
+| DUMP-02 | Phase 4 - Brain Dump | Complete |
 | DUMP-03 | Phase 4 - Brain Dump | Complete |
 | DUMP-04 | Phase 4 - Brain Dump | Complete |
 | DUMP-05 | Phase 4 - Brain Dump | Complete |
