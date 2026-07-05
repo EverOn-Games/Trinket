@@ -26,6 +26,20 @@ import { KEYWORDS_BY_CATEGORY } from './keywords';
 
 const CATEGORY_ORDER: readonly DumpItemCategory[] = ['errands', 'work', 'home', 'people', 'someday'];
 
+// WR-04: 'call' and 'text' are short, common English words that raw
+// `.includes()` substring matching would also match inside unrelated words
+// ("recall", "callback", "context", "textbook", "contextual") — unlike this
+// module's other (longer or more specific) stems, these two require a
+// whole-word match to avoid false-positive category assignment.
+const WORD_BOUNDARY_STEMS: ReadonlySet<string> = new Set(['call', 'text']);
+
+function stemMatches(normalized: string, stem: string): boolean {
+  if (WORD_BOUNDARY_STEMS.has(stem)) {
+    return new RegExp(`\\b${stem}\\b`).test(normalized);
+  }
+  return normalized.includes(stem);
+}
+
 export function classify(text: string, locale: Locale): DumpItemCategory {
   const normalized = text.toLowerCase();
   let bestCategory: DumpItemCategory = 'someday'; // D-09 fallback: no match keeps this
@@ -34,7 +48,7 @@ export function classify(text: string, locale: Locale): DumpItemCategory {
   for (const category of CATEGORY_ORDER) {
     if (category === 'someday') continue;
     const stems = KEYWORDS_BY_CATEGORY[category][locale];
-    const score = stems.filter((stem) => normalized.includes(stem)).length;
+    const score = stems.filter((stem) => stemMatches(normalized, stem)).length;
 
     if (score > bestScore) {
       bestScore = score;

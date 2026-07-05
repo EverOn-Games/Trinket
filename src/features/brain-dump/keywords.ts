@@ -24,7 +24,16 @@ export const KEYWORDS_BY_CATEGORY: Record<'errands' | 'work' | 'home' | 'people'
     pl: ['sprzątanie', 'posprzątać', 'pranie', 'naczynia', 'dom', 'naprawa', 'śmieci', 'kuchni', 'ogród'],
   },
   people: {
+    // WR-04: 'call'/'text' are whole-word matched in classify.ts (not raw
+    // substring) — they're common English words that would otherwise
+    // substring-match inside unrelated words ("recall", "callback",
+    // "context", "textbook").
     en: ['call', 'text', 'friend', 'family', 'birthday', 'visit', 'mom', 'dad', 'partner'],
-    pl: ['zadzwonić', 'napisać', 'przyjaciel', 'rodzina', 'urodzin', 'odwiedzić', 'mamy', 'mama', 'tata'],
+    // WR-04: 'mamy' ("we have") removed — it is the common Polish verb form
+    // for "we have", unrelated to 'mama'/'tata' (mother/father) despite the
+    // similar spelling; it was misclassifying everyday sentences that
+    // merely use "mamy" as "we have" into `people`. 'mama' alone already
+    // covers "mom"/"mama"/"mamo" via substring matching.
+    pl: ['zadzwonić', 'napisać', 'przyjaciel', 'rodzina', 'urodzin', 'odwiedzić', 'mama', 'tata'],
   },
 };

@@ -71,4 +71,16 @@ describe('classify', () => {
     expect(() => classify(adversarial, 'en')).not.toThrow();
     expect(ALL_CATEGORIES).toContain(classify(adversarial, 'en'));
   });
+
+  it('EN: "text" does not false-match inside unrelated words like "context" (WR-04)', () => {
+    expect(classify('finish the report — needs more context', 'en')).toBe('work');
+  });
+
+  it('EN: "call" does not false-match inside unrelated words like "recall" (WR-04)', () => {
+    expect(classify('recall the invoice details for the client', 'en')).toBe('work');
+  });
+
+  it('PL: "mamy" ("we have") does not false-match into people (WR-04)', () => {
+    expect(classify('mamy zebranie o 15 na temat raportu', 'pl')).toBe('work');
+  });
 });
