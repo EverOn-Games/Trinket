@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready_to_plan
-stopped_at: "Phases 5-8 built via founder-authorized direct dev; retro-docs filled; 221 tests green; pending: RevenueCat+PostHog keys, device UAT (STT + notifications + phases 5-8 screens), Phase 9 hardening"
-last_updated: "2026-07-05T13:45:04.719Z"
+stopped_at: "Quick task 260705-qg3: RevenueCat + PostHog EU env-gated wiring landed in code (250 tests green); pending: real keys + store/dashboard config + device UAT, MONEY-04 (Supabase), Phase 9 hardening. Native modules added → prebuild --clean required."
+last_updated: "2026-07-05T19:30:00.000Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 9
@@ -170,8 +170,8 @@ None yet.
 - Phase 7 (Subscriptions): weekly-subscription-tier App/Play Store review carries real rejection/resubmission risk — budget calendar slack around this submission.
 - iOS physical-device dev-client boot is NOT yet verified (deferred from Phase 1 Plan 06 checkpoint; Phase 2 context D-03 confirmed Android-only verification for the Lottie work) — retry when EAS/Mac access happens; hard gate before Phase 9 beta hardening can close.
 - com.trinket.app package/bundle-ID uniqueness on Play Store / App Store is unproven until first store submission; if taken, a fallback identifier must be chosen at that time.
-- Phase 7 (Subscriptions) is CORE-COMPLETE ONLY as of 2026-07-05: no RevenueCat SDK/key, no App/Play Store product configuration, and no Supabase auth exist yet — MONEY-01, MONEY-03 (restore-on-fresh-install half), and MONEY-04 remain genuinely open work, not just unverified.
-- Phase 8 (Settings & Analytics): no PostHog SDK/key exists yet — every funnel event is instrumented and inert; ANLY-02's "appear in the EU-hosted dashboard" criterion is unmet until the transport is wired.
+- Phase 7 (Subscriptions): RevenueCat SDK + env-gated wiring now IN CODE (quick task 260705-qg3, 2026-07-05) — `purchases.ts` configures/purchases/restores and writes the `plus` entitlement cache when `EXPO_PUBLIC_REVENUECAT_KEY` is set. STILL OPEN for MONEY-01/MONEY-03: the RevenueCat key itself, App/Play Store product + `plus` entitlement configuration, and device verification of real purchase + restore-on-fresh-install. MONEY-04 (Supabase account-at-purchase) remains fully unstarted (deferred). Native module added → `npx expo prebuild --clean` required before next device build.
+- Phase 8 (Settings & Analytics): PostHog RN SDK + env-gated EU transport now IN CODE (quick task 260705-qg3, 2026-07-05) — `posthog.ts` attaches the EU-hosted, autocapture/replay-off client when `EXPO_PUBLIC_POSTHOG_API_KEY` is set; `track()` stays a no-op without it. ANLY-02's "appear in the EU-hosted dashboard" criterion is still unmet until the PostHog key lands and events are verified on the dashboard.
 - Starter (Phase 5) real-device notification-delivery timing (OS-level Doze/battery-optimization delay) is unverified — code-verified only via Jest mock.
 
 ### Quick Tasks Completed
@@ -179,6 +179,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260702-jky | Fold Claude Design mockups (10 screens) into `design/DESIGN-SYSTEM.md` reference + persist mockups + refine dark theme token values to real brand palette (dark-only MVP) | 2026-07-02 | a64a457 | [260702-jky-fold-design-system-tokens](./quick/260702-jky-fold-design-system-tokens/) |
+| 260705-qg3 | Wire RevenueCat (MONEY-01) + PostHog EU (ANLY-02) as env-gated drop-in integrations: real code paths that activate on `EXPO_PUBLIC_REVENUECAT_KEY` / `EXPO_PUBLIC_POSTHOG_API_KEY`, REFERENCE/no-op fallback with no key. Native SDKs installed (prebuild required); Jest mocks + wired-path tests; 250 tests green. Activation (keys/store/dashboard) + MONEY-04 still open. | 2026-07-05 | [wire-revenuecat-and-posthog-eu-env-gated](./quick/260705-qg3-wire-revenuecat-and-posthog-eu-env-gated/) |
 
 ## Deferred Items
 
@@ -190,6 +191,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T13:45:04.693Z
-Stopped at: Phases 5-8 built via founder-authorized direct dev; retro-docs filled; 221 tests green; pending: RevenueCat+PostHog keys, device UAT (STT + notifications + phases 5-8 screens), Phase 9 hardening
+Last session: 2026-07-05T19:30:00.000Z
+Stopped at: Quick task 260705-qg3 — RevenueCat (MONEY-01) + PostHog EU (ANLY-02) env-gated wiring landed in code, 250 tests green. Native SDKs installed (prebuild --clean required). Pending: real keys + App/Play Store product + PostHog EU key + dashboard/device verification; MONEY-04 (Supabase account-at-purchase) deferred; Phase 9 hardening not started.
 Resume file: .planning/ROADMAP.md
