@@ -13,7 +13,7 @@
  * the Plan 03-01 `activeSessionRepo` pointer synchronously on mount.
  */
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -108,6 +108,12 @@ export default function CoPilotScreen() {
     resumablePointer ? null : 25
   );
 
+  // D-14/DUMP-04: the brain-dump promote hand-off — brain-dump.tsx pushes
+  // here with a `dumpItemId` router param (see 04-04's DumpItemRow "Start a
+  // session" button). Read-only; the actual session-start reuse lives in the
+  // guarded effect below, after startFromDumpItem is defined.
+  const { dumpItemId } = useLocalSearchParams<{ dumpItemId?: string }>();
+
   // Shared across all three start affordances (WR-04/T-03-05) — only one of
   // one-liner/just-work/dump-item may ever create a session for a single
   // rapid multi-tap.
@@ -141,6 +147,21 @@ export default function CoPilotScreen() {
     const session = sessionsRepo.create({ source: 'open' });
     beginSession(session);
   };
+
+  // D-14/DUMP-04: promote hand-off. Fires only when the screen is genuinely
+  // in a fresh setup state (`flowPhase === 'setup'`) AND no live/resumable
+  // session already exists (`!resumablePointer`) — an already-live session
+  // always wins, mirroring the same resume-priority the flowPhase/
+  // activeSession initializers above already encode (D-16). A garbage/
+  // unknown dumpItemId is a silent no-op (T-04-05-SPOOF); startFromDumpItem's
+  // own isStartingSessionRef guard (T-04-05-DUP) prevents a double-start if
+  // this effect races a manual tap.
+  useEffect(() => {
+    if (!dumpItemId || flowPhase !== 'setup' || resumablePointer) return;
+    const item = dumpItemsRepo.get(dumpItemId);
+    if (item) startFromDumpItem(item);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: fire once per dumpItemId param; startFromDumpItem/flowPhase/resumablePointer are read at effect-run time, not re-triggers (mirrors ActivePhase's timeMode-only effect above)
+  }, [dumpItemId]);
 
   // D-13/D-14: End always transitions into the inline warm ending moment
   // (mascot acknowledge one-shot + numberless line + skippable mood check)
