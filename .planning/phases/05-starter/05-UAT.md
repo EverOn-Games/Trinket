@@ -52,8 +52,8 @@ skipped: 0
 - Observed: the 18:00 reminder never appeared (checked 15 min past). Founder was actively using the app at fire time.
 - Root cause: no `Notifications.setNotificationHandler` registered anywhere — expo-notifications silently drops foreground presentation without one. The notification fired at 18:00 into the void (one-shot, so it's gone).
 - Fix: quiet handler at _layout module scope — banner + list, no sound, no badge (shame-free: the reminder is the user's own words appearing, not an interruption). Boot-time test asserts the handler's exact quiet shape.
-- Device re-test: pending — schedule for the next slot and let it fire once with the app OPEN and once in background.
-- Watchlist (not implemented): if background reminders on Android 12+ prove noticeably late (inexact alarms), consider SCHEDULE_EXACT_ALARM — a native/app.json change requiring prebuild + a design discussion (exactness vs. battery/permission friction).
+- Device re-test: CONFIRMED 2026-07-05 — notification appeared post-fix, ~18 min late (Android inexact-alarm batching).
+- DECISION (founder, 2026-07-05): Option A — accept inexact timing for beta; copy made honest ("Reminder around {{when}}" / "około"; subcopy says "around the time you pick"). Option B (SCHEDULE_EXACT_ALARM permission flow + prebuild) stays on the watchlist, revisit only if beta users report lateness as a problem.
 
 ### UAT-05-02: No one-tap reschedule for an existing reminder (minor, UX)
 - Observed: once a reminder is set, the card only offers "Remove reminder"; changing the time requires remove → re-open picker → re-add.
