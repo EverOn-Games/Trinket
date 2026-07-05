@@ -203,7 +203,8 @@
       "freeTier": "Darmowy",
       "plusTier": "Trinket Plus",
       "freeSub": "Brain dump bez limitu · 3 sesje Co-pilota w tygodniu · sesje odnawiają się w poniedziałek",
-      "plusSub": "Wszystko bez limitu. Dziękujemy, że jesteś."
+      "plusSub": "Wszystko bez limitu. Dziękujemy, że jesteś.",
+      "seePlans": "Zobacz plany"
     }
   },
   "sessionsRemaining_one": "{{count}} sesja pozostała w tym tygodniu",
@@ -238,5 +239,22 @@
       "body": "Dotrzymuje Ci towarzystwa, kiedy pracujesz. Niczego od Ciebie nie chce — po prostu lubi być obok.",
       "done": "Wejdź do środka"
     }
+  },
+  "paywall": {
+    "title": "Trinket Plus",
+    "gateLead": "Trzy sesje w tym tygodniu — odnowią się w poniedziałek.",
+    "gateSub": "Brain dump, Twoje startery i wszystko, co masz zapisane, działa dalej dokładnie tak samo.",
+    "settingsLead": "Trinket jest darmowy. Plus po prostu pomaga, żeby tak zostało.",
+    "included": "Plus to sesje Co-pilota bez limitu — i szczerze mówiąc, tyle.",
+    "plan": {
+      "weekly": "Tygodniowo",
+      "monthly": "Miesięcznie",
+      "annual": "Rocznie",
+      "annualNote": "dwa miesiące lżej"
+    },
+    "choose": "Wybierz: {{plan}}",
+    "notNow": "Nie teraz",
+    "restore": "Przywróć zakupy",
+    "unavailable": "Zakupy nie są jeszcze włączone w tej wersji — nic tutaj nie pobierze opłaty."
   }
 }

@@ -201,7 +201,8 @@
       "freeTier": "Free",
       "plusTier": "Trinket Plus",
       "freeSub": "Unlimited Brain dump · 3 Co-pilot sessions a week · sessions refresh Monday",
-      "plusSub": "Unlimited everything. Thank you for being here."
+      "plusSub": "Unlimited everything. Thank you for being here.",
+      "seePlans": "See plans"
     }
   },
   "sessionsRemaining_one": "{{count}} session left this week",
@@ -235,5 +236,22 @@
       "body": "It keeps you company while you work. It never asks anything of you — it's just glad to be around.",
       "done": "Come on in"
     }
+  },
+  "paywall": {
+    "title": "Trinket Plus",
+    "gateLead": "Three sessions this week — they refresh Monday.",
+    "gateSub": "Brain dump, your starters, and everything you've saved keep working exactly as they are.",
+    "settingsLead": "Trinket is free. Plus just helps it stay that way.",
+    "included": "Plus is unlimited Co-pilot sessions — that's it, honestly.",
+    "plan": {
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "annual": "Yearly",
+      "annualNote": "two months lighter"
+    },
+    "choose": "Choose {{plan}}",
+    "notNow": "Not now",
+    "restore": "Restore purchases",
+    "unavailable": "Purchases aren't switched on in this build yet — nothing here will charge you."
   }
 }
