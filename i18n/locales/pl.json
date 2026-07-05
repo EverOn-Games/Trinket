@@ -13,7 +13,8 @@
       "withoutLabel": "Nadal tu jesteśmy. Wrócić?",
       "resume": "Wznów",
       "notNow": "Nie teraz"
-    }
+    },
+    "bridgeLink": "Pomost"
   },
   "coPilot": {
     "title": "Co-pilot",
@@ -60,10 +61,6 @@
         "tough": "Ciężko",
         "skip": "Pomiń"
       }
-    },
-    "bridge": {
-      "heading": "Coś jeszcze?",
-      "done": "Nie — na dziś wystarczy"
     }
   },
   "brainDump": {
@@ -265,6 +262,30 @@
     "notice": {
       "restoreNone": "Nie znaleźliśmy subskrypcji do przywrócenia na tym koncie.",
       "purchaseIssue": "Sklep nie mógł teraz dokończyć zakupu — nic nie zostało pobrane."
+    }
+  },
+  "bridge": {
+    "offer": {
+      "heading": "Pomost do następnej rzeczy?",
+      "begin": "Tak, krótki pomost",
+      "decline": "Nie — na dziś wystarczy"
+    },
+    "ritual": {
+      "landing": "Chwila na wylądowanie.",
+      "continue": "Dalej"
+    },
+    "handoff": {
+      "heading": "Coś jeszcze?",
+      "framing": "Jeden mały pierwszy ruch w zupełności wystarczy.",
+      "starter": "Ustaw starter",
+      "close": "Po prostu zamknij"
+    },
+    "lines": {
+      "l1": "Cokolwiek to było — liczy się.",
+      "l2": "Pomiędzy jedną rzeczą a drugą też jest jakieś miejsce.",
+      "l3": "Tamta rzecz może już zostać zamknięta.",
+      "l4": "Zaczynanie od nowa to osobna, mała umiejętność.",
+      "l5": "Jakkolwiek poszło, ten czas się liczył."
     }
   }
 }

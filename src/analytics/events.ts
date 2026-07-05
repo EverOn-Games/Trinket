@@ -25,8 +25,8 @@ export type AnalyticsEvents = {
   item_promoted: Record<string, never>;
   starter_created: Record<string, never>;
   reminder_scheduled: { dayChosen: 'today' | 'tomorrow' };
-  /** MECH-02 Bridge v0: did the post-ending offer bridge into a next session? */
-  bridge_next: { startedNext: boolean };
+  /** MECH-02 Bridge: which handoff the ritual ended in (v0.2 §9 instrumentation). */
+  bridge_next: { nextAction: 'session' | 'starter' | 'none' };
   /** Freemium gate funnel (Phase 7). */
   gate_shown: { sessionsThisWeek: number };
   paywall_viewed: { trigger: 'gate' | 'settings' };
@@ -63,4 +63,7 @@ export const SAFE_STRING_TOKENS: ReadonlySet<string> = new Set([
   'tomorrow',
   'gate',
   'settings',
+  'session',
+  'starter',
+  'none',
 ]);

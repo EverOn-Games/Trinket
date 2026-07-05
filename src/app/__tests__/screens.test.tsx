@@ -288,6 +288,9 @@ describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
     await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.ending.moodCheck.good }));
 
     expect(sessionsRepo.get(sessionId)?.mood).toBe(3);
+    // MECH-02: the ending now resolves into the Bridge OFFER (one path among
+    // equals); declining it is the straight-Home path.
+    await fireEvent.press(await screen.findByRole('button', { name: en.bridge.offer.decline }));
     // router.replace('/') — never .push — so back from Home can never return
     // to the now-ended session screen (D-13).
     expect(replaceSpy).toHaveBeenCalledWith('/');
@@ -334,8 +337,10 @@ describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
       await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.active.endButton }));
       await fireEvent.press(await screen.findByRole('button', { name: en.coPilot.ending.moodCheck.skip }));
 
-      expect(replaceSpy).toHaveBeenCalledWith('/');
+      // Skip stores no mood; the Bridge offer follows (decline → Home).
       expect(sessionsRepo.get(sessionId)?.mood).toBeUndefined();
+      await fireEvent.press(await screen.findByRole('button', { name: en.bridge.offer.decline }));
+      expect(replaceSpy).toHaveBeenCalledWith('/');
     } finally {
       replaceSpy.mockRestore();
     }
@@ -359,7 +364,11 @@ describe('Co-pilot ending phase (PILOT-05, T-03-04, T-03-05)', () => {
       await fireEvent.press(moodButton);
       await fireEvent.press(skipButton);
 
-      expect(replaceSpy).toHaveBeenCalledTimes(1);
+      // isFinishingRef fired onFinished exactly once: one Bridge offer is on
+      // screen (getByText throws on duplicates) and no direct navigation
+      // happened — Home is only reachable via the offer's decline now.
+      expect(screen.getByText(en.bridge.offer.heading)).toBeTruthy();
+      expect(replaceSpy).not.toHaveBeenCalled();
       const moodWriteCalls = updateSpy.mock.calls.filter(
         ([, patch]) => patch !== undefined && 'mood' in (patch as Record<string, unknown>)
       );

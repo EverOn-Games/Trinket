@@ -256,6 +256,9 @@ export default function HomeScreen() {
           <Link href="/starter">
             <Text style={{ color: theme.colors.accent }}>{t('home.starterLink')}</Text>
           </Link>
+          <Link href="/bridge">
+            <Text style={{ color: theme.colors.accent }}>{t('home.bridgeLink')}</Text>
+          </Link>
           <Link href="/history">
             <Text style={{ color: theme.colors.accent }}>{t('home.historyLink')}</Text>
           </Link>

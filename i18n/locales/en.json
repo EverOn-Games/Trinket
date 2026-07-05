@@ -13,7 +13,8 @@
       "withoutLabel": "Still with you. Pick it up?",
       "resume": "Resume",
       "notNow": "Not now"
-    }
+    },
+    "bridgeLink": "Bridge"
   },
   "coPilot": {
     "title": "Co-pilot",
@@ -58,10 +59,6 @@
         "tough": "Tough",
         "skip": "Skip"
       }
-    },
-    "bridge": {
-      "heading": "Anything next?",
-      "done": "Nothing — I'm done for now"
     }
   },
   "brainDump": {
@@ -261,6 +258,30 @@
     "notice": {
       "restoreNone": "We couldn't find a subscription to restore on this account.",
       "purchaseIssue": "The store couldn't finish that just now — nothing was charged."
+    }
+  },
+  "bridge": {
+    "offer": {
+      "heading": "A bridge to the next thing?",
+      "begin": "Sure — a short bridge",
+      "decline": "Nothing — I'm done for now"
+    },
+    "ritual": {
+      "landing": "A moment to land.",
+      "continue": "Onward"
+    },
+    "handoff": {
+      "heading": "Anything next?",
+      "framing": "One small first motion is plenty.",
+      "starter": "Set up a starter",
+      "close": "Just close"
+    },
+    "lines": {
+      "l1": "Whatever that was, it counts.",
+      "l2": "Between things is a real place to be.",
+      "l3": "The last thing is allowed to be done now.",
+      "l4": "Starting again is its own small skill.",
+      "l5": "However it went, that time counted."
     }
   }
 }

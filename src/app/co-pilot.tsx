@@ -22,6 +22,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { Screen } from '@/components/Screen';
 import { Mascot } from '@/components/Mascot/Mascot';
 import { reconcileActiveSession } from '@/features/co-pilot/reconcileActiveSession';
+import { BridgeRitual } from '@/features/bridge/BridgeRitual';
 import { useTheme } from '../../theme';
 import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
@@ -230,27 +231,15 @@ export default function CoPilotScreen() {
     setFlowPhase('ending');
   };
 
-  // MECH-02 Bridge v0: after the warm ending resolves, offer a quiet "what's
-  // next" beat — but only when there's genuinely something to offer. Zero
-  // un-promoted dump items → straight Home exactly as before (an empty offer
-  // would be noise, not a bridge). Items are snapshotted here so the list
-  // can't shift under the user mid-beat.
-  const [bridgeItems, setBridgeItems] = useState<DumpItem[]>([]);
+  // MECH-02 Bridge (v0.2 spec §4): after the warm ending resolves, the
+  // Bridge is offered unconditionally as one path among equals — the ritual
+  // has value even with zero dump items (the handoff then offers starter/
+  // close only). Declining is one tap, costless, straight Home.
   const handleEndingFinished = () => {
-    const candidates = dumpItemsRepo
-      .list()
-      .filter((item) => item.promotedTaskId === undefined)
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .slice(0, 3);
-    if (candidates.length === 0) {
-      router.replace('/'); // never .push — back from Home must not return here
-      return;
-    }
     // The prior session has fully ended (endSession wrote endedAt + cleared
     // the pointer), so the permanently-latched start guard may legitimately
     // re-arm for a bridge-started follow-up session.
     isStartingSessionRef.current = false;
-    setBridgeItems(candidates);
     setFlowPhase('bridge');
   };
 
@@ -258,14 +247,19 @@ export default function CoPilotScreen() {
     startFromDumpItem(item);
     // startFromDumpItem is gate-aware: at the free-tier limit it opens the
     // paywall as an offer and starts nothing (the latch stays false, so the
-    // bridge remains tappable after "Not now"). Only a real start counts.
+    // handoff remains tappable after "Not now"). Only a real start counts.
     if (isStartingSessionRef.current) {
-      track('bridge_next', { startedNext: true });
+      track('bridge_next', { nextAction: 'session' });
     }
   };
 
+  const handleBridgeStarter = () => {
+    track('bridge_next', { nextAction: 'starter' });
+    router.replace('/starter');
+  };
+
   const handleBridgeDone = () => {
-    track('bridge_next', { startedNext: false });
+    track('bridge_next', { nextAction: 'none' });
     router.replace('/');
   };
 
@@ -276,7 +270,11 @@ export default function CoPilotScreen() {
       ) : flowPhase === 'ending' && activeSession ? (
         <EndingPhase sessionId={activeSession.sessionId} onFinished={handleEndingFinished} />
       ) : flowPhase === 'bridge' ? (
-        <BridgePhase items={bridgeItems} onPick={handleBridgePick} onDone={handleBridgeDone} />
+        <BridgePhase
+          onPickItem={handleBridgePick}
+          onStarter={handleBridgeStarter}
+          onDecline={handleBridgeDone}
+        />
       ) : (
         <SetupPhase
           lengthIntentMin={lengthIntentMin}
@@ -794,34 +792,37 @@ function EndingPhase({ sessionId, onFinished }: { sessionId: string; onFinished:
   );
 }
 
-// MECH-02 Bridge v0: the quiet beat after the ending moment — an OFFER of up
-// to three un-promoted brain-dump items, with an equally-weighted warm exit.
-// Transitions are the second hardest ADHD moment the brief names; this is
-// its smallest honest mechanic. Nothing here auto-advances (D-13 lesson),
-// nothing counts down, and "done for now" is a full-dignity choice, not a
-// consolation prize. Item taps ride the parent's gate-aware
-// startFromDumpItem, so the free-tier gate stays an offer here too.
+// MECH-02 Bridge (v0.2 spec §4): the post-ending host — an OFFER stage (one
+// path among equals; declining is one tap, costless), then the shared
+// BridgeRitual (breathing beat + self-compassion line + handoff triad).
+// Nothing auto-advances (D-13); the ritual itself lives in
+// src/features/bridge/BridgeRitual.tsx and is also reachable standalone at
+// /bridge when the user feels stuck between tasks.
 function BridgePhase({
-  items,
-  onPick,
-  onDone,
+  onPickItem,
+  onStarter,
+  onDecline,
 }: {
-  items: DumpItem[];
-  onPick: (item: DumpItem) => void;
-  onDone: () => void;
+  onPickItem: (item: DumpItem) => void;
+  onStarter: () => void;
+  onDecline: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  // Single-navigation guard for the Done exit only — item taps deliberately
-  // stay re-tappable (a gated tap opens the paywall and starts nothing; the
-  // user may come back with "Not now" and pick again or leave).
-  const isLeavingRef = useRef(false);
-  const handleDone = () => {
-    if (isLeavingRef.current) return;
-    isLeavingRef.current = true;
-    onDone();
+  const [stage, setStage] = useState<'offer' | 'ritual'>('offer');
+
+  // Single-fire guard for the decline exit (mirrors EndingPhase's ref idiom).
+  const isDecliningRef = useRef(false);
+  const handleDecline = () => {
+    if (isDecliningRef.current) return;
+    isDecliningRef.current = true;
+    onDecline();
   };
+
+  if (stage === 'ritual') {
+    return <BridgeRitual onPickItem={onPickItem} onStarter={onStarter} onClose={onDecline} />;
+  }
 
   const headingStyle = {
     color: theme.colors.textPrimary,
@@ -829,19 +830,17 @@ function BridgePhase({
     fontWeight: '600' as const,
     textAlign: 'center' as const,
   };
-  const itemButtonStyle = StyleSheet.flatten([
+  const beginStyle = StyleSheet.flatten([
     styles.tapTarget,
-    styles.bridgeItem,
-    {
-      backgroundColor: theme.colors.surfaceElevated,
-      borderRadius: theme.radii.lg,
-    },
+    styles.bridgeBegin,
+    { backgroundColor: theme.colors.surfaceElevated, borderRadius: theme.radii.pill },
   ]);
-  const itemLabelStyle = {
+  const beginLabelStyle = {
     color: theme.colors.textPrimary,
     fontSize: theme.typography.scale.body,
+    fontWeight: '600' as const,
   };
-  const doneLabelStyle = {
+  const declineLabelStyle = {
     color: theme.colors.textSecondary,
     fontSize: theme.typography.scale.body,
   };
@@ -850,25 +849,14 @@ function BridgePhase({
     <View style={StyleSheet.flatten([styles.endingContainer, { gap: theme.spacing.lg }])}>
       <Mascot state="idle" prominence="prominent" accessibilityLabel={t('mascot.accessibility.idle')} />
 
-      <Text style={headingStyle}>{t('coPilot.bridge.heading')}</Text>
+      <Text style={headingStyle}>{t('bridge.offer.heading')}</Text>
 
-      <View style={{ gap: theme.spacing.sm, alignSelf: 'stretch' }}>
-        {items.map((item) => (
-          <Pressable
-            key={item.id}
-            accessibilityRole="button"
-            onPress={() => onPick(item)}
-            style={itemButtonStyle}
-          >
-            <Text style={itemLabelStyle} numberOfLines={2}>
-              {item.text}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <Pressable accessibilityRole="button" onPress={() => setStage('ritual')} style={beginStyle}>
+        <Text style={beginLabelStyle}>{t('bridge.offer.begin')}</Text>
+      </Pressable>
 
-      <Pressable accessibilityRole="button" onPress={handleDone} style={styles.tapTarget}>
-        <Text style={doneLabelStyle}>{t('coPilot.bridge.done')}</Text>
+      <Pressable accessibilityRole="button" onPress={handleDecline} style={styles.tapTarget}>
+        <Text style={declineLabelStyle}>{t('bridge.offer.decline')}</Text>
       </Pressable>
     </View>
   );
@@ -878,11 +866,9 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '600',
   },
-  bridgeItem: {
-    alignSelf: 'stretch',
+  bridgeBegin: {
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'flex-start',
+    paddingHorizontal: 28,
   },
   sectionLabel: {
     fontWeight: '600',

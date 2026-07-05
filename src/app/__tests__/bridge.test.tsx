@@ -1,9 +1,11 @@
 /**
- * Bridge v0 tests (MECH-02): after the warm ending resolves (mood tap or
- * Skip — both equal), a quiet "Anything next?" offer appears IF un-promoted
- * brain-dump items exist: up to 3 items newest-first, plus an equal-weight
- * warm exit. Zero candidates → straight Home, no empty offer. An item tap
- * rides the existing gate-aware promote path and marks the item promoted.
+ * Bridge tests (MECH-02, v0.2 spec §4): after the warm ending resolves, the
+ * Bridge is OFFERED as one path among equals (declining is one tap, costless,
+ * straight Home). Accepting enters the user-paced ritual (breathing beat via
+ * the companion's presence loop + a self-compassion line from the localized
+ * library), then the handoff triad: bridge into a session (≤3 un-promoted
+ * dump items, newest first), set up a starter, or just close. Also reachable
+ * standalone at /bridge (no offer stage — the user summoned it).
  */
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
@@ -18,21 +20,37 @@ import en from '../../../i18n/locales/en.json';
 import RootLayout from '../_layout';
 import HomeScreen from '../index';
 import CoPilotScreen from '../co-pilot';
+import BridgeScreen from '../bridge';
 
 const routeContext = {
   _layout: RootLayout,
   index: HomeScreen,
   'co-pilot': CoPilotScreen,
+  bridge: BridgeScreen,
 };
 
-async function runSessionToEnding() {
+const COMPASSION_LINES = Object.values(en.bridge.lines);
+
+async function runSessionToBridgeOffer() {
   await renderRouter(routeContext, { initialUrl: '/co-pilot' });
   await fireEvent.press(screen.getByText(en.coPilot.setup.justWork.label));
   await fireEvent.press(screen.getByText(en.coPilot.active.endButton));
-  expect(screen.getByText(en.coPilot.ending.acknowledgment)).toBeTruthy();
+  await fireEvent.press(screen.getByText(en.coPilot.ending.moodCheck.skip));
+  expect(screen.getByText(en.bridge.offer.heading)).toBeTruthy();
 }
 
-describe('Bridge v0 (MECH-02)', () => {
+async function enterRitualHandoff() {
+  await runSessionToBridgeOffer();
+  await fireEvent.press(screen.getByText(en.bridge.offer.begin));
+  // Landing step: the self-compassion line comes from the fixed library.
+  expect(screen.getByText(en.bridge.ritual.landing)).toBeTruthy();
+  const lineShown = COMPASSION_LINES.some((line) => screen.queryByText(line) !== null);
+  expect(lineShown).toBe(true);
+  await fireEvent.press(screen.getByText(en.bridge.ritual.continue));
+  expect(screen.getByText(en.bridge.handoff.heading)).toBeTruthy();
+}
+
+describe('Bridge (MECH-02, v0.2 §4)', () => {
   let sent: Array<{ event: string; props: Record<string, unknown> }>;
   let replaceSpy: jest.SpyInstance;
 
@@ -50,9 +68,32 @@ describe('Bridge v0 (MECH-02)', () => {
     replaceSpy.mockRestore();
   });
 
-  it('offers up to 3 un-promoted items newest-first after Skip', async () => {
-    // Explicit createdAt spacing — four create() calls land in the same
-    // Date.now() millisecond, which would make "newest-first" a tie.
+  it('offers the bridge after every ending — even with zero dump items', async () => {
+    await runSessionToBridgeOffer();
+    expect(screen.getByText(en.bridge.offer.decline)).toBeTruthy();
+    expect(replaceSpy).not.toHaveBeenCalled();
+  });
+
+  it('declining is one tap, costless, straight Home', async () => {
+    await runSessionToBridgeOffer();
+    await fireEvent.press(screen.getByText(en.bridge.offer.decline));
+
+    expect(replaceSpy).toHaveBeenCalledWith('/');
+    expect(sent.filter((e) => e.event === 'bridge_next')).toEqual([
+      { event: 'bridge_next', props: { nextAction: 'none' } },
+    ]);
+  });
+
+  it('the ritual is user-paced: landing + library line, then the handoff triad', async () => {
+    dumpItemsRepo.create({ text: 'email Marta', category: 'work' });
+    await enterRitualHandoff();
+
+    expect(screen.getByText('email Marta')).toBeTruthy();
+    expect(screen.getByText(en.bridge.handoff.starter)).toBeTruthy();
+    expect(screen.getByText(en.bridge.handoff.close)).toBeTruthy();
+  });
+
+  it('handoff offers at most 3 un-promoted items, newest first', async () => {
     const seed = [
       ['water the plants', 'home'],
       ['email Marta', 'work'],
@@ -64,71 +105,53 @@ describe('Bridge v0 (MECH-02)', () => {
       dumpItemsRepo.update(item.id, { createdAt: 1000 + i });
     });
 
-    await runSessionToEnding();
-    await fireEvent.press(screen.getByText(en.coPilot.ending.moodCheck.skip));
+    await enterRitualHandoff();
 
-    expect(screen.getByText(en.coPilot.bridge.heading)).toBeTruthy();
-    expect(screen.getByText(en.coPilot.bridge.done)).toBeTruthy();
-    // Newest 3 only — the oldest item is not offered.
     expect(screen.getByText('sort the shelf')).toBeTruthy();
     expect(screen.getByText('call the bank')).toBeTruthy();
     expect(screen.getByText('email Marta')).toBeTruthy();
     expect(screen.queryByText('water the plants')).toBeNull();
-    // The bridge is a beat, not a navigation: Home not reached yet.
-    expect(replaceSpy).not.toHaveBeenCalled();
   });
 
-  it('a mood tap reaches the same bridge (both ending exits are equal)', async () => {
-    dumpItemsRepo.create({ text: 'email Marta', category: 'work' });
-
-    await runSessionToEnding();
-    await fireEvent.press(screen.getByText(en.coPilot.ending.moodCheck.good));
-
-    expect(screen.getByText(en.coPilot.bridge.heading)).toBeTruthy();
-  });
-
-  it('goes straight Home with zero un-promoted items — no empty offer', async () => {
-    const item = dumpItemsRepo.create({ text: 'already running', category: 'work' });
-    dumpItemsRepo.update(item.id, { promotedTaskId: 'some-session' });
-
-    await runSessionToEnding();
-    await fireEvent.press(screen.getByText(en.coPilot.ending.moodCheck.skip));
-
-    expect(replaceSpy).toHaveBeenCalledWith('/');
-    expect(screen.queryByText(en.coPilot.bridge.heading)).toBeNull();
-  });
-
-  it('"done for now" exits Home and reports startedNext=false', async () => {
-    dumpItemsRepo.create({ text: 'email Marta', category: 'work' });
-
-    await runSessionToEnding();
-    await fireEvent.press(screen.getByText(en.coPilot.ending.moodCheck.skip));
-    await fireEvent.press(screen.getByText(en.coPilot.bridge.done));
-
-    expect(replaceSpy).toHaveBeenCalledWith('/');
-    const bridgeEvents = sent.filter((e) => e.event === 'bridge_next');
-    expect(bridgeEvents).toEqual([{ event: 'bridge_next', props: { startedNext: false } }]);
-  });
-
-  it('an item tap starts the next session on the spot and marks the item promoted', async () => {
+  it('an item tap bridges straight into the next session and marks it promoted', async () => {
     const item = dumpItemsRepo.create({ text: 'email Marta', category: 'work' });
-
-    await runSessionToEnding();
-    await fireEvent.press(screen.getByText(en.coPilot.ending.moodCheck.skip));
+    await enterRitualHandoff();
     await fireEvent.press(screen.getByText('email Marta'));
 
-    // Back in an active session, no navigation — the bridge bridged.
     expect(screen.getByText(en.coPilot.active.endButton)).toBeTruthy();
-    expect(replaceSpy).not.toHaveBeenCalled();
-
     const sessions = sessionsRepo.list();
     expect(sessions).toHaveLength(2);
     const next = sessions.find((s) => s.taskLabel === 'email Marta');
-    expect(next).toBeDefined();
     expect(dumpItemsRepo.get(item.id)?.promotedTaskId).toBe(next?.id);
-
     expect(sent.filter((e) => e.event === 'bridge_next')).toEqual([
-      { event: 'bridge_next', props: { startedNext: true } },
+      { event: 'bridge_next', props: { nextAction: 'session' } },
     ]);
+  });
+
+  it('the starter handoff opens the starter builder', async () => {
+    await enterRitualHandoff();
+    await fireEvent.press(screen.getByText(en.bridge.handoff.starter));
+
+    expect(replaceSpy).toHaveBeenCalledWith('/starter');
+    expect(sent.filter((e) => e.event === 'bridge_next')).toEqual([
+      { event: 'bridge_next', props: { nextAction: 'starter' } },
+    ]);
+  });
+
+  it('standalone /bridge starts at the ritual (no offer — the user summoned it)', async () => {
+    const item = dumpItemsRepo.create({ text: 'email Marta', category: 'work' });
+    await renderRouter(routeContext, { initialUrl: '/bridge' });
+
+    expect(screen.getByText(en.bridge.ritual.landing)).toBeTruthy();
+    expect(screen.queryByText(en.bridge.offer.heading)).toBeNull();
+
+    await fireEvent.press(screen.getByText(en.bridge.ritual.continue));
+    await fireEvent.press(screen.getByText('email Marta'));
+
+    // Standalone rides the gate-aware promote param into co-pilot.
+    expect(replaceSpy).toHaveBeenCalledWith({
+      pathname: '/co-pilot',
+      params: { dumpItemId: item.id },
+    });
   });
 });
