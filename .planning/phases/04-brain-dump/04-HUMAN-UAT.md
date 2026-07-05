@@ -20,7 +20,7 @@ result: pass — founder: "works amazingly well" (2026-07-05). D-02 spike resolv
 
 ### 2. Utterance segmentation → one line per spoken pause
 expected: Speak 3 distinct items with clear pauses; assert 3 separate lines appear in the field (each final utterance segment = one new line, D-03). Repeat on a second Android make if available (Samsung etc.) — manufacturer SpeechRecognizer variants may segment differently. If they diverge, the segment logic is isolated in `appendFinalSegmentToDraft.ts` for a one-function fix.
-result: [pending]
+result: pass — founder confirmed on device 2026-07-05 ("works awesome"), same visit as the stop/start re-test. Second Android make still untested (optional).
 
 ### 3. Mic-denied / STT-unavailable graceful fallback feel
 expected: Deny the mic permission when first tapping the mic (permission is asked contextually, on first tap, never upfront). The mic should hide/disable and text capture remain fully usable with no error state or crash. Same when STT is unavailable on the device.
@@ -33,9 +33,9 @@ result: [pending]
 ## Summary
 
 total: 4
-passed: 1
+passed: 2
 issues: 1
-pending: 3
+pending: 2
 skipped: 0
 blocked: 0
 
@@ -46,7 +46,7 @@ blocked: 0
 - Root cause: the 'error' listener treated EVERY error event as permanent unavailability; Android emits benign 'aborted'/'no-speech' errors as part of a normal stop, poisoning `runtimeUnavailable` until remount.
 - Fix: only persistent capability errors ('not-allowed', 'service-not-allowed', 'language-not-supported') hide the mic; transient errors end the recording and keep the mic offered. Regression test added (suite: 29/222 green).
 - Files: src/features/brain-dump/useVoiceCapture.ts, useVoiceCapture.test.tsx.
-- Device re-test: pending (pull + Metro reload, then stop/start the mic repeatedly in one visit).
+- Device re-test: CONFIRMED on device 2026-07-05 — stop/start cycle appends normally in one visit, no unavailable message.
 
 ### UAT-04-06: No "listening/transcribing" indication while speech is pending (minor, UX enhancement)
 - Founder: transcript appears only after a pause; between speaking and the line landing there's no signal the app is working. Candidate: quiet interim-text ghost preview (interimResults are already requested) or a subtle listening pulse on the active mic label. Defer to design pass.
