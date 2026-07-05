@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-07-05T01:55:10.480Z"
+last_updated: "2026-07-05T02:01:41.927Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 22
-  completed_plans: 19
+  completed_plans: 20
   percent: 33
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 4 (Brain Dump) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-07-05
 
-Progress: [█████████░] 86%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Progress: [█████████░] 86%
 | Phase 04 P01 | 8min | 2 tasks | 5 files |
 | Phase 04 P02 | 12min | 2 tasks | 4 files |
 | Phase 04 P03 | 6min | 2 tasks | 2 files |
+| Phase 04 P04 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,8 @@ Recent decisions affecting current work:
 - [Phase 04]: PL category label 'Do zalatwienia' (errands) shipped as draft copy pending native-speaker review (UI-SPEC Flag 6)
 - [Phase 04]: 04-03: isSavingRef guard resets on re-entering capture (Save is repeatable), unlike co-pilot's one-shot guard
 - [Phase 04]: 04-03: showList recomputed live every render so D-12 empty-routing self-corrects for a future delete feature
+- [Phase 04]: Combined promote button + quiet marker into the same DumpItemRow rewrite as chip/edit/delete (shared rowMode state machine); test file was the distinct Task 2 deliverable.
+- [Phase 04]: Category-chip and section-header labels reuse identical brainDump.category.* i18n keys; item-row tests disambiguate via getByRole('button') rather than getByText.
 
 ### Pending Todos
 
@@ -160,6 +163,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T01:54:45.563Z
+Last session: 2026-07-05T02:01:33.246Z
 Stopped at: Completed 04-02-PLAN.md
 Resume file: None

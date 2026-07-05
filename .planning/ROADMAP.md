@@ -157,7 +157,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 04-04-PLAN.md — Item row: inline category chips, edit, delete, promote button + quiet marker (DUMP-03, DUMP-04)
+- [x] 04-04-PLAN.md — Item row: inline category chips, edit, delete, promote button + quiet marker (DUMP-03, DUMP-04)
 - [ ] 04-05-PLAN.md — Co-pilot dumpItemId promote hand-off (reuse beginSession) + route test (DUMP-04)
 
 **Wave 4** *(blocked on Wave 3)*
@@ -252,7 +252,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Scaffold & Foundations | 6/6 | Complete    | 2026-07-02 |
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
 | 3. Co-pilot End-to-End | 5/5 | Complete   | 2026-07-03 |
-| 4. Brain Dump | 3/6 | In Progress|  |
+| 4. Brain Dump | 4/6 | In Progress|  |
 | 5. Starter | 0/TBD | Not started | - |
 | 6. Onboarding | 0/TBD | Not started | - |
 | 7. Subscription Infrastructure + Freemium Gate | 0/TBD | Not started | - |
