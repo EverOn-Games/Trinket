@@ -11,7 +11,7 @@ Requirements for the MVP (beta-ready build). Each maps to roadmap phases.
 
 - [x] **FND-01**: App runs on iOS and Android from a single Expo codebase (SDK 56, New Architecture, TypeScript strict) with an EAS Build + dev-client + prebuild workflow from day one
 - [x] **FND-02**: All user content (dump items, intentions, sessions, settings) persists locally in MMKV with no daily aggregates and no streak fields in the schema
-- [ ] **FND-03**: User can use every core feature fully offline; only purchase/restore requires network
+- [ ] **FND-03**: User can use every core feature fully offline; only purchase/restore requires network (pending device verification — Phase 9 offline-correctness sweep)
 - [x] **FND-04**: App ships a dark-mode theme token module (earthy palette, soft rounded, night-cozy) structured for one-to-one replacement when the external design system lands
 - [x] **FND-05**: Every screen renders in Polish and English from localized string files with CLDR-correct Polish plurals; no hardcoded copy
 
@@ -42,30 +42,30 @@ Requirements for the MVP (beta-ready build). Each maps to roadmap phases.
 
 ### Starter
 
-- [ ] **START-01**: User can build a "when X, then Y" implementation intention in two steps: situation cue, then first physical action
-- [ ] **START-02**: User can pick cues from a localized (PL/EN) library grouped by time-based, place-based, and event-based cues
-- [ ] **START-03**: A saved intention card can optionally fire a single notification at a user-chosen time, phrased in the user's own words, never as an app demand
-- [ ] **START-04**: Static UI copy (not AI) coaches the action to be a tiny physical first step, not the whole task
+- [x] **START-01**: User can build a "when X, then Y" implementation intention in two steps: situation cue, then first physical action
+- [x] **START-02**: User can pick cues from a localized (PL/EN) library grouped by time-based, place-based, and event-based cues
+- [x] **START-03**: A saved intention card can optionally fire a single notification at a user-chosen time, phrased in the user's own words, never as an app demand
+- [x] **START-04**: Static UI copy (not AI) coaches the action to be a tiny physical first step, not the whole task
 
 ### Onboarding
 
-- [ ] **ONBD-01**: New user sees at most 3 skippable screens (what Trinket is, pick your first task, meet the mascot) with no notification permission request
+- [x] **ONBD-01**: New user sees at most 3 skippable screens (what Trinket is, pick your first task, meet the mascot) with no notification permission request
 
 ### Monetization
 
-- [ ] **MONEY-01**: User can subscribe via weekly, monthly, or annual tiers with market-specific pricing (PL: 9,99/24,99/199 PLN; US: 5.99/11.99/79 USD) through RevenueCat
-- [ ] **MONEY-02**: Free tier includes unlimited Brain dump and 3 Co-pilot sessions per week, gated with shame-free copy ("sessions refresh Monday", never "you've run out")
-- [ ] **MONEY-03**: Entitlements behave correctly offline — unknown entitlement defaults to free tier with no alarming copy, and restore purchases works on fresh installs
-- [ ] **MONEY-04**: No account is required to use the core loop; Supabase auth is introduced only for purchase/restore/subscription state
+- [ ] **MONEY-01**: User can subscribe via weekly, monthly, or annual tiers with market-specific pricing (PL: 9,99/24,99/199 PLN; US: 5.99/11.99/79 USD) through RevenueCat (core/code-complete — pending RevenueCat keys+store)
+- [x] **MONEY-02**: Free tier includes unlimited Brain dump and 3 Co-pilot sessions per week, gated with shame-free copy ("sessions refresh Monday", never "you've run out")
+- [ ] **MONEY-03**: Entitlements behave correctly offline — unknown entitlement defaults to free tier with no alarming copy, and restore purchases works on fresh installs (core/code-complete — pending RevenueCat keys+store / device verification)
+- [ ] **MONEY-04**: No account is required to use the core loop; Supabase auth is introduced only for purchase/restore/subscription state (core/code-complete — pending RevenueCat keys+store; account-at-purchase flow itself unbuilt, no Supabase auth wired yet)
 
 ### Settings
 
-- [ ] **SETT-01**: User can change locale, manage notification opt-in, and view subscription state from a settings screen
+- [x] **SETT-01**: User can change locale, manage notification opt-in, and view subscription state from a settings screen
 
 ### Analytics
 
-- [ ] **ANLY-01**: Analytics events are pseudonymous, EU-hosted, and carry no content payloads — enforced by a typed event allowlist, with autocapture and session replay disabled
-- [ ] **ANLY-02**: Activation and retention funnel events (install → first completed Co-pilot session, D7/D30 opens) are instrumented before beta
+- [x] **ANLY-01**: Analytics events are pseudonymous, EU-hosted, and carry no content payloads — enforced by a typed event allowlist, with autocapture and session replay disabled
+- [ ] **ANLY-02**: Activation and retention funnel events (install → first completed Co-pilot session, D7/D30 opens) are instrumented before beta (code-complete — pending PostHog key for dashboard verification)
 
 ## v2 Requirements
 
@@ -131,25 +131,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DUMP-03 | Phase 4 - Brain Dump | Complete |
 | DUMP-04 | Phase 4 - Brain Dump | Complete |
 | DUMP-05 | Phase 4 - Brain Dump | Complete |
-| START-01 | Phase 5 - Starter | Pending |
-| START-02 | Phase 5 - Starter | Pending |
-| START-03 | Phase 5 - Starter | Pending |
-| START-04 | Phase 5 - Starter | Pending |
-| ONBD-01 | Phase 6 - Onboarding | Pending |
-| MONEY-01 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
-| MONEY-02 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
-| MONEY-03 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
-| MONEY-04 | Phase 7 - Subscription Infrastructure + Freemium Gate | Pending |
-| SETT-01 | Phase 8 - Settings & Analytics Audit | Pending |
-| ANLY-01 | Phase 8 - Settings & Analytics Audit | Pending |
-| ANLY-02 | Phase 8 - Settings & Analytics Audit | Pending |
+| START-01 | Phase 5 - Starter | Complete |
+| START-02 | Phase 5 - Starter | Complete |
+| START-03 | Phase 5 - Starter | Complete |
+| START-04 | Phase 5 - Starter | Complete |
+| ONBD-01 | Phase 6 - Onboarding | Complete |
+| MONEY-01 | Phase 7 - Subscription Infrastructure + Freemium Gate | Partial — pending RevenueCat keys+store |
+| MONEY-02 | Phase 7 - Subscription Infrastructure + Freemium Gate | Complete |
+| MONEY-03 | Phase 7 - Subscription Infrastructure + Freemium Gate | Partial — pending RevenueCat keys+store / device verification |
+| MONEY-04 | Phase 7 - Subscription Infrastructure + Freemium Gate | Partial — account-at-purchase flow unbuilt (no Supabase auth yet) |
+| SETT-01 | Phase 8 - Settings & Analytics Audit | Complete |
+| ANLY-01 | Phase 8 - Settings & Analytics Audit | Complete |
+| ANLY-02 | Phase 8 - Settings & Analytics Audit | Partial — pending PostHog EU key for dashboard verification |
 | FND-03 | Phase 9 - Beta Hardening | Pending |
 
 **Coverage:**
 - v1 requirements: 33 total
 - Mapped to phases: 33
 - Unmapped: 0 ✓
+- Complete: 24 | Partial: 4 (MONEY-01, MONEY-03, MONEY-04, ANLY-02) | Pending: 1 (FND-03)
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after roadmap creation (9 phases, full coverage)*
+*Last updated: 2026-07-05 — Phases 5, 6, 8 marked complete and Phase 7 core marked complete/partial after retroactive documentation of founder-authorized direct development (GSD bypass) for Phases 5-8; see phase SUMMARY.md files for honest per-requirement status.*

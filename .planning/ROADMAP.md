@@ -17,10 +17,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Mascot Module** - The raccoon mascot exists as a reusable, feature-agnostic presence module (completed 2026-07-02)
 - [x] **Phase 3: Co-pilot End-to-End** - A user can start and always warmly finish an async body-doubling session, surviving backgrounding and force-quit (completed 2026-07-03)
 - [x] **Phase 4: Brain Dump** - A user can capture and categorize tasks by text or voice and promote any into a session (completed 2026-07-05)
-- [ ] **Phase 5: Starter** - A user can pair a personal cue with a tiny first action to pre-commit to starting
-- [ ] **Phase 6: Onboarding** - A first-time user reaches their first task within 3 skippable screens
-- [ ] **Phase 7: Subscription Infrastructure + Freemium Gate** - A user can subscribe or continue on a genuinely usable free tier, correctly online or offline
-- [ ] **Phase 8: Settings & Analytics Audit** - A user controls locale/notifications/subscription state; the team sees funnel data with no content payloads
+- [x] **Phase 5: Starter** - A user can pair a personal cue with a tiny first action to pre-commit to starting (completed 2026-07-03; built via founder-authorized direct dev, retro-documented 2026-07-05)
+- [x] **Phase 6: Onboarding** - A first-time user reaches their first task within 3 skippable screens (completed 2026-07-03; built via founder-authorized direct dev, retro-documented 2026-07-05)
+- [ ] **Phase 7: Subscription Infrastructure + Freemium Gate** - A user can subscribe or continue on a genuinely usable free tier, correctly online or offline (Partial — core complete 2026-07-03: gate/paywall/entitlements done; RevenueCat purchases pending keys+store; built via founder-authorized direct dev, retro-documented 2026-07-05)
+- [x] **Phase 8: Settings & Analytics Audit** - A user controls locale/notifications/subscription state; the team sees funnel data with no content payloads (completed 2026-07-03; analytics transport inert pending PostHog EU key; built via founder-authorized direct dev, retro-documented 2026-07-05)
 - [ ] **Phase 9: Beta Hardening** - The app is verified offline-correct, performant on real low-end hardware, and free of shame/urgency language
 
 ## Phase Details
@@ -178,7 +178,7 @@ Plans:
   3. User can optionally attach a single self-worded notification to a saved intention, with the permission ask happening contextually here, not during onboarding
   4. Static UI copy visibly coaches the action to be a tiny first step, not the whole task
 
-**Plans**: TBD
+**Plans**: Built via founder-authorized direct development (GSD bypass), not planned in per-plan waves. Retroactively documented — see [05-CONTEXT.md](./phases/05-starter/05-CONTEXT.md) and [05-SUMMARY.md](./phases/05-starter/05-SUMMARY.md).
 **UI hint**: yes
 
 ### Phase 6: Onboarding
@@ -193,7 +193,7 @@ Plans:
   2. User can skip onboarding from any screen and land directly in the app
   3. No notification permission dialog appears anywhere during onboarding
 
-**Plans**: TBD
+**Plans**: Built via founder-authorized direct development (GSD bypass), not planned in per-plan waves. Retroactively documented — see [06-CONTEXT.md](./phases/06-onboarding/06-CONTEXT.md) and [06-SUMMARY.md](./phases/06-onboarding/06-SUMMARY.md).
 **UI hint**: yes
 
 ### Phase 7: Subscription Infrastructure + Freemium Gate
@@ -209,7 +209,7 @@ Plans:
   3. A user offline with an unknown entitlement state defaults to free tier with no alarming copy, and restore purchases works correctly on a fresh install
   4. User can use the full core loop (Co-pilot, Brain dump, Starter) with no account; an account is introduced only at purchase or restore
 
-**Plans**: TBD
+**Plans**: Built via founder-authorized direct development (GSD bypass), not planned in per-plan waves. **Status: Partial — core complete 2026-07-03** (entitlements, session-start gate, paywall, reference-mode pricing). RevenueCat purchases (MONEY-01), offline restore-on-fresh-install (MONEY-03), and the account-at-purchase flow (MONEY-04) remain pending RevenueCat keys, store product configuration, and device verification. Retroactively documented — see [07-CONTEXT.md](./phases/07-subscription-freemium/07-CONTEXT.md) and [07-SUMMARY.md](./phases/07-subscription-freemium/07-SUMMARY.md).
 
 ### Phase 8: Settings & Analytics Audit
 
@@ -223,7 +223,7 @@ Plans:
   2. Every analytics event fired by the app matches a typed allowlist and carries no content payloads, with autocapture and session replay confirmed disabled
   3. Activation (install → first completed Co-pilot session) and D7/D30 retention events fire correctly and appear in the EU-hosted analytics dashboard
 
-**Plans**: TBD
+**Plans**: Built via founder-authorized direct development (GSD bypass), not planned in per-plan waves. **Status: Complete at the code layer (SETT-01 + ANLY-01 allowlist done); analytics transport inert pending PostHog EU key — success criterion 3 (dashboard verification) is unmet until the key lands.** Retroactively documented — see [08-CONTEXT.md](./phases/08-settings-analytics/08-CONTEXT.md) and [08-SUMMARY.md](./phases/08-settings-analytics/08-SUMMARY.md).
 **UI hint**: yes
 
 ### Phase 9: Beta Hardening
@@ -253,8 +253,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Mascot Module | 5/5 | Complete    | 2026-07-02 |
 | 3. Co-pilot End-to-End | 5/5 | Complete   | 2026-07-03 |
 | 4. Brain Dump | 6/6 | Complete    | 2026-07-05 |
-| 5. Starter | 0/TBD | Not started | - |
-| 6. Onboarding | 0/TBD | Not started | - |
-| 7. Subscription Infrastructure + Freemium Gate | 0/TBD | Not started | - |
-| 8. Settings & Analytics Audit | 0/TBD | Not started | - |
+| 5. Starter | n/a (direct dev) | Complete    | 2026-07-03 |
+| 6. Onboarding | n/a (direct dev) | Complete    | 2026-07-03 |
+| 7. Subscription Infrastructure + Freemium Gate | n/a (direct dev) | Partial (core complete) | 2026-07-03 |
+| 8. Settings & Analytics Audit | n/a (direct dev) | Complete (transport pending) | 2026-07-03 |
 | 9. Beta Hardening | 0/TBD | Not started | - |

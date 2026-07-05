@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready_to_plan
-stopped_at: Phase 4 complete (6/6) — ready to discuss Phase 5
-last_updated: 2026-07-05T02:47:04.166Z
+stopped_at: "Phases 5-8 built via founder-authorized direct dev; retro-docs filled; 221 tests green; pending: RevenueCat+PostHog keys, device UAT (STT + notifications + phases 5-8 screens), Phase 9 hardening"
+last_updated: "2026-07-05T13:45:04.719Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 9
-  completed_phases: 4
+  completed_phases: 7
   total_plans: 22
   completed_plans: 22
-  percent: 44
+  percent: 78
 ---
 
 # Project State
@@ -21,16 +21,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-01)
 
 **Core value:** A user who has been avoiding a task can open Trinket and actually start it in the mascot's presence — Co-pilot lowers the threshold to start.
-**Current focus:** Phase 5 — starter
+**Current focus:** Phase 9 — Beta Hardening (Phase 7's RevenueCat integration remains partial and should be closed out before or during Phase 9)
 
 ## Current Position
 
-Phase: 5
+Phase: 9
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-07-05
 
-Progress: [██████████] 100%
+Progress: [████████░░] 78%
+
+**Honest phase status:** Phases 1-6 and 8 are fully complete. Phase 7 (Subscription Infrastructure + Freemium Gate) is CORE-COMPLETE ONLY — entitlements/gate/paywall/reference-pricing are done and tested, but real RevenueCat purchases (MONEY-01), offline restore-on-fresh-install (MONEY-03), and the account-at-purchase flow (MONEY-04) remain open pending RevenueCat keys, store product configuration, Supabase auth, and device verification. Phase 9 has not started. Phases 5, 6, 7, 8 were built via founder-authorized direct development bypassing the normal GSD plan/execute pipeline (no PLAN.md files exist for these phases) and were retro-documented on 2026-07-05 — see each phase's CONTEXT.md/SUMMARY.md for the reconstructed decision trail.
 
 ## Performance Metrics
 
@@ -48,6 +50,10 @@ Progress: [██████████] 100%
 | 2 | 5 | - | - |
 | 3 | 4 | - | - |
 | 4 | 6 | - | - |
+| 5 | n/a (direct dev, not plan-tracked) | - | - |
+| 6 | n/a (direct dev, not plan-tracked) | - | - |
+| 7 | n/a (direct dev, not plan-tracked; core only) | - | - |
+| 8 | n/a (direct dev, not plan-tracked) | - | - |
 
 **Recent Trend:**
 
@@ -77,6 +83,11 @@ Progress: [██████████] 100%
 | Phase 04 P04 | 6min | 2 tasks | 2 files |
 | Phase 04 P05 | 9min | 2 tasks | 2 files |
 | Phase 04 P06 | 12min | 3 tasks | 10 files |
+| Phase 05 (Starter, direct dev) | unknown | 4 commits | 12 files |
+| Phase 06 (Onboarding, direct dev) | unknown | 3 commits | 8 files |
+| Phase 07 (Subscription, direct dev, core only) | unknown | 4 commits | 9 files |
+| Phase 08 (Settings+Analytics, direct dev) | unknown | 3 commits | 13 files |
+| Cross-phase blitz-review fix (05-08) | unknown | 1 commit | 11 files |
 
 ## Accumulated Context
 
@@ -135,6 +146,13 @@ Recent decisions affecting current work:
 - [Phase 04-05]: The dumpItemId useEffect depends only on [dumpItemId] (not flowPhase/resumablePointer) — Fires once per param and never re-triggers after flowPhase becomes active -- guards read at effect-run time via closure, mirroring ActivePhase's existing timeMode-only effect precedent.
 - [Phase 04-06]: Voice augments the same text field via useVoiceCapture; permission denial + runtime STT errors fold into one combined available signal (UI-SPEC Flag 9).
 - [Phase 04-06]: Recording-duration timer restructured to satisfy react-hooks/purity + react-hooks/set-state-in-effect: Date.now() only read from event handlers/interval callbacks, never during render.
+- [Phases 5-8]: Founder-authorized direct development bypass — after Phase 4 completed, Phases 5 (Starter), 6 (Onboarding), 7 (Subscription/Freemium), and 8 (Settings/Analytics) were built directly on this branch without the normal `/gsd:plan-phase` → `/gsd:execute-phase` pipeline, to move faster once the established patterns (TDD pure-function core, contextual permission, timestamp-derived state, i18n-first copy) were proven across 4 prior phases. Retroactive CONTEXT.md/SUMMARY.md pairs were written post-hoc on 2026-07-05 for all four phases from git history and source inspection to keep the planning trail honest.
+- [Phase 5]: Reminder scheduling uses replace-don't-orphan semantics (cancel any prior notificationId before scheduling a new one) plus an in-flight guard — added after a same-session code review (BLITZ-REVIEW.md) found a double-tap could orphan an uncancellable OS notification, a concrete PDA/shame-free violation class.
+- [Phase 6]: Onboarding's optional first task becomes an inert Brain-dump item (via the existing classify() pipeline), never an auto-started Co-pilot session — the "straight into a session" variant was explicitly considered and rejected as pressure at the very first app moment a user experiences.
+- [Phase 7]: Freemium tier/session-count is derived entirely from existing session timestamps at check time (Monday-anchored calendar week) — zero stored counters, consistent with the schema's no-aggregates constraint. Gated Co-pilot start affordances stay fully tappable (no greyed-out buttons); a tap while gated opens the paywall as an offer, never a disabled control — a deliberate shame-free departure from the industry-standard pattern.
+- [Phase 7]: Purchases seam ships in REFERENCE mode (brief's exact PL/US pricing displayed, purchase()/restore() always resolve 'unavailable', honest "purchases aren't switched on" caption) — real RevenueCat wiring, App/Play Store product configuration, and Supabase auth-at-purchase are explicitly NOT done; MONEY-01/03/04 remain partial, only MONEY-02 is complete.
+- [Phase 8]: Analytics ships as a transport-seam: a typed event allowlist (closed-enum properties only, no free-form strings representable) plus a runtime allowlist guard as defense-in-depth, with track() a silent no-op until a PostHog EU key exists. Every funnel event is instrumented at its real call site now so wiring the SDK later requires zero call-site changes.
+- [Phases 5-8]: A consolidated code review (`.planning/BLITZ-REVIEW.md`) found 1 critical (reminder-orphan, fixed) + 6 warnings (all fixed: DST calendar math, two missing double-submit guards, Jest-mock enum drift, unguarded native-call error handling, unhandled reminders-off-sweep rejection) + hygiene (deleted an unused shame-copy-pattern i18n landmine, added missing PL plural forms, named a debounce constant) before this retro-documentation pass began. Full suite re-verified at 29 suites / 221 tests green (corrects an earlier "30 suites" claim in session notes to the actual on-disk count).
 
 ### Pending Todos
 
@@ -152,6 +170,9 @@ None yet.
 - Phase 7 (Subscriptions): weekly-subscription-tier App/Play Store review carries real rejection/resubmission risk — budget calendar slack around this submission.
 - iOS physical-device dev-client boot is NOT yet verified (deferred from Phase 1 Plan 06 checkpoint; Phase 2 context D-03 confirmed Android-only verification for the Lottie work) — retry when EAS/Mac access happens; hard gate before Phase 9 beta hardening can close.
 - com.trinket.app package/bundle-ID uniqueness on Play Store / App Store is unproven until first store submission; if taken, a fallback identifier must be chosen at that time.
+- Phase 7 (Subscriptions) is CORE-COMPLETE ONLY as of 2026-07-05: no RevenueCat SDK/key, no App/Play Store product configuration, and no Supabase auth exist yet — MONEY-01, MONEY-03 (restore-on-fresh-install half), and MONEY-04 remain genuinely open work, not just unverified.
+- Phase 8 (Settings & Analytics): no PostHog SDK/key exists yet — every funnel event is instrumented and inert; ANLY-02's "appear in the EU-hosted dashboard" criterion is unmet until the transport is wired.
+- Starter (Phase 5) real-device notification-delivery timing (OS-level Doze/battery-optimization delay) is unverified — code-verified only via Jest mock.
 
 ### Quick Tasks Completed
 
@@ -169,6 +190,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T02:20:30.380Z
-Stopped at: Completed 04-06-PLAN.md
-Resume file: None
+Last session: 2026-07-05T13:45:04.693Z
+Stopped at: Phases 5-8 built via founder-authorized direct dev; retro-docs filled; 221 tests green; pending: RevenueCat+PostHog keys, device UAT (STT + notifications + phases 5-8 screens), Phase 9 hardening
+Resume file: .planning/ROADMAP.md
