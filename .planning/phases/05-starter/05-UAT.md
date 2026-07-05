@@ -21,8 +21,9 @@ expected: Cue chips prefill an editable field; step 2 takes a tiny action; Save 
 result: pass
 
 ### 2. Schedule a reminder — contextual permission + own-words content
-expected: Tap the bell on an intention card → day (today/tomorrow) + time-slot chips (9/12/18/21). The OS notification-permission dialog appears only NOW (never earlier, never during onboarding). When the reminder fires, the notification title is YOUR cue text and the body is YOUR action text — no app-authored exhortation.
-result: [pending]
+expected: "A quiet reminder?" on an intention card → day (today/tomorrow) + time-slot chips (9/12/18/21). The OS notification-permission dialog appears only NOW (never earlier, never during onboarding). When the reminder fires, the notification title is YOUR cue text and the body is YOUR action text — no app-authored exhortation.
+result: pass (scheduling + contextual permission); fired-notification content check deferred ~1h until the slot fires
+note: UI control is the text offer "A quiet reminder?", not a bell icon — checkpoint wording corrected.
 
 ### 3. Reschedule replaces, never duplicates
 expected: Schedule a reminder, then reschedule the same intention to a different slot. Only the NEW reminder fires — the old one never arrives.
