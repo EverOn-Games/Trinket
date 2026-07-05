@@ -375,6 +375,17 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
   // the same row.
   const isDeletingRef = useRef(false);
   const isPromotingRef = useRef(false);
+  // CR-02: the timeout id backing isPromotingRef's re-arm window below,
+  // cleared on unmount so a stray setTimeout callback never fires against
+  // an unmounted row.
+  const promoteResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (promoteResetTimeoutRef.current !== null) {
+        clearTimeout(promoteResetTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const enterEdit = () => {
     setEditText(item.text);
@@ -407,11 +418,16 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
   // D-14: this file only pushes a router param — session creation stays
   // single-sourced in co-pilot.tsx's startFromDumpItem (04-05's job). D-15:
   // re-promoting is allowed, so this guard only blocks a double-tap within
-  // the same press, never a legitimate second promote later.
+  // the same press, never a legitimate second promote later (CR-02: the
+  // guard is a short time-window debounce, not a permanent latch — the row
+  // stays mounted after promoting since D-15 marks rather than consumes).
   const handlePromote = () => {
     if (isPromotingRef.current) return;
     isPromotingRef.current = true;
     router.push({ pathname: '/co-pilot', params: { dumpItemId: item.id } });
+    promoteResetTimeoutRef.current = setTimeout(() => {
+      isPromotingRef.current = false;
+    }, 800);
   };
 
   const rowStyle = StyleSheet.flatten([

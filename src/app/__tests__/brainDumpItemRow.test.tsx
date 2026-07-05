@@ -5,7 +5,7 @@
  * pattern) and seeds a dumpItemsRepo item directly before each interaction,
  * asserting against the repo (source of truth) rather than component state.
  */
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
 
 import { contentStorage } from '../../../data/mmkv';
@@ -102,6 +102,49 @@ describe('Brain dump item row (DUMP-03, DUMP-04, D-11, D-13, D-14, D-15)', () =>
       expect(dumpItemsRepo.list().some((existing) => existing.id === item.id)).toBe(true);
     } finally {
       pushSpy.mockRestore();
+    }
+  });
+
+  it('re-arms the promote guard after its debounce window, so a later re-promote is not silently ignored (CR-02, D-15)', async () => {
+    const item = dumpItemsRepo.create({ text: 'call dentist', category: 'people' });
+    const pushSpy = jest.spyOn(router, 'push');
+
+    jest.useFakeTimers();
+    try {
+      await renderRouter(routeContext, { initialUrl: '/brain-dump' });
+
+      await fireEvent.press(screen.getByRole('button', { name: en.brainDump.item.promote }));
+      expect(pushSpy).toHaveBeenCalledTimes(1);
+      // startFromDumpItem creates a session immediately and jumps straight
+      // to the active phase (co-pilot.tsx), skipping setup.
+      expect(await screen.findByRole('button', { name: en.coPilot.active.endButton })).toBeTruthy();
+
+      // Back out of /co-pilot without committing to a session — a stack
+      // push, not a replace, so brain-dump.tsx (and this row's isPromotingRef)
+      // stays mounted underneath (mirrors screens.test.tsx's CR-01/CR-02
+      // navigateBackToHome precedent: raw router.back(), still wrapped in
+      // our own act()).
+      await act(async () => {
+        router.back();
+      });
+      await screen.findByRole('button', { name: en.brainDump.item.promote });
+
+      // Advance past the debounce window: the item stays in the list (D-15
+      // marks, does not consume), so re-promoting later must work rather
+      // than silently no-op (the bug this finding describes).
+      await act(async () => {
+        jest.advanceTimersByTime(800);
+      });
+
+      await fireEvent.press(screen.getByRole('button', { name: en.brainDump.item.promote }));
+      expect(pushSpy).toHaveBeenCalledTimes(2);
+      expect(pushSpy).toHaveBeenLastCalledWith({
+        pathname: '/co-pilot',
+        params: { dumpItemId: item.id },
+      });
+    } finally {
+      pushSpy.mockRestore();
+      jest.useRealTimers();
     }
   });
 });
