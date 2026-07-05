@@ -78,7 +78,7 @@ Accent reserved for: the four element groups listed above — never used on cate
 
 | Element | Copy |
 |---------|------|
-| Primary CTA | "Save" (`brainDump.capture.save`) on the Capture view; "Start a session" (`brainDump.item.promote`) per item on the grouped list |
+| Primary CTA | "Save these" (`brainDump.capture.save`) on the Capture view; "Start a session" (`brainDump.item.promote`) per item on the grouped list |
 | Empty state heading | N/A — per D-12, zero items routes straight into the Capture view; there is no separate empty-list screen to head (see Screen Contracts §2) |
 | Empty state body | N/A, same reason — the Capture view's idle prompt ("What's on your mind?") is the de facto first-run/empty moment |
 | Error state | N/A — no network calls this phase; STT unavailable or permission-denied degrades gracefully into a single, non-alarming caption (`brainDump.capture.voiceUnavailable`, see Flag 9) rather than an error message |
@@ -109,7 +109,7 @@ Accent reserved for: the four element groups listed above — never used on cate
 | Mic accessibility label — idle | "Microphone — tap to speak" (`brainDump.capture.micLabel.idle`) | "Mikrofon — stuknij, aby mówić" | — |
 | Mic accessibility label — active | "Listening — tap to stop" (`brainDump.capture.micLabel.active`) | "Słucham — stuknij, aby zatrzymać" | — |
 | Voice-unavailable caption | "Voice isn't available right now — typing works great too." (`brainDump.capture.voiceUnavailable`) | "Głos teraz niedostępny — pisanie też świetnie działa." | Shown in place of the mic button whenever `isRecognitionAvailable()` is false, permission is denied, or a runtime STT error fires (see Flag 9: one shared caption for all three cases, not three different messages) |
-| Save button | "Save" (`brainDump.capture.save`) | "Zapisz" | Accent-filled pill, bottom of screen; disabled only in the sense that an empty field on tap is a silent no-op (D-07) — never a disabled/greyed visual state that could read as a rejection |
+| Save button | "Save these" (`brainDump.capture.save`) | "Zapisz wpisy" | Accent-filled pill, bottom of screen; disabled only in the sense that an empty field on tap is a silent no-op (D-07) — never a disabled/greyed visual state that could read as a rejection. (Specific verb+noun, not the banned bare "Save" — UI-checker Dimension 1.) |
 
 **Interaction notes:**
 - Mic permission is requested contextually on first mic tap only (D-03) — never upfront, never during any earlier screen.
@@ -152,7 +152,7 @@ Accent reserved for: the four element groups listed above — never used on cate
 | Edit link | "Edit" (`brainDump.item.edit`) | "Edytuj" | Label role, `textSecondary` text link — no icon (see Design System table) |
 | Edit mode — inline field | item's own text, editable in place | — | Editing does NOT re-suggest a category (D-13's default — see `04-CONTEXT.md` "Claude's Discretion") |
 | Edit mode — confirm | "Done" (`brainDump.item.editDone`) | "Gotowe" | Replaces the Edit/Delete footer while editing |
-| Edit mode — cancel | "Cancel" (`brainDump.item.editCancel`) | "Anuluj" | Discards in-progress edits, reverts to the saved text |
+| Edit mode — cancel | "Discard changes" (`brainDump.item.editCancel`) | "Odrzuć zmiany" | Discards in-progress edits, reverts to the saved text. (Specific action, not the banned bare "Cancel"; consistent with the delete flow's "Keep it" shame-free precedent — UI-checker Dimension 1.) |
 | Delete link | "Delete" (`brainDump.item.delete`) | "Usuń" | Label role, `textSecondary` text link — tapping opens the inline confirm below, never an immediate delete and never a bare swipe gesture (D-13) |
 | Delete confirm heading | "Delete this?" (`brainDump.item.deleteConfirm.heading`) | "Usunąć to?" | Heading role; replaces the footer temporarily |
 | Delete confirm — confirm | "Delete" (`brainDump.item.deleteConfirm.confirm`) | "Usuń" | Neutral typography, not a warning color (Flag 4) |
