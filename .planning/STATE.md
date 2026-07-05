@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-07-05T01:45:22.313Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-07-05T01:49:38.008Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 22
-  completed_plans: 17
+  completed_plans: 18
   percent: 33
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-01)
 ## Current Position
 
 Phase: 4 (Brain Dump) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-07-05
 
-Progress: [████████░░] 77%
+Progress: [████████░░] 82%
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Progress: [████████░░] 77%
 | Phase 03 P04 | 16min | 2 tasks | 5 files |
 | Phase 03 P05 | 6min | 2 tasks | 2 files |
 | Phase 04 P01 | 8min | 2 tasks | 5 files |
+| Phase 04 P02 | 12min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,8 @@ Recent decisions affecting current work:
 - [Phase 03-04]: Home's post-Not-now state (dismissedActiveSession) is a plain boolean useState, not a re-read counter — this is what forces a re-render after Not now since activeSessionRepo.read() alone in the render body has no reactive subscription
 - [Phase 03-05]: REVISES D-13 Pattern 3: acknowledge-animation completion no longer navigates Home; the ending moment persists until an explicit mood tap or Skip — 03-HUMAN-UAT.md Test 4 (major): the ~1500ms placeholder animation auto-dismissed the mood check before the user could tap anything
 - [Phase 04-01]: Corrected classify.ts's tie-break logic beyond 04-PATTERNS.md's literal skeleton — Strict '>' alone only protects the zero-score 'someday' default from being displaced; added an equal-score-and-nonzero branch resetting to 'someday' so genuine ties between two nonzero-scoring categories resolve correctly per D-09/Pitfall 4
+- [Phase 04]: Draft key literal 'draft:brainDump' (D-06) verified clean against all 8 schema-denylist stems
+- [Phase 04]: PL category label 'Do zalatwienia' (errands) shipped as draft copy pending native-speaker review (UI-SPEC Flag 6)
 
 ### Pending Todos
 
@@ -154,6 +157,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T01:45:22.288Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-07-05T01:49:37.983Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
