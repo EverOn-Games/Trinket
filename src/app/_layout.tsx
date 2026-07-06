@@ -34,6 +34,7 @@ import { useSettingsStore } from '../../data/stores/useSettingsStore';
 import { activeSessionRepo } from '../../data/repositories/activeSession';
 import { sessionsRepo } from '../../data/repositories/sessions';
 import { reconcileActiveSession } from '../features/co-pilot/reconcileActiveSession';
+import { endAllSessionActivities } from '../features/surfaces/sessionActivity';
 import { track } from '../analytics/analytics';
 import { initPostHogTransport } from '../analytics/posthog';
 import { configurePurchases } from '../features/subscription/purchases';
@@ -150,6 +151,12 @@ function useReconcileActiveSession(): void {
     if (action.kind === 'reconcile-stale' && pointer) {
       sessionsRepo.update(pointer.sessionId, { endedAt: action.endedAt });
       activeSessionRepo.clear();
+    }
+    // v0.2 §6b orphan sweep: with no live session to mirror, any lingering
+    // Live Activity (force-quit mid-session) ends quietly. 'keep-live'
+    // leaves the activity alone — the session genuinely continues.
+    if (action.kind !== 'keep-live') {
+      void endAllSessionActivities();
     }
   }, []);
 }

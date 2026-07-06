@@ -27,6 +27,8 @@ export type AnalyticsEvents = {
   reminder_scheduled: { dayChosen: 'today' | 'tomorrow' };
   /** MECH-01 Soft landing: a landing was configured (structural only). */
   landing_scheduled: { leadMinutes: number; transitionTouch: boolean };
+  /** v0.2 §9: a session-adjacent screen was entered from an out-of-app surface. */
+  surface_entry: { surface: 'widget' | 'liveActivity' };
   /** MECH-02 Bridge: which handoff the ritual ended in (v0.2 §9 instrumentation). */
   bridge_next: { nextAction: 'session' | 'starter' | 'none' };
   /** Freemium gate funnel (Phase 7). */
@@ -47,6 +49,7 @@ export const ALLOWED_EVENT_NAMES: readonly AnalyticsEventName[] = [
   'starter_created',
   'reminder_scheduled',
   'landing_scheduled',
+  'surface_entry',
   'bridge_next',
   'gate_shown',
   'paywall_viewed',
@@ -69,4 +72,6 @@ export const SAFE_STRING_TOKENS: ReadonlySet<string> = new Set([
   'session',
   'starter',
   'none',
+  'widget',
+  'liveActivity',
 ]);

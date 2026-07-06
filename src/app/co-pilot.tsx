@@ -29,6 +29,8 @@ import { sessionsRepo } from '../../data/repositories/sessions';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
 import { useRepoVersion } from '../../data/repoBus';
 import { useElapsedSession } from '@/features/co-pilot/useElapsedSession';
+import { useSurfaceEntry } from '@/features/surfaces/useSurfaceEntry';
+import { startSessionActivity, endAllSessionActivities } from '@/features/surfaces/sessionActivity';
 import { canStartSession, sessionsStartedThisWeek } from '@/features/subscription/entitlements';
 import { track } from '../analytics/analytics';
 import type { ActiveSessionPointer, DumpItem, Session } from '../../data/types';
@@ -128,6 +130,7 @@ export default function CoPilotScreen() {
   const { dumpItemId } = useLocalSearchParams<{ dumpItemId?: string }>();
   // For the MONEY-02 gate's paywall push below (EndingPhase has its own).
   const router = useRouter();
+  useSurfaceEntry(); // §9: widget / Live Activity arrival attribution
 
   // Shared across all three start affordances (WR-04/T-03-05) — only one of
   // one-liner/just-work/dump-item may ever create a session for a single
@@ -172,6 +175,10 @@ export default function CoPilotScreen() {
     setFlowPhase('active');
     // ANLY-02 activation funnel front edge — source token only, never the task.
     track('session_started', { source: session.source });
+    // v0.2 §6b: mirror the session onto the Lock Screen / Dynamic Island
+    // (iOS; no-op elsewhere). Fire-and-forget — the surface never owns the
+    // session, so its failure can't touch it.
+    void startSessionActivity(session.startedAt, session.taskLabel);
   };
 
   const startFromOneLiner = (text: string) => {
@@ -229,6 +236,9 @@ export default function CoPilotScreen() {
     sessionsRepo.update(activeSession.sessionId, { endedAt: Date.now() });
     activeSessionRepo.clear();
     setFlowPhase('ending');
+    // The lock-screen mirror ends with the session — the warm ending
+    // happens in-app, never out there (v0.2 §6b).
+    void endAllSessionActivities();
   };
 
   // MECH-02 Bridge (v0.2 spec §4): after the warm ending resolves, the

@@ -48,7 +48,52 @@
           ]
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "com.trinket.app.widgets",
+          "groupIdentifier": "group.com.trinket.app",
+          "enablePushNotifications": false,
+          "widgets": [
+            {
+              "name": "TrinketWidget",
+              "displayName": "Trinket",
+              "description": "Your companion, resting on the home screen — one tap to start a session.",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium"
+              ],
+              "contentMarginsDisabled": false
+            },
+            {
+              "name": "TrinketSessionActivity",
+              "displayName": "Trinket session",
+              "description": "Your companion stays with you on the Lock Screen during a session.",
+              "supportedFamilies": [],
+              "contentMarginsDisabled": false
+            }
+          ]
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "Trinket",
+              "label": "Trinket",
+              "description": "Your companion, resting on the home screen — one tap to start a session.",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "previewImage": "./assets/widget-preview/trinket.png",
+              "updatePeriodMillis": 0
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

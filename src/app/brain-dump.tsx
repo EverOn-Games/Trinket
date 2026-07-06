@@ -67,6 +67,7 @@ import { classify } from '@/features/brain-dump/classify';
 import { track } from '../analytics/analytics';
 import { useVoiceCapture } from '@/features/brain-dump/useVoiceCapture';
 import { useTheme } from '../../theme';
+import { useSurfaceEntry } from '@/features/surfaces/useSurfaceEntry';
 import { dumpItemsRepo } from '../../data/repositories/dumpItems';
 import { useRepoVersion } from '../../data/repoBus';
 import { readBrainDumpDraft, writeBrainDumpDraft, clearBrainDumpDraft } from '../../data/draft';
@@ -94,6 +95,7 @@ function formatRecordingDuration(ms: number): string {
 
 export default function BrainDumpScreen() {
   const { i18n } = useTranslation();
+  useSurfaceEntry(); // §9: widget arrival attribution
 
   // D-12: read directly in render, no local mirror of repo data — matches
   // co-pilot.tsx's SetupPhase `dumpItemsRepo.list()` precedent. repoBus keeps

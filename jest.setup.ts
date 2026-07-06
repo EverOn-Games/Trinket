@@ -82,6 +82,33 @@ jest.mock('react-native-purchases');
 // screen's presence-hold goes through this mock.
 jest.mock('expo-keep-awake');
 
+// Register the expo-widgets fake (see __mocks__/expo-widgets.ts). WidgetKit/
+// ActivityKit bindings can't initialize under Jest; the Live Activity seam
+// and widget definition modules go through this mock, which records started
+// instances for lifecycle assertions.
+jest.mock('expo-widgets');
+
+// Register the react-native-android-widget fake (see
+// __mocks__/react-native-android-widget.ts): headless-task registration and
+// RemoteViews primitives are device-only.
+jest.mock('react-native-android-widget');
+
+// @expo/ui/swift-ui renders SwiftUI on-device; under Jest the widget modules
+// only need importable stubs (their JSX never renders in tests).
+jest.mock('@expo/ui/swift-ui', () => ({
+  Text: () => null,
+  Image: () => null,
+  VStack: () => null,
+  HStack: () => null,
+  Spacer: () => null,
+}));
+jest.mock('@expo/ui/swift-ui/modifiers', () => ({
+  font: () => ({}),
+  foregroundStyle: () => ({}),
+  widgetURL: () => ({}),
+  activityBackgroundTint: () => ({}),
+}));
+
 // Register the recording posthog-react-native fake (see
 // __mocks__/posthog-react-native.ts). The native analytics client cannot
 // initialize under Jest's Node environment; the transport wiring (posthog.ts)
