@@ -10,7 +10,10 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.trinket.app",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSSupportsLiveActivities": true
+      }
     },
     "android": {
       "package": "com.trinket.app",

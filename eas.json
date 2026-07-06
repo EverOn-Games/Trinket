@@ -12,16 +12,19 @@
       },
       "ios": {
         "simulator": false
-      }
+      },
+      "environment": "development"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      }
+      },
+      "environment": "preview"
     },
     "production": {
-      "distribution": "store"
+      "distribution": "store",
+      "environment": "production"
     }
   }
 }

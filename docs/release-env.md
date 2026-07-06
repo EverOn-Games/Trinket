@@ -33,7 +33,7 @@ eas env:create --environment production --name EXPO_PUBLIC_POSTHOG_API_KEY --val
 eas env:list --environment production
 ```
 
-`eas build --profile production` picks these up automatically. iOS note:
+`eas build --profile production` picks these up automatically — eas.json now pins each build profile to its EAS environment explicitly. NOTE: for DEVELOPMENT (dev-client) builds the JS comes from Metro on your machine, so `.env.local` is what feeds `EXPO_PUBLIC_*` there — see docs/ios-device-build.md for the full split. iOS note:
 when the App Store app exists in RevenueCat, its `appl_…` key differs from
 the Android one — platform-specific values can be handled with per-platform
 profiles or by switching the value at build time; revisit when the iOS
