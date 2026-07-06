@@ -98,6 +98,23 @@ eas env:list --environment production   # verify before every store build
 | Real StoreKit sandbox / TestFlight / App Store | the **`appl_…`** key from the App Store app in RevenueCat (create it alongside the Play app; also needs App Store Connect subscription products attached to `Trinket Pro`) |
 | NEVER in a store build | `test_…` (auto-rejection + SDK crash — see docs/release-env.md) |
 
+## Surface containment (troubleshooting insurance)
+
+The iOS surfaces are deliberately containerized so a broken first build
+loses the surface, never the app:
+
+- Widgets and Live Activities run **out of process** on iOS — a broken
+  widget can only ever render a placeholder on the home screen.
+- The one in-process risk (expo-widgets' import-time native-module lookup)
+  is behind a lazy, guarded, memoized loader
+  (`src/features/surfaces/widgetsRuntime.ts`). If the module fails to load,
+  Metro logs ONE line — look for **"surfaces: expo-widgets runtime failed
+  to load"** — and the app runs normally with Live Activities off.
+- **Kill switch:** add `EXPO_PUBLIC_DISABLE_SURFACES=1` to `.env.local` and
+  restart Metro (`npx expo start -c`) to turn off all surface behavior in
+  the app without rebuilding — the first lever to pull when separating "the
+  app is broken" from "the surface is broken".
+
 ## Troubleshooting quick hits
 
 - Build fails on signing/entitlements → `eas credentials -p ios` and let it

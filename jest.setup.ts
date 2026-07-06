@@ -101,6 +101,7 @@ jest.mock('@expo/ui/swift-ui', () => ({
   VStack: () => null,
   HStack: () => null,
   Spacer: () => null,
+  Link: () => null,
 }));
 jest.mock('@expo/ui/swift-ui/modifiers', () => ({
   font: () => ({}),
