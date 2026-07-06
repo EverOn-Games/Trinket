@@ -12,6 +12,7 @@
  * caption — nothing typed is ever thrown away, nothing errors.
  */
 import { useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -77,7 +78,18 @@ export default function SoftLandingScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-once sweep against the mount-time clock
   }, []);
 
-  const [activityLabel, setActivityLabel] = useState('');
+  // §3 entry points "from a task / a session": arriving with prefillLabel
+  // seeds the activity field (the task's own words); sourceTaskId is stored
+  // on the landing created from THIS arrival only — it clears after the
+  // first save so a second landing set up in the same visit isn't silently
+  // attributed to the earlier task.
+  const params = useLocalSearchParams<{ prefillLabel?: string; sourceTaskId?: string }>();
+  const [activityLabel, setActivityLabel] = useState(() =>
+    typeof params.prefillLabel === 'string' ? params.prefillLabel : ''
+  );
+  const [sourceTaskId, setSourceTaskId] = useState<string | undefined>(() =>
+    typeof params.sourceTaskId === 'string' ? params.sourceTaskId : undefined
+  );
   const [day, setDay] = useState<ReminderDay>('today');
   const [slotHour, setSlotHour] = useState<number>(18);
   const [leadMinutes, setLeadMinutes] = useState<number>(10);
@@ -116,11 +128,13 @@ export default function SoftLandingScreen() {
       );
       landingsRepo.create({
         activityLabel: trimmed,
+        sourceTaskId,
         leadMinutes,
         activityAt,
         transitionTouch,
         ...ids,
       });
+      setSourceTaskId(undefined);
       track('landing_scheduled', { leadMinutes, transitionTouch });
       setActivityLabel('');
       setTransitionTouch(false);

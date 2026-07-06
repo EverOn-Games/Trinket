@@ -440,6 +440,16 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
   // the same press, never a legitimate second promote later (CR-02: the
   // guard is a short time-window debounce, not a permanent latch — the row
   // stays mounted after promoting since D-15 marks rather than consumes).
+  // §3 entry point "from a task": the item's text IS the upcoming activity —
+  // hand it to the Soft landing setup pre-filled, with the source id so the
+  // landing records where it came from (Landing.sourceTaskId).
+  const handleSoftLanding = () => {
+    router.push({
+      pathname: '/soft-landing',
+      params: { prefillLabel: item.text, sourceTaskId: item.id },
+    });
+  };
+
   const handlePromote = () => {
     if (isPromotingRef.current) return;
     isPromotingRef.current = true;
@@ -634,6 +644,9 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
           </Pressable>
           <Pressable accessibilityRole="button" onPress={() => setRowMode('delete')} style={styles.tapTarget}>
             <Text style={linkLabelStyle}>{t('brainDump.item.delete')}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={handleSoftLanding} style={styles.tapTarget}>
+            <Text style={linkLabelStyle}>{t('brainDump.item.softLanding')}</Text>
           </Pressable>
           <View style={{ flex: 1 }} />
           <Pressable

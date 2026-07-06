@@ -276,7 +276,12 @@ export default function CoPilotScreen() {
   return (
     <Screen>
       {flowPhase === 'active' && activeSession ? (
-        <ActivePhase session={activeSession} lengthIntentMin={lengthIntentMin} onEnd={endSession} />
+        <ActivePhase
+          session={activeSession}
+          lengthIntentMin={lengthIntentMin}
+          onEnd={endSession}
+          onSoftLanding={() => router.push('/soft-landing')}
+        />
       ) : flowPhase === 'ending' && activeSession ? (
         <EndingPhase sessionId={activeSession.sessionId} onFinished={handleEndingFinished} />
       ) : flowPhase === 'bridge' ? (
@@ -509,10 +514,12 @@ function ActivePhase({
   session,
   lengthIntentMin,
   onEnd,
+  onSoftLanding,
 }: {
   session: LiveSession;
   lengthIntentMin: number | null;
   onEnd: () => void;
+  onSoftLanding: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -648,6 +655,15 @@ function ActivePhase({
 
       <Pressable accessibilityRole="button" onPress={handleEnd} style={endButtonStyle}>
         <Text style={endButtonLabelStyle}>{t('coPilot.active.endButton')}</Text>
+      </Pressable>
+
+      {/* §3 entry point "from a session": a quiet route into planning the
+          NEXT transition while this one runs — caption-weight so the quiet
+          session stays quiet. */}
+      <Pressable accessibilityRole="button" onPress={onSoftLanding} style={styles.tapTarget}>
+        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.scale.caption }}>
+          {t('coPilot.active.softLandingLink')}
+        </Text>
       </Pressable>
     </View>
   );

@@ -51,7 +51,8 @@
         "elapsed": "minęło",
         "remaining": "zostało"
       },
-      "endButton": "Zakończ sesję"
+      "endButton": "Zakończ sesję",
+      "softLandingLink": "Miękkie lądowanie"
     },
     "ending": {
       "acknowledgment": "Jesteś tutaj. To się liczy.",
@@ -106,7 +107,8 @@
         "confirm": "Usuń",
         "cancel": "Zostaw"
       },
-      "promotedMarker": "· w Co-pilot"
+      "promotedMarker": "· w Co-pilot",
+      "softLanding": "Lądowanie"
     }
   },
   "starter": {

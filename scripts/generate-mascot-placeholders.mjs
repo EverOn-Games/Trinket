@@ -41,6 +41,7 @@ const EYE_WHITE = [0.96, 0.94, 0.88];
 const PUPIL = [0.13, 0.11, 0.1];
 const NOSE = [0.16, 0.13, 0.12];
 const GLOW = [0.95, 0.87, 0.72]; // breath glow
+const AMBER_DEEP = [0.91, 0.69, 0.36]; // dozing z — must read on BOTH themes (light-mode QA 2026-07-06)
 
 // ------------------------------------------------------------- primitives --
 const st = (v) => ({ a: 0, k: v }); // static property
@@ -508,7 +509,7 @@ function buildDozing() {
               [0, 0],
             ]
           ),
-          strokeShape(CREAM, 2.2, 90),
+          strokeShape(AMBER_DEEP, 2.2, 90),
         ],
         {
           p: anim(
