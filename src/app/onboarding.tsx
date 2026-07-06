@@ -97,7 +97,7 @@ export default function OnboardingScreen() {
     { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
   ]);
   const primaryLabelStyle = {
-    color: theme.colors.background,
+    color: theme.colors.onAccent,
     fontSize: theme.typography.scale.body,
     fontWeight: '600' as const,
   };

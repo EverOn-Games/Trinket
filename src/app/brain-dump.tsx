@@ -286,7 +286,7 @@ function CapturePhase({
     { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
   ]);
   const saveLabelStyle = {
-    color: theme.colors.background,
+    color: theme.colors.onAccent,
     fontSize: theme.typography.scale.body,
     fontWeight: '600' as const,
   };
@@ -502,7 +502,7 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
     { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
   ]);
   const promoteLabelStyle = {
-    color: theme.colors.background,
+    color: theme.colors.onAccent,
     fontSize: theme.typography.scale.caption,
     fontWeight: '600' as const,
   };
@@ -522,7 +522,7 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
               },
             ]);
             const optionLabelStyle = {
-              color: selected ? theme.colors.background : theme.colors.textPrimary,
+              color: selected ? theme.colors.onAccent : theme.colors.textPrimary,
               fontSize: theme.typography.scale.caption,
               fontWeight: '600' as const,
             };
@@ -595,7 +595,7 @@ function DumpItemRow({ item, onChange }: { item: DumpItem; onChange: () => void 
             >
               <Text
                 style={{
-                  color: theme.colors.background,
+                  color: theme.colors.onAccent,
                   fontSize: theme.typography.scale.caption,
                   fontWeight: '600' as const,
                 }}

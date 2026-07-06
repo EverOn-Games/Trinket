@@ -40,11 +40,15 @@ export interface SettingsStoreState {
   // pressure to finish). A one-way welcome flag, not a streak/engagement
   // field; it never resets on absence.
   onboardingComplete: boolean;
+  // POLI-01 (v0.2 §5): appearance override. 'system' follows the OS; dark
+  // remains the brand default when the OS expresses no preference.
+  themeMode: 'system' | 'light' | 'dark';
   setLocale: (locale: Locale) => void;
   setNotificationsOptIn: (notificationsOptIn: boolean) => void;
   setMascotProminence: (mascotProminence: MascotProminence) => void;
   setOnboardingComplete: () => void;
   setSubscriptionCache: (subscriptionCache: SubscriptionCache) => void;
+  setThemeMode: (themeMode: 'system' | 'light' | 'dark') => void;
 }
 
 export const useSettingsStore = create<SettingsStoreState>()(
@@ -58,6 +62,7 @@ export const useSettingsStore = create<SettingsStoreState>()(
       subscriptionCache: null,
       mascotProminence: 'prominent',
       onboardingComplete: false,
+      themeMode: 'system',
       // Setting a locale always marks resolution complete — this is the only
       // place localeResolved flips to true (WR-01).
       setLocale: (locale) => set({ locale, localeResolved: true }),
@@ -65,6 +70,7 @@ export const useSettingsStore = create<SettingsStoreState>()(
       setMascotProminence: (mascotProminence) => set({ mascotProminence }),
       setOnboardingComplete: () => set({ onboardingComplete: true }),
       setSubscriptionCache: (subscriptionCache) => set({ subscriptionCache }),
+      setThemeMode: (themeMode) => set({ themeMode }),
     }),
     {
       name: 'settings',

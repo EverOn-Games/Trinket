@@ -350,7 +350,7 @@ function SetupPhase({
     },
   ]);
   const oneLinerCtaLabelStyle = {
-    color: hasFocusedOneLiner ? theme.colors.background : theme.colors.textSecondary,
+    color: hasFocusedOneLiner ? theme.colors.onAccent : theme.colors.textSecondary,
     fontSize: theme.typography.scale.body,
     fontWeight: '600' as const,
   };
@@ -444,7 +444,7 @@ function SetupPhase({
               { backgroundColor: selected ? theme.colors.accent : theme.colors.surfaceElevated, borderRadius: theme.radii.pill },
             ]);
             const chipLabelStyle = {
-              color: selected ? theme.colors.background : theme.colors.textPrimary,
+              color: selected ? theme.colors.onAccent : theme.colors.textPrimary,
               fontSize: theme.typography.scale.caption,
               fontWeight: '600' as const,
             };
@@ -475,7 +475,7 @@ function SetupPhase({
           >
             <Text
               style={{
-                color: lengthIntentMin === null ? theme.colors.background : theme.colors.textPrimary,
+                color: lengthIntentMin === null ? theme.colors.onAccent : theme.colors.textPrimary,
                 fontSize: theme.typography.scale.caption,
                 fontWeight: '600',
               }}
@@ -606,7 +606,7 @@ function ActivePhase({
     { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
   ]);
   const endButtonLabelStyle = {
-    color: theme.colors.background,
+    color: theme.colors.onAccent,
     fontSize: theme.typography.scale.body,
     fontWeight: '600' as const,
   };
@@ -765,7 +765,7 @@ function EndingPhase({ sessionId, onFinished }: { sessionId: string; onFinished:
               },
             ]);
             const moodLabelStyle = {
-              color: selected ? theme.colors.background : theme.colors.textPrimary,
+              color: selected ? theme.colors.onAccent : theme.colors.textPrimary,
               fontSize: theme.typography.scale.caption,
               fontWeight: '600' as const,
             };

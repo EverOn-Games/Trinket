@@ -28,8 +28,16 @@ export type ThemeTokens = {
     textSecondary: string;
     accent: string;
     accentMuted: string;
+    /**
+     * Text/icon color ON the accent (buttons, selected chips). Espresso in
+     * BOTH themes: on terracotta, dark text is the accessible choice — in
+     * dark mode it equals `background` (so the light-mode work changed
+     * nothing visually there), in light mode it replaces what would have
+     * been unreadable cream-on-terracotta.
+     */
+    onAccent: string;
     border: string;
-    mascotGlow: string; // '#F2C988' — amber/gold, mascot-only accent (D-08)
+    mascotGlow: string; // amber/gold, mascot-only accent (D-08); deeper in light mode for contrast
   };
   spacing: {
     xs: number;
@@ -75,6 +83,7 @@ export const darkTokens: ThemeTokens = {
     textSecondary: '#A89A82',
     accent: '#D67A56',
     accentMuted: '#B8763F',
+    onAccent: '#1A140E',
     border: '#3A3229',
     mascotGlow: '#F2C988',
   },
@@ -105,4 +114,33 @@ export const darkTokens: ThemeTokens = {
     low: 2,
     medium: 6,
   },
+};
+
+/**
+ * Warm daylight palette (POLI-01, scheduled by v0.2 §5) — authored
+ * deliberately (the earlier Option B), NOT an inversion of the dark set.
+ * Sourced from the founder's own mockup reference values recorded in
+ * design/DESIGN-SYSTEM.md "CREAM/LIGHT": cream backdrop, warm-brown text,
+ * the SAME terracotta accent as dark (shared brand anchor), and the deeper
+ * amber glow variant so the mascot's glow holds contrast on light surfaces.
+ * Non-color scales are shared with darkTokens — the themes differ in
+ * palette, not in geometry.
+ */
+export const lightTokens: ThemeTokens = {
+  colors: {
+    background: '#F2E6CC',
+    surface: '#F4E9D7',
+    surfaceElevated: '#FBF4E4',
+    textPrimary: '#4A3F30',
+    textSecondary: '#8A7B64',
+    accent: '#D67A56',
+    accentMuted: '#B8763F',
+    onAccent: '#1A140E',
+    border: '#E0D2B4',
+    mascotGlow: '#E8B05C',
+  },
+  spacing: darkTokens.spacing,
+  radii: darkTokens.radii,
+  typography: darkTokens.typography,
+  elevation: darkTokens.elevation,
 };

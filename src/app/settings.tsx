@@ -43,6 +43,8 @@ export default function SettingsScreen() {
   const setNotificationsOptIn = useSettingsStore((s) => s.setNotificationsOptIn);
   const mascotProminence = useSettingsStore((s) => s.mascotProminence);
   const setMascotProminence = useSettingsStore((s) => s.setMascotProminence);
+  const themeMode = useSettingsStore((s) => s.themeMode);
+  const setThemeMode = useSettingsStore((s) => s.setThemeMode);
 
   // Reactive: Settings stays mounted under the pushed paywall, so this row
   // must re-render when a purchase grants (a plain getTier() read here left
@@ -124,7 +126,7 @@ export default function SettingsScreen() {
       },
     ]);
   const chipLabelStyle = (selected: boolean) => ({
-    color: selected ? theme.colors.background : theme.colors.textPrimary,
+    color: selected ? theme.colors.onAccent : theme.colors.textPrimary,
     fontSize: theme.typography.scale.caption,
     fontWeight: '600' as const,
   });
@@ -186,6 +188,25 @@ export default function SettingsScreen() {
               ? t('settings.notifications.subOn')
               : t('settings.notifications.subOff')}
           </Text>
+        </View>
+
+        <View style={{ gap: theme.spacing.sm }}>
+          <Text style={rowLabelStyle}>{t('settings.appearance.label')}</Text>
+          <View style={chipRowStyle}>
+            {(['system', 'light', 'dark'] as const).map((mode) => (
+              <Pressable
+                key={mode}
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={() => setThemeMode(mode)}
+                style={chipStyle(themeMode === mode)}
+              >
+                <Text style={chipLabelStyle(themeMode === mode)}>
+                  {t(`settings.appearance.${mode}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
         <View style={{ gap: theme.spacing.sm }}>

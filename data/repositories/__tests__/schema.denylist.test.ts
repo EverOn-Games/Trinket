@@ -90,6 +90,7 @@ describe('schema denylist guard', () => {
       setMascotProminence: _setMascotProminence,
       setOnboardingComplete: _setOnboardingComplete,
       setSubscriptionCache: _setSubscriptionCache,
+      setThemeMode: _setThemeMode,
       ...settingsData
     } = useSettingsStore.getState();
 

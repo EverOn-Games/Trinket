@@ -168,7 +168,7 @@ export default function SoftLandingScreen() {
       },
     ]);
   const chipLabelStyle = (selected: boolean) => ({
-    color: selected ? theme.colors.background : theme.colors.textPrimary,
+    color: selected ? theme.colors.onAccent : theme.colors.textPrimary,
     fontSize: theme.typography.scale.caption,
     fontWeight: '600' as const,
   });
@@ -271,7 +271,7 @@ export default function SoftLandingScreen() {
         <Pressable accessibilityRole="button" onPress={handleSave} style={saveStyle}>
           <Text
             style={{
-              color: theme.colors.background,
+              color: theme.colors.onAccent,
               fontSize: theme.typography.scale.body,
               fontWeight: '600',
             }}

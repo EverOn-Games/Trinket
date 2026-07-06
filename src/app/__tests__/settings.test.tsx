@@ -32,6 +32,7 @@ describe('Settings (SETT-01)', () => {
       subscriptionCache: null,
       locale: 'en',
       localeResolved: true,
+      themeMode: 'system',
     });
     await i18n.changeLanguage('en');
   });
@@ -102,6 +103,19 @@ describe('Settings (SETT-01)', () => {
     await renderRouter(routeContext, { initialUrl: '/settings' });
 
     expect(screen.getByText(en.settings.subscription.plusTier)).toBeTruthy();
+  });
+
+  it('appearance chips write the themeMode override (POLI-01)', async () => {
+    await renderRouter(routeContext, { initialUrl: '/settings' });
+
+    await fireEvent.press(screen.getByText(en.settings.appearance.light));
+    expect(useSettingsStore.getState().themeMode).toBe('light');
+
+    await fireEvent.press(screen.getByText(en.settings.appearance.dark));
+    expect(useSettingsStore.getState().themeMode).toBe('dark');
+
+    await fireEvent.press(screen.getByText(en.settings.appearance.system));
+    expect(useSettingsStore.getState().themeMode).toBe('system');
   });
 
   it('plus tier shows a manage-subscription link that opens the store management page', async () => {

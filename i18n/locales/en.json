@@ -208,6 +208,12 @@
       "plusSub": "Unlimited everything. Thank you for being here.",
       "seePlans": "See plans",
       "manage": "Manage subscription"
+    },
+    "appearance": {
+      "label": "Appearance",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
     }
   },
   "mascot": {

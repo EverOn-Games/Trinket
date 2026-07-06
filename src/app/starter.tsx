@@ -70,7 +70,7 @@ export default function StarterScreen() {
     { backgroundColor: theme.colors.accent, borderRadius: theme.radii.pill },
   ]);
   const newStarterLabelStyle = {
-    color: theme.colors.background,
+    color: theme.colors.onAccent,
     fontSize: theme.typography.scale.body,
     fontWeight: '600' as const,
   };
@@ -176,7 +176,7 @@ function IntentionBuilder({ onSaved }: { onSaved: () => void }) {
       },
     ]);
   const forwardLabelStyle = (enabled: boolean) => ({
-    color: enabled ? theme.colors.background : theme.colors.textSecondary,
+    color: enabled ? theme.colors.onAccent : theme.colors.textSecondary,
     fontSize: theme.typography.scale.body,
     fontWeight: '600' as const,
   });
@@ -222,7 +222,7 @@ function IntentionBuilder({ onSaved }: { onSaved: () => void }) {
                   >
                     <Text
                       style={{
-                        color: selected ? theme.colors.background : theme.colors.textPrimary,
+                        color: selected ? theme.colors.onAccent : theme.colors.textPrimary,
                         fontSize: theme.typography.scale.caption,
                       }}
                     >
@@ -383,7 +383,7 @@ function IntentionCard({ intention }: { intention: Intention }) {
       },
     ]);
   const chipLabelStyle = (selected: boolean) => ({
-    color: selected ? theme.colors.background : theme.colors.textPrimary,
+    color: selected ? theme.colors.onAccent : theme.colors.textPrimary,
     fontSize: theme.typography.scale.caption,
   });
 
@@ -510,7 +510,7 @@ function IntentionCard({ intention }: { intention: Intention }) {
             >
               <Text
                 style={{
-                  color: theme.colors.background,
+                  color: theme.colors.onAccent,
                   fontSize: theme.typography.scale.caption,
                   fontWeight: '600',
                 }}

@@ -212,6 +212,12 @@
       "plusSub": "Wszystko bez limitu. Dziękujemy, że jesteś.",
       "seePlans": "Zobacz plany",
       "manage": "Zarządzaj subskrypcją"
+    },
+    "appearance": {
+      "label": "Wygląd",
+      "system": "Systemowy",
+      "light": "Jasny",
+      "dark": "Ciemny"
     }
   },
   "mascot": {

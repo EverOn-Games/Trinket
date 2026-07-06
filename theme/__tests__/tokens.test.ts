@@ -2,9 +2,10 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
-import { darkTokens } from '../tokens';
-import { ThemeProvider } from '../ThemeProvider';
+import { darkTokens, lightTokens } from '../tokens';
+import { ThemeProvider, resolveThemeTokens } from '../ThemeProvider';
 import { useTheme } from '../useTheme';
+import { useSettingsStore } from '../../data/stores/useSettingsStore';
 
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
 
@@ -70,12 +71,55 @@ describe('theme/useTheme', () => {
     );
   }
 
-  it('returns darkTokens when rendered under ThemeProvider', async () => {
+  it('returns darkTokens under ThemeProvider with a dark override (POLI-01)', async () => {
+    useSettingsStore.setState({ themeMode: 'dark' });
     const { getByText } = await render(
       React.createElement(ThemeProvider, null, React.createElement(Probe))
     );
 
     const expected = `${darkTokens.colors.background}|${darkTokens.spacing.md}|${darkTokens.radii.md}|${darkTokens.typography.scale.body}|${darkTokens.elevation.low}`;
     expect(getByText(expected)).toBeTruthy();
+    useSettingsStore.setState({ themeMode: 'system' });
+  });
+
+  it('returns lightTokens under ThemeProvider with a light override', async () => {
+    useSettingsStore.setState({ themeMode: 'light' });
+    const { getByText } = await render(
+      React.createElement(ThemeProvider, null, React.createElement(Probe))
+    );
+
+    const expected = `${lightTokens.colors.background}|${lightTokens.spacing.md}|${lightTokens.radii.md}|${lightTokens.typography.scale.body}|${lightTokens.elevation.low}`;
+    expect(getByText(expected)).toBeTruthy();
+    useSettingsStore.setState({ themeMode: 'system' });
+  });
+});
+
+describe('resolveThemeTokens (POLI-01 resolution table)', () => {
+  it('override wins over the OS scheme', () => {
+    expect(resolveThemeTokens('dark', 'light')).toBe(darkTokens);
+    expect(resolveThemeTokens('light', 'dark')).toBe(lightTokens);
+  });
+
+  it('system follows the OS scheme', () => {
+    expect(resolveThemeTokens('system', 'light')).toBe(lightTokens);
+    expect(resolveThemeTokens('system', 'dark')).toBe(darkTokens);
+  });
+
+  it('system with no OS preference falls back to dark (brand default)', () => {
+    expect(resolveThemeTokens('system', null)).toBe(darkTokens);
+    expect(resolveThemeTokens('system', undefined)).toBe(darkTokens);
+  });
+
+  it('lightTokens is a deliberately authored palette, not an inversion', () => {
+    // Shared brand anchors hold across themes…
+    expect(lightTokens.colors.accent).toBe(darkTokens.colors.accent);
+    expect(lightTokens.colors.onAccent).toBe(darkTokens.colors.onAccent);
+    // The brand cream (#F2E6CC) is deliberately SHARED — dark-mode text and
+    // light-mode background are the same cream in the founder's mockups —
+    // but the light text colors are their own authored warm browns, not the
+    // dark surfaces swapped into text roles.
+    expect(lightTokens.colors.background).toBe(darkTokens.colors.textPrimary);
+    expect(lightTokens.colors.textPrimary).not.toBe(darkTokens.colors.background);
+    expect(lightTokens.colors.textPrimary).not.toBe(darkTokens.colors.surface);
   });
 });

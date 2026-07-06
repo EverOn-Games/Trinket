@@ -183,7 +183,7 @@ export default function HomeScreen() {
   ]);
   const primaryOfferLabelStyle = StyleSheet.flatten([
     styles.primaryOfferLabel,
-    { color: theme.colors.background, fontSize: theme.typography.scale.title },
+    { color: theme.colors.onAccent, fontSize: theme.typography.scale.title },
   ]);
   const secondaryOfferStyle = StyleSheet.flatten([
     styles.secondaryOffer,
