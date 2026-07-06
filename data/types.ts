@@ -57,6 +57,25 @@ export interface ActiveSessionPointer {
   taskLabel?: string; // denormalized for the D-11 resume card's copy, avoids a second read
 }
 
+/**
+ * Soft landing (MECH-01, v0.2 §3): a user-configured heads-up that a planned
+ * change of activity is approaching. The app reflects the user's own plan
+ * back at the time they chose — informational, never a demand. NO completion
+ * tracking exists by design: whether the user acted on a landing is not
+ * recorded, because recording it invites a pressure surface later.
+ */
+export interface Landing {
+  id: string;
+  activityLabel: string; // the user's own words for what they're moving to
+  sourceTaskId?: string; // future: set when created from a dump item/session
+  leadMinutes: number; // runway before the moment — freely set, suggestion chips only
+  activityAt: number; // epoch ms — the planned transition moment
+  transitionTouch: boolean; // opt-in second informational touch at the moment itself
+  createdAt: number; // epoch ms
+  headsUpNotificationId?: string; // OS handles for cancel — plumbing, not stats
+  transitionNotificationId?: string;
+}
+
 export type Locale = 'pl' | 'en';
 
 /**

@@ -22,10 +22,12 @@ import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import type { MascotProminence } from '@/components/Mascot/types';
 import { cancelIntentionNotification } from '@/features/starter/intentionNotifications';
+import { cancelLandingNotifications } from '@/features/soft-landing/landingNotifications';
 import { useTier } from '@/features/subscription/entitlements';
 import { getManagementUrl } from '@/features/subscription/purchases';
 import { useTheme } from '../../theme';
 import { intentionsRepo } from '../../data/repositories/intentions';
+import { landingsRepo } from '../../data/repositories/landings';
 import { useSettingsStore } from '../../data/stores/useSettingsStore';
 import type { Locale } from '../../data/types';
 
@@ -70,6 +72,22 @@ export default function SettingsScreen() {
             intentionsRepo.update(intention.id, { notifyAt: undefined, notificationId: undefined });
           } catch {
             // Leave this intention's fields for the next sweep; stay quiet.
+          }
+        }
+      }
+      // Same sweep for Soft landings (MECH-01): withdraw scheduled touches,
+      // keep the landings themselves — the id fields clearing means the list
+      // simply has nothing armed; nothing is lost, nothing comments on it.
+      for (const landing of landingsRepo.list()) {
+        if (landing.headsUpNotificationId || landing.transitionNotificationId) {
+          try {
+            await cancelLandingNotifications(landing);
+            landingsRepo.update(landing.id, {
+              headsUpNotificationId: undefined,
+              transitionNotificationId: undefined,
+            });
+          } catch {
+            // Leave this landing's fields for the next sweep; stay quiet.
           }
         }
       }

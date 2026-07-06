@@ -25,6 +25,8 @@ export type AnalyticsEvents = {
   item_promoted: Record<string, never>;
   starter_created: Record<string, never>;
   reminder_scheduled: { dayChosen: 'today' | 'tomorrow' };
+  /** MECH-01 Soft landing: a landing was configured (structural only). */
+  landing_scheduled: { leadMinutes: number; transitionTouch: boolean };
   /** MECH-02 Bridge: which handoff the ritual ended in (v0.2 §9 instrumentation). */
   bridge_next: { nextAction: 'session' | 'starter' | 'none' };
   /** Freemium gate funnel (Phase 7). */
@@ -44,6 +46,7 @@ export const ALLOWED_EVENT_NAMES: readonly AnalyticsEventName[] = [
   'item_promoted',
   'starter_created',
   'reminder_scheduled',
+  'landing_scheduled',
   'bridge_next',
   'gate_shown',
   'paywall_viewed',

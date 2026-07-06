@@ -17,7 +17,7 @@
  */
 import { useSyncExternalStore } from 'react';
 
-export type RepoNamespace = 'dumpItem' | 'session' | 'intention' | 'activeSession';
+export type RepoNamespace = 'dumpItem' | 'session' | 'intention' | 'activeSession' | 'landing';
 
 type Channel = RepoNamespace | 'all';
 

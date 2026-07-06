@@ -14,7 +14,8 @@
       "resume": "Wznów",
       "notNow": "Nie teraz"
     },
-    "bridgeLink": "Pomost"
+    "bridgeLink": "Pomost",
+    "softLandingLink": "Lądowanie"
   },
   "coPilot": {
     "title": "Co-pilot",
@@ -286,6 +287,39 @@
       "l3": "Tamta rzecz może już zostać zamknięta.",
       "l4": "Zaczynanie od nowa to osobna, mała umiejętność.",
       "l5": "Jakkolwiek poszło, ten czas się liczył."
+    }
+  },
+  "softLanding": {
+    "title": "Miękkie lądowanie",
+    "description": "Znak, który ustawiasz dla siebie chwilę przed zaplanowaną zmianą — pas do lądowania zamiast twardego stopu.",
+    "form": {
+      "activityHeading": "Przechodzę do…",
+      "activityPlaceholder": "kolacja, siłownia, odebranie Igi",
+      "whenHeading": "Mniej więcej kiedy?",
+      "runwayHeading": "Ile pasa przed lądowaniem?",
+      "runwaySub": "To tylko podpowiedzi — jak Ci pasuje.",
+      "runwayChip": "{{minutes}} min",
+      "transitionTouch": "Dodatkowo cichy znak w samym momencie",
+      "save": "Ustaw lądowanie",
+      "unavailable": "Powiadomienia są teraz niedostępne, więc lądowanie nie da znaku. Wszystko, co tu wpisano, zostaje."
+    },
+    "dayToday": "Dziś",
+    "dayTomorrow": "Jutro",
+    "slotMorning": "Rano · 9:00",
+    "slotMidday": "Południe · 12:00",
+    "slotEvening": "Wieczór · 18:00",
+    "slotNight": "Noc · 21:00",
+    "notify": {
+      "headsUp_one": "Za {{count}} minutę — zaplanowana zmiana.",
+      "headsUp_few": "Za {{count}} minuty — zaplanowana zmiana.",
+      "headsUp_many": "Za {{count}} minut — zaplanowana zmiana.",
+      "headsUp_other": "Za {{count}} minut — zaplanowana zmiana.",
+      "transition": "Mniej więcej teraz — Twój wybrany moment."
+    },
+    "list": {
+      "heading": "Nadchodzące",
+      "when": "Około {{time}} · {{minutes}} min pasa",
+      "remove": "Usuń"
     }
   }
 }

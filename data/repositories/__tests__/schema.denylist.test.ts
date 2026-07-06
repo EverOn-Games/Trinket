@@ -20,6 +20,7 @@ import { join } from 'node:path';
 import { sessionsRepo } from '../sessions';
 import { dumpItemsRepo } from '../dumpItems';
 import { intentionsRepo } from '../intentions';
+import { landingsRepo } from '../landings';
 import { activeSessionRepo } from '../activeSession';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 
@@ -67,6 +68,12 @@ describe('schema denylist guard', () => {
       cueText: 'denylist probe cue',
       actionText: 'denylist probe action',
     });
+    const landing = landingsRepo.create({
+      activityLabel: 'denylist probe landing',
+      leadMinutes: 10,
+      activityAt: Date.now() + 60 * 60 * 1000,
+      transitionTouch: false,
+    });
 
     // Belt-and-suspenders (03-PATTERNS.md): probe the active-session pointer's
     // runtime keys too, even though the source-scan check below already covers
@@ -90,6 +97,7 @@ describe('schema denylist guard', () => {
       ...schemaKeys(session),
       ...schemaKeys(dumpItem),
       ...schemaKeys(intention),
+      ...schemaKeys(landing),
       ...schemaKeys(settingsData),
       ...(activeSessionPointer ? schemaKeys(activeSessionPointer) : []),
     ]);

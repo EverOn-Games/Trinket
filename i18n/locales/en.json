@@ -14,7 +14,8 @@
       "resume": "Resume",
       "notNow": "Not now"
     },
-    "bridgeLink": "Bridge"
+    "bridgeLink": "Bridge",
+    "softLandingLink": "Soft landing"
   },
   "coPilot": {
     "title": "Co-pilot",
@@ -282,6 +283,37 @@
       "l3": "The last thing is allowed to be done now.",
       "l4": "Starting again is its own small skill.",
       "l5": "However it went, that time counted."
+    }
+  },
+  "softLanding": {
+    "title": "Soft landing",
+    "description": "A heads-up you set for yourself, a little before a planned switch — runway instead of a hard stop.",
+    "form": {
+      "activityHeading": "Moving to…",
+      "activityPlaceholder": "dinner, the gym, picking up Iga",
+      "whenHeading": "Around when?",
+      "runwayHeading": "How much runway?",
+      "runwaySub": "These are just suggestions — whatever feels right.",
+      "runwayChip": "{{minutes}} min",
+      "transitionTouch": "Also a quiet note at the moment itself",
+      "save": "Set the landing",
+      "unavailable": "Notifications aren't available right now, so a landing can't announce itself. Everything you typed is still here."
+    },
+    "dayToday": "Today",
+    "dayTomorrow": "Tomorrow",
+    "slotMorning": "Morning · 9:00",
+    "slotMidday": "Midday · 12:00",
+    "slotEvening": "Evening · 18:00",
+    "slotNight": "Night · 21:00",
+    "notify": {
+      "headsUp_one": "In {{count}} minute — the switch you planned.",
+      "headsUp_other": "In {{count}} minutes — the switch you planned.",
+      "transition": "About now — the moment you chose."
+    },
+    "list": {
+      "heading": "Coming up",
+      "when": "Around {{time}} · {{minutes}} min of runway",
+      "remove": "Remove"
     }
   }
 }
