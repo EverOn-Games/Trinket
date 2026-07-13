@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: ready_to_plan
 stopped_at: "Quick task 260705-qg3: RevenueCat + PostHog EU env-gated wiring landed in code (250 tests green); pending: real keys + store/dashboard config + device UAT, MONEY-04 (Supabase), Phase 9 hardening. Native modules added → prebuild --clean required."
-last_updated: "2026-07-05T19:30:00.000Z"
-last_activity: 2026-07-05
+last_updated: "2026-07-13T21:30:00.000Z"
+last_activity: 2026-07-13
 progress:
   total_phases: 9
   completed_phases: 7
@@ -199,6 +199,7 @@ None yet.
 | 260706-ljv | Surface containment (founder ask): found + fixed a real boot-crash class — expo-widgets requireNativeModule at module scope reached via static imports; now behind lazy/guarded/memoized widgetsRuntime + EXPO_PUBLIC_DISABLE_SURFACES kill switch + one fail-loud log line. Medium widget §6a dual target done declaratively (SwiftUI Links, out-of-process). Containment tests incl. genuinely-throwing module. 307 tests green. | 2026-07-06 | [surface-containment](./quick/260706-ljv-surface-containment-lazy-guarded-widget/) |
 | 260706-lte | Lottie commissioning spec (design/LOTTIE-SPEC.md): raccoon-only (founder decision, settles v0.2 §0 form question), core 5 + acknowledge mood-variant files + onboarding moment + static surface art; emotional register as hard spec; marker/seek-jolt contract written for animators; delivery validator script self-tested green on placeholders. | 2026-07-06 | [lottie-spec](./quick/260706-lte-lottie-animation-commissioning-spec/) |
 | 260706-0nsr | Native surfaces research (v0.2 §6-7): `.planning/research/NATIVE-SURFACES.md` — headline: official `expo-widgets` (57.0.2) now covers iOS widgets + Live Activities in Expo UI components (no Swift, no bare workflow), making the SDK 56→57 bump Step 0; react-native-android-widget (0.20.3, healthy) for Android; notifee + `specialUse` FGS type for the session notification (Android 14+ mandatory-type trap documented, shortService=3-min ANR); overlay = custom Kotlin, last, pre-agreed droppable. Draft wave plan included for /gsd-plan-phase. All versions verified live on npm. | 2026-07-06 | [research doc](./research/NATIVE-SURFACES.md) |
+| 260713-tpu | Funding-round Technical Innovation Summary (`docs/INNOVATION-SUMMARY.md`): investor-facing writeup of Trinket's IT solutions framed around one thesis (hard product/ethical/regulatory promises compiled into the architecture as fail-closed invariants) + 7 evidence-backed pillars (async body-double engine, constraint-as-code CI gates, privacy-by-construction, on-device AI/AI-boundary, session-survival correctness, cross-platform foundation, shame-free economics). Every claim cites a source file; honest shipped-vs-pending maturity table. Doc-only — no source touched, gates unaffected. | 2026-07-13 | [it-innovation-summary-for-funding-round](./quick/260713-tpu-it-innovation-summary-for-funding-round/) |
 
 ## Deferred Items
 
